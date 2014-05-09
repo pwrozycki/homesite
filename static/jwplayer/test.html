@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <div id="video1"></div>
+
+        <script type="text/javascript" src="/static/jwplayer/jwplayer.js"></script>
+
+        <script type="text/javascript">
+                jwplayer('video1').setup({      
+                  file:"rtmp://" + window.location.hostname + "/flvplayback/flv:myStream.flv",
+                  width: 960,
+                  height: 540
+                });
+        </script>
+    </body>
+</html>

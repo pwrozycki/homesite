@@ -1,0 +1,52 @@
+html, body {
+    height: 100%;
+    margin: 0 auto;
+}
+
+div#preview-image {
+    height: 100%;
+    text-align: center;
+    white-space: nowrap;
+}
+
+div#preview-image img {
+    max-height: 100%;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+div#preview-image span {
+    vertical-align: middle;
+    display: inline-block;
+    height: 100%;
+}
+
+div#preview {
+    height: 100%;
+    position: relative;
+}
+
+div#navigation > div {
+    background-color: #000000;
+    opacity: 0;
+    position: absolute;
+    z-index: 1;
+}
+
+div#navigation > div:hover {
+    opacity: 0.5;
+}
+
+#right, #left {
+    height: 100%;
+    width: 100px;
+}
+
+#right {
+    right: 0;
+}
+
+#top {
+    width: 100%;
+    height: 100px;
+}
