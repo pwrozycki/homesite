@@ -4,11 +4,14 @@ import subprocess
 import datetime
 import logging
 
-EXIF_DATE_TIME_ORIGINAL = 'DateTimeOriginal'
-EXIF_DATE_TIME = 'DateTime'
-EXIF_FILE_NUMBER = "FileNumber"
-EXIFTOOL_FIELD_ARGS = ['-dateFormat', "%Y:%m:%d %H:%M:%S"]
-EXIFTOOL_FIELD_ARGS += ["-" + x for x in [EXIF_DATE_TIME, EXIF_DATE_TIME_ORIGINAL, EXIF_FILE_NUMBER]]
+EXIF_DATE_FIELDS = [
+    'DateTimeOriginal',
+    'DateTime',
+    'FileModifyDate'
+]
+EXIF_FILE_NUMBER = 'FileNumber'
+EXIFTOOL_FIELD_ARGS = ['-dateFormat', "%Y:%m:%d %H:%M:%S"] + \
+                      ["-" + x for x in EXIF_DATE_FIELDS + [EXIF_FILE_NUMBER]]
 
 EXIF_DATE_FORMAT = "%Y:%m:%d %H:%M:%S"
 FILE_DATE_FORMAT = "%Y%m%d_%H%M%S"
@@ -54,16 +57,15 @@ class ImageInfo:
 
     @staticmethod
     def read_date_info(exif_json):
-        for exifField in (EXIF_DATE_TIME_ORIGINAL, EXIF_DATE_TIME):
-            try:
-                date_info = exif_json.get(exifField, '')
-                if date_info == '':
-                    return None
-                date = datetime.datetime.strptime(date_info, EXIF_DATE_FORMAT)
-                return date
-            except ValueError:
-                logging.error('unable to parse date field: {} - {}' + exif_json['SourceFile'])
-                continue
+        for exifField in EXIF_DATE_FIELDS:
+            date_info = exif_json.get(exifField, '')
+            if date_info != '':
+                try:
+                    date = datetime.datetime.strptime(date_info, EXIF_DATE_FORMAT)
+                    return date
+                except ValueError:
+                    logging.error('unable to parse date: {0}: {1}: '.format(exif_json['SourceFile'], date_info))
+                    continue
 
         return None
 

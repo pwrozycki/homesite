@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+
 import atexit
 import os
 import re
@@ -10,12 +11,13 @@ import sys
 
 from pidfile import create_pidfile
 
+
 COMMON_ROOT = '/mnt/dysk/'
 COLLECTION_ROOT = os.path.join(COMMON_ROOT, '01_ZDJĘCIA/')
 
 CONFIGURATION = (
-    (os.path.join(COMMON_ROOT, 'homesite/static/images/x1280/'), 'x1280', '-resize'),
     (os.path.join(COMMON_ROOT, 'homesite/static/images/x200/'), 'x200', '-thumbnail'),
+    (os.path.join(COMMON_ROOT, 'homesite/static/images/x1280/'), 'x1280', '-resize'),
 )
 
 META_ROOT = os.path.join(COLLECTION_ROOT, '.meta')
@@ -78,7 +80,7 @@ class Thumbnailer:
         for (thumbs_root, geometry, mode) in CONFIGURATION:
             # for each file in collection create thubnails or resized files
             for (root, dirs, files) in os.walk(COLLECTION_ROOT):
-                dirs = [x for x in dirs if not x.startswith('.')]
+                dirs[:] = [x for x in dirs if not x.startswith('.')]
                 dirs.sort(key=lambda x: x.lower())
 
                 # create destination directory if missing
@@ -103,13 +105,15 @@ class Thumbnailer:
         src_dir = cls.src_path(dst_dir, thumbs_root)
         if not os.path.exists(src_dir):
             logging.info("removing directory: {}".format(dst_dir))
-            os.rmdir(dst_dir)
+            try:
+                os.rmdir(dst_dir)
+            except OSError as e:
+                logging.error("couldn't remove directory (not empty): " + dst_dir)
 
     @classmethod
     def remove_obsolete(cls):
         for (thumbs_root, geometry, mode) in CONFIGURATION:
-            for (root, dirs, files) in os.walk(thumbs_root):
-                dirs[:] = [x for x in dirs if not x.startswith('.')]
+            for (root, dirs, files) in os.walk(thumbs_root, topdown=False):
                 dirs.sort()
 
                 # remove files if no corresponding file was found

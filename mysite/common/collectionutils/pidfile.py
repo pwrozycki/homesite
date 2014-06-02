@@ -6,5 +6,5 @@ def create_pidfile(location):
     if os.path.isfile(location):
         return False
     else:
-        file(location, 'w').write(pid)
+        open(location, 'w').write(pid)
     return True
