@@ -49,8 +49,15 @@ def list_dir(request, dir_path):
                     } for path in subdirs],
         'directories': dirs
     }
+    
+    json_result = json.dumps(directory_contents)
 
-    return HttpResponse(json.dumps(directory_contents), mimetype="application/json")
+    callback = request.GET.get('callback', None)
+    if callback:
+        jsonp_result = '{0}({1})'.format(callback, json_result)
+        return HttpResponse(jsonp_result, mimetype="text/javascript")
+
+    return HttpResponse(json_result, mimetype="application/json")
 
 
 def browse(request, dir_path):
