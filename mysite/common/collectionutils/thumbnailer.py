@@ -41,6 +41,9 @@ class Thumbnailer:
 
     @staticmethod
     def change_path_root(path, prev_root, new_root):
+        path = os.path.normpath(path)
+        prev_root = os.path.normpath(prev_root)
+        new_root = os.path.normpath(new_root)
         if not path.startswith(prev_root):
             logging.critical("terminating: path should be rooted in: {}".format(prev_root))
             sys.exit(-1)
