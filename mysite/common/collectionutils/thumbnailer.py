@@ -10,14 +10,11 @@ import subprocess
 import sys
 
 from pidfile import create_pidfile
-
-
-COMMON_ROOT = '/mnt/dysk/'
-COLLECTION_ROOT = os.path.join(COMMON_ROOT, '01_ZDJĘCIA/')
+from gallery.locations import COLLECTION_ROOT, STATIC_ROOT
 
 CONFIGURATION = (
-    (os.path.join(COMMON_ROOT, 'homesite/static/images/x200/'), 'x200', '-thumbnail'),
-    (os.path.join(COMMON_ROOT, 'homesite/static/images/x1280/'), 'x1280', '-resize'),
+    (os.path.join(STATIC_ROOT, 'images/x200/'), 'x200', '-thumbnail'),
+    (os.path.join(STATIC_ROOT, 'images/x1280/'), 'x1280', '-resize'),
 )
 
 META_ROOT = os.path.join(COLLECTION_ROOT, '.meta')

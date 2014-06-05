@@ -1,11 +1,14 @@
-#!usr/bin/env python
 # -*- coding: UTF-8 -*-
+
+from __future__ import unicode_literals
 
 import os
 
-COLLECTION_ROOT = u'/mnt/dysk/01_ZDJĘCIA/'
-THUMBNAILS_WEBROOT = u'/static/images/x200/'
-COMPRESSED_WEBROOT = u'/static/images/x1280/'
+COLLECTION_ROOT = '/home/przemas/Desktop/images'
+STATIC_ROOT = '/home/przemas/Desktop/homesite/static'
+
+THUMBNAILS_WEBROOT = '/static/images/x200/'
+COMPRESSED_WEBROOT = '/static/images/x1280/'
 
 
 def collection_path(path):

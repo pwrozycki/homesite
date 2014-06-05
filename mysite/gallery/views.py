@@ -9,7 +9,7 @@ import fnmatch
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
-import locations
+from gallery import locations
 
 
 JPG_RE = re.compile(fnmatch.translate("*.JPG"), re.IGNORECASE)

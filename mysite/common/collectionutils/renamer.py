@@ -11,12 +11,12 @@ import atexit
 from renameutils import move_without_overwriting
 from exiftool import ImageInfo, JsonUtil
 from pidfile import create_pidfile
+from gallery.locations import COLLECTION_ROOT
 
 
 IMG_RE = re.compile(r'^(?i).*\.(cr2|nef|jpg|xmp)$')
 CORRECT_FILENAME_RE = re.compile(r'^\d{8}_\d{6}(_\d+)?\.\w{3}$')
 
-COLLECTION_ROOT = '/mnt/dysk/01_ZDJĘCIA'
 META_ROOT = os.path.join(COLLECTION_ROOT, '.meta')
 PID_FILE = os.path.join(META_ROOT, "renamer.pid")
 LOG_FILE = os.path.join(META_ROOT, "renamer.log")
