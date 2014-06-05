@@ -1,4 +1,13 @@
 homesite.sock
-Pydev/
-.idea
+.idea/
+
 *.swp
+*.pyc
+
+static/css/
+static/js/
+static/images/x200/
+static/images/x200/
+
+.hg/
+mysite/sqlite.db
