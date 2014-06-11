@@ -1,31 +1,3 @@
-<div id="directorybar">
-    {{#each directories}}
-        {{#link-to 'gallery.browse' path}}{{ name }}{{/link-to}}
-        <!--<a href="#" class="directory-link" {{bind-attr data-path=path}}>{{ name }}</a>-->
-        &gt;
-    {{/each}}
-</div>
+{{view 'gallery/browse-view'}}
 
-
-<div id="dirlisting">
-    <ul>
-        {{#each subdirs}}
-            <li>
-                {{#link-to 'gallery.browse' path}}{{name}}{{/link-to}}
-                <!--<a class="directory-link" href="#" {{bind-attr data-path=path}}>{{ name }}</a>-->
-            </li>
-        {{/each}}
-    </ul>
-</div>
-
-<div id="images">
-    {{#each images}}
-        <div class="thumbnail-container">
-            <div class="thumbnail-image" {{bind-attr data-index=_view.contentIndex}}>
-                <img src="/static/images/blank.jpg" {{bind-attr data-src=thumbnail}}/>
-            </div>
-
-            <div class="thumbnail-desc">{{ description }}</div>
-        </div>
-    {{/each}}
-</div>
+{{outlet}}

@@ -2,7 +2,9 @@ var Router = Ember.Router.extend(); // ensure we don't share routes between all 
 
 Router.map(function () {
     this.resource('gallery', function () {
-        this.route('browse', { path: '/browse/*directory'});
+        this.resource('gallery.browse', { path: '/browse/:directory'}, function() {
+            this.route('preview', { path: '/:image'});
+        });
     });
 });
 

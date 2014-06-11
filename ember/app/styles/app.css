@@ -33,35 +33,56 @@ div#directorybar {
 
 
 
-div.thumbnail-container {
-    margin: 5px;
-    padding: 5px;
-    float: left;
-    width: 270px;
-    height: 220px;
-    text-align: center;
+html, body {
+    height: 100%;
+    margin: 0 auto;
 }
 
-div.thumbnail-container img {
-    margin-left: auto;
-    margin-right: auto;
+div#preview-image {
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+}
+
+div#preview-image img {
     max-height: 100%;
     max-width: 100%;
+    vertical-align: middle;
 }
 
-div.thumbnail-desc {
-    font-size: small;
-    font-weight: lighter;
-    text-align: center;
+div#preview-image span {
+    vertical-align: middle;
+    display: inline-block;
+    height: 100%;
 }
 
-div.thumbnail-image {
-    height: 93%;
+div#preview {
+    height: 100%;
+    position: relative;
 }
 
-div#directorybar {
-    position: fixed;
-    background-color: #cccccc;
-    top: 0;
-    left: 0;
+div#navigation > div {
+    background-color: #000000;
+    opacity: 0;
+    position: absolute;
+    z-index: 1;
+}
+
+div#navigation > div:hover {
+    opacity: 0.5;
+}
+
+#right, #left {
+    height: 100%;
+    width: 100px;
+}
+
+#right {
+    right: 0;
+}
+
+#top {
+    width: 100%;
+    height: 100px;
 }

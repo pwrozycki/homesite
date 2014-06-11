@@ -1,0 +1,30 @@
+<div id="directorybar">
+    {{ directory-bar directories=directories }}
+</div>
+
+<div id="dirlisting">
+    <ul>
+        {{#each subdirs}}
+            <li>
+                {{#link-to 'gallery.browse' path}}{{name}}{{/link-to}}
+            </li>
+        {{/each}}
+    </ul>
+</div>
+
+<div id="images">
+    {{#each image in images}}
+
+        <div class="thumbnail-container">
+            {{#link-to 'gallery.browse.preview' image}}
+                <div class="thumbnail-image" {{bind-attr data-index=_view.contentIndex}}>
+                    <img {{bind-attr src=image.thumbnail}}/>
+                </div>
+            {{/link-to}}
+
+
+            <div class="thumbnail-desc">{{ image.description }}</div>
+        </div>
+
+    {{/each}}
+</div>
