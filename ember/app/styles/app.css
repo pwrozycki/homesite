@@ -38,7 +38,7 @@ html, body {
     margin: 0 auto;
 }
 
-body div.ember-view {
+body > div.ember-view {
     height: 100%;
 }
 
