@@ -21,7 +21,7 @@
         <div class="thumbnail-container">
 
             <div class="thumbnail-image" {{action "imageClicked" image}}{{bind-attr data-index=_view.contentIndex}}>
-                <img src="/static/images/blank.jpg" {{bind-attr data-src=image.thumbnail}}/>
+                <img class="lazy" {{bind-attr data-original=image.thumbnail}}/>
             </div>
 
             <div class="thumbnail-desc">{{ image.description }}</div>
