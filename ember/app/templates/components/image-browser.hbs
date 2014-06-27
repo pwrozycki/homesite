@@ -1,5 +1,8 @@
 <div id="directorybar">
-    {{ directory-bar directories=directories }}
+    {{#each directories}}
+        {{#link-to 'gallery.browse' path}}{{ name }}{{/link-to}}
+        &gt;
+    {{/each}}
 </div>
 
 <div id="dirlisting">
@@ -16,12 +19,10 @@
     {{#each image in images}}
 
         <div class="thumbnail-container">
-            {{#link-to 'gallery.browse.preview' image}}
-                <div class="thumbnail-image" {{bind-attr data-index=_view.contentIndex}}>
-                    <img {{bind-attr src=image.thumbnail}}/>
-                </div>
-            {{/link-to}}
 
+            <div class="thumbnail-image" {{action "imageClicked" image}}{{bind-attr data-index=_view.contentIndex}}>
+                <img src="/static/images/blank.jpg" {{bind-attr data-src=image.thumbnail}}/>
+            </div>
 
             <div class="thumbnail-desc">{{ image.description }}</div>
         </div>

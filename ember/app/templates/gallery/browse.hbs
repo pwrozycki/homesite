@@ -1,3 +1,9 @@
-{{view 'gallery/browse-view'}}
+{{#unless isPreviewMode}}
 
-{{outlet}}
+    {{image-browser id="browser" directories=directories subdirs=subdirs images=images imageClicked='preview'}}
+
+{{else}}
+
+    {{image-preview id="preview" previewImage=previewImage up="browse" left="prevImage" right="nextImage"}}
+
+{{/unless}}

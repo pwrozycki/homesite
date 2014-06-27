@@ -38,6 +38,10 @@ html, body {
     margin: 0 auto;
 }
 
+body div.ember-view {
+    height: 100%;
+}
+
 div#preview-image {
     height: 100%;
     width: 100%;
