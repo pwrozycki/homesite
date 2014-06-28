@@ -12,7 +12,7 @@ div.thumbnail-container {
     align-items: center;
 
     justify-content: flex-end;
-    margin: 0px auto;
+    margin: 0 auto;
 }
 
 div.thumbnail-container img {
@@ -27,6 +27,7 @@ div#directorybar {
 }
 
 
+/* Główne kontenery - height 100% pozwala podglądowi dopasowywać się do okna */
 html, body {
     height: 100%;
     margin: 0 auto;
@@ -60,27 +61,43 @@ div#preview {
     position: relative;
 }
 
-div#navigation > div {
-    background-color: #000000;
-    opacity: 0;
+div#navigation {
     position: absolute;
-    z-index: 1;
+    top: 10px;
+    width: 10%;
+    padding: 0 45%;
+
+    display: flex;
+    justify-content: space-around;
+
+    opacity: 0;
+    z-index: 10;
 }
 
-div#navigation > div:hover {
-    opacity: 0.5;
+div#navigation:hover {
+    opacity: 1;
 }
 
-#right, #left {
-    height: 100%;
-    width: 100px;
+div#navigation button {
+    background-size: 100%;
+    background-color: transparent;
+    width: 30px;
+    height: 30px;
+    border: 0 none;     /*wyłączenie obramowania*/
 }
 
-#right {
-    right: 0;
+/* obejście problemu obramowania przycisków */
+:focus {outline:none;}
+::-moz-focus-inner {border:0;}
+
+div#navigation button#right {
+    background-image: url('/static/images/right_arrow.png');
 }
 
-#top {
-    width: 100%;
-    height: 100px;
+div#navigation button#left {
+    background-image: url('/static/images/left_arrow.png');
+}
+
+div#navigation button#up {
+    background-image: url('/static/images/up_arrow.png');
 }

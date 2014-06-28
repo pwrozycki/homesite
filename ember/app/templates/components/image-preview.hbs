@@ -1,8 +1,8 @@
 <div id="navigation">
-    <div {{action 'left'}} id="left" class="prevImage"></div>
-    <div {{action 'right'}} id="right" class="nextImage"></div>
-    <div {{action 'up'}} id="top" class="browseImage"></div>
+    <button {{action 'left'}} id="left" class="prevImage"/>
+    <button {{action 'right'}} id="right" class="nextImage"/>
+    <button {{action 'up'}} id="up" class="browseImage"/>
 </div>
 <div id="preview-image">
-    <img {{bind-attr src=previewImage.preview}}/><span></span>
+    <img {{bind-attr src=previewImage.preview}}>
 </div>
