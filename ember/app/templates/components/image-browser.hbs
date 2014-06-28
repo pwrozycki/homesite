@@ -20,11 +20,9 @@
 
         <div class="thumbnail-container">
 
-            <div class="thumbnail-image" {{action "imageClicked" image}}{{bind-attr data-index=_view.contentIndex}}>
-                <img class="lazy" {{bind-attr data-original=image.thumbnail}}/>
-            </div>
+            <img class="lazy" {{bind-attr data-original=image.thumbnail data-index=_view.contentIndex}}{{action "imageClicked" image}}/>
 
-            <div class="thumbnail-desc">{{ image.description }}</div>
+            <span>{{ image.description }}</span>
         </div>
 
     {{/each}}
