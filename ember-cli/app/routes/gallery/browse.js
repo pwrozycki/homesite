@@ -7,6 +7,6 @@ export default Ember.Route.extend({
             return;
         }
 
-        return  Ember.$.getJSON('http://raspi:8000/gallery/listdir/' + params.directory + '?callback=?');
+        return  Ember.$.getJSON('/gallery/listdir/' + params.directory + '?callback=?');
     }
 });
