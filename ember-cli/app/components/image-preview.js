@@ -3,13 +3,13 @@ import Ember from 'ember';
 export default Ember.Component.extend({
     actions: {
         up: function () {
-            this.sendAction('up');
+            this.sendAction('upPressed');
         },
         left: function () {
-            this.sendAction('left');
+            this.sendAction('leftPressed');
         },
         right: function () {
-            this.sendAction('right');
+            this.sendAction('rightPressed');
         }
     }
 });

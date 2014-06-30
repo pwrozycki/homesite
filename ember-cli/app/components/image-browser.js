@@ -1,13 +1,16 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-    didInsertElement: function () {
+    lazyLoadImages: function() {
         Ember.$("img.lazy").lazyload({ threshold: 200 });
-    },
-
+    }.on('didInsertElement'),
+        
     imagesChanged: function() {
-        this.rerender();
-    }.observes('images'),
+        var $this = this;
+        Ember.run.scheduleOnce('afterRender', function() {
+            $this.lazyLoadImages();
+        });
+    }.observes('model.images'),
 
     actions: {
         imageClicked: function (image) {

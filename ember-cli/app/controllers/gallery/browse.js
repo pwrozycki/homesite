@@ -1,11 +1,17 @@
 import Ember from 'ember';
 
 export default Ember.ObjectController.extend({
-    init: function () {
-        this.set('isPreviewMode', false);
-    },
+    previewImage:null,
 
-    _currentImageIndex: function () {
+    isPreviewMode: function() {
+        return this.get('previewImage') != null;
+    }.property('previewImage'),
+
+    isBrowserVisible: function() {
+        return ! this.get('isPreviewMode');
+    }.property('isPreviewMode'),
+
+    currentImageIndex: function () {
         var images = this.get('model.images');
         var previewImage = this.get('previewImage');
         for (var i = 0; i < images.length; i++) {
@@ -15,9 +21,9 @@ export default Ember.ObjectController.extend({
         }
     },
 
-    _switchToImage: function (offset) {
+    switchToImage: function (offset) {
         var images = this.get('model.images');
-        var newImageIndex = this._currentImageIndex() + offset;
+        var newImageIndex = this.currentImageIndex() + offset;
         if (newImageIndex < images.length && newImageIndex >= 0) {
             this.set('previewImage', images[newImageIndex]);
         }
@@ -26,17 +32,15 @@ export default Ember.ObjectController.extend({
     actions: {
         preview: function (image) {
             this.set('previewImage', image);
-            this.set('isPreviewMode', true);
         },
         browse: function () {
-            this.set('isPreviewMode', false);
-
+            this.set('previewImage', null);
         },
         nextImage: function () {
-            this._switchToImage(1);
+            this.switchToImage(1);
         },
         prevImage: function () {
-            this._switchToImage(-1);
+            this.switchToImage(-1);
         }
     }
 });

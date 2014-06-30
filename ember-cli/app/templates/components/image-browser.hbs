@@ -1,5 +1,5 @@
 <div id="directorybar">
-    {{#each directories}}
+    {{#each model.directories}}
         {{#link-to 'gallery.browse' path}}{{ name }}{{/link-to}}
         &gt;
     {{/each}}
@@ -7,7 +7,7 @@
 
 <div id="dirlisting">
     <ul>
-        {{#each subdirs}}
+        {{#each model.subdirs}}
             <li>
                 {{#link-to 'gallery.browse' path}}{{name}}{{/link-to}}
             </li>
@@ -16,7 +16,7 @@
 </div>
 
 <div id="images">
-    {{#each image in images}}
+    {{#each image in model.images}}
 
         <div class="thumbnail-container">
 
