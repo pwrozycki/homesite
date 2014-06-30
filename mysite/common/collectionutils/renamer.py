@@ -11,13 +11,13 @@ import atexit
 from renameutils import move_without_overwriting
 from exiftool import ImageInfo, JsonUtil
 from pidfile import create_pidfile
-from gallery.locations import COLLECTION_ROOT
+from gallery.locations import COLLECTION_PHYS_ROOT
 
 
 IMG_RE = re.compile(r'^(?i).*\.(cr2|nef|jpg|xmp)$')
 CORRECT_FILENAME_RE = re.compile(r'^\d{8}_\d{6}(_\d+)?\.\w{3}$')
 
-META_ROOT = os.path.join(COLLECTION_ROOT, '.meta')
+META_ROOT = os.path.join(COLLECTION_PHYS_ROOT, '.meta')
 PID_FILE = os.path.join(META_ROOT, "renamer.pid")
 LOG_FILE = os.path.join(META_ROOT, "renamer.log")
 
@@ -75,7 +75,7 @@ class Renamer:
         logging.error("too many copies, skipping rolling suffixes: {}".format(','.join(paths)))
 
     def walk(self):
-        for (root, dirs, files) in os.walk(COLLECTION_ROOT):
+        for (root, dirs, files) in os.walk(COLLECTION_PHYS_ROOT):
             dirs[:] = [x for x in dirs if not x.startswith('.')]
             dirs.sort()
             images = []

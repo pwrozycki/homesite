@@ -10,14 +10,14 @@ import subprocess
 import sys
 
 from pidfile import create_pidfile
-from gallery.locations import COLLECTION_ROOT, STATIC_ROOT
+from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT
 
 CONFIGURATION = (
-    (os.path.join(STATIC_ROOT, 'images/x200/'), 'x200', '-thumbnail'),
-    (os.path.join(STATIC_ROOT, 'images/x1280/'), 'x1280', '-resize'),
+    (THUMBNAILS_PHYS_ROOT, 'x200', '-thumbnail'),
+    (PREVIEW_PHYS_ROOT, 'x1280', '-resize'),
 )
 
-META_ROOT = os.path.join(COLLECTION_ROOT, '.meta')
+META_ROOT = os.path.join(COLLECTION_PHYS_ROOT, '.meta')
 PID_FILE = os.path.join(META_ROOT, "thumbnailer.pid")
 LOG_FILE = os.path.join(META_ROOT, "thumbnailer.log")
 
@@ -51,11 +51,11 @@ class Thumbnailer:
 
     @classmethod
     def dst_path(cls, path, thumbs_root):
-        return cls.change_path_root(path, COLLECTION_ROOT, thumbs_root)
+        return cls.change_path_root(path, COLLECTION_PHYS_ROOT, thumbs_root)
 
     @classmethod
     def src_path(cls, path, thumbs_root):
-        return cls.change_path_root(path, thumbs_root, COLLECTION_ROOT)
+        return cls.change_path_root(path, thumbs_root, COLLECTION_PHYS_ROOT)
 
     @classmethod
     def create_missing_dst_dir(cls, directory, dst_root):
@@ -79,7 +79,7 @@ class Thumbnailer:
     def create_images(cls):
         for (thumbs_root, geometry, mode) in CONFIGURATION:
             # for each file in collection create thubnails or resized files
-            for (root, dirs, files) in os.walk(COLLECTION_ROOT):
+            for (root, dirs, files) in os.walk(COLLECTION_PHYS_ROOT):
                 dirs[:] = [x for x in dirs if not x.startswith('.')]
                 dirs.sort(key=lambda x: x.lower())
 

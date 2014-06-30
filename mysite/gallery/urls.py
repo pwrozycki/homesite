@@ -8,5 +8,6 @@ import gallery.views
 urlpatterns = patterns('',
                        url(r'^browse/(.*)$', gallery.views.browse),
                        url(r'^listdir/(.*)$', gallery.views.list_dir, name='listdir'),
+                       url(r'^deleteImage/(.*)$', gallery.views.delete_image),
 )
 

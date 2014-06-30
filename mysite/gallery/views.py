@@ -7,18 +7,21 @@ import re
 import fnmatch
 
 from django.http import Http404, HttpResponse
+from django.http.response import HttpResponseServerError, HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render
+from django.views.decorators.http import require_POST
 
 from gallery import locations
+from common.collectionutils.renameutils import move_without_overwriting
 
 
 JPG_RE = re.compile(fnmatch.translate("*.JPG"), re.IGNORECASE)
 
 
 def list_dir(request, dir_path):
-    collection_dir = locations.COLLECTION_ROOT
+    collection_dir = locations.COLLECTION_PHYS_ROOT
     if dir_path:
-        collection_dir = os.path.abspath(locations.collection_path(dir_path))
+        collection_dir = os.path.abspath(locations.collection_phys_path(dir_path))
 
     if not os.path.exists(collection_dir):
         raise Http404()
@@ -40,8 +43,8 @@ def list_dir(request, dir_path):
     dirs.reverse()
 
     directory_contents = {
-        'images': [{'preview': locations.image_path(image),
-                    'thumbnail': locations.thumbnail_path(image),
+        'images': [{'preview': locations.preview_web_path(image),
+                    'thumbnail': locations.thumbnail_web_path(image),
                     'description': os.path.basename(image),
                    } for image in images],
         'subdirs': [{'path': path,
@@ -61,11 +64,42 @@ def list_dir(request, dir_path):
 
 
 def browse(request, dir_path):
-    collection_dir = locations.COLLECTION_ROOT
+    collection_dir = locations.COLLECTION_PHYS_ROOT
     if dir_path:
-        collection_dir = os.path.abspath(locations.collection_path(dir_path))
+        collection_dir = os.path.abspath(locations.collection_phys_path(dir_path))
 
     if not os.path.exists(collection_dir):
         raise Http404()
 
     return render(request, "browse.html", {'directory': dir_path})
+
+@require_POST
+def delete_image(request, path):
+    image_file = os.path.abspath(locations.collection_phys_path(path))
+
+    import common.debugtool;common.debugtool.settrace()
+
+    if not os.path.isfile(image_file):
+        return HttpResponseBadRequest()
+
+    path_in_thrash = os.path.join(locations.THRASH, path)
+
+    try:
+        original_path = locations.collection_phys_path(path)
+        thrash_original_path = locations.collection_phys_path(path_in_thrash)
+        move_without_overwriting(original_path, thrash_original_path, create_destination_dir=True)
+
+        preview_path = locations.preview_phys_path(path)
+        thrash_preview_path = locations.preview_phys_path(path_in_thrash)
+        move_without_overwriting(preview_path, thrash_preview_path, create_destination_dir=True)
+
+        thumbnail_path = locations.thumbnail_phys_path(path)
+        thrash_thumbnail_path = locations.thumbnail_phys_path(path_in_thrash)
+        move_without_overwriting(thumbnail_path, thrash_thumbnail_path, create_destination_dir=True)
+
+        return HttpResponse()
+
+    except Exception as a:
+        return HttpResponseServerError()
+
+
