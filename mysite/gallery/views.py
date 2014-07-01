@@ -14,14 +14,14 @@ from django.views.decorators.http import require_POST
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting
 
-
-JPG_RE = re.compile(fnmatch.translate("*.JPG"), re.IGNORECASE)
+TRASH_DIRECTORY_REGEXP = r'^/?{}/'.format(locations.TRASH_DIRECTORY)
+JPG_REGEXP = re.compile(fnmatch.translate("*.JPG"), re.IGNORECASE)
 
 
 def list_dir(request, web_path):
     collection_dir = locations.COLLECTION_PHYS_ROOT
     if web_path:
-        collection_dir = os.path.abspath(locations.collection_phys_path(web_path))
+        collection_dir = locations.collection_phys_path(web_path)
 
     if not os.path.exists(collection_dir):
         raise Http404()
@@ -30,7 +30,7 @@ def list_dir(request, web_path):
 
     subdirs = [os.path.join(web_path, x) for x in dir_listing if
                not x.startswith('.') and os.path.isdir(os.path.join(collection_dir, x))]
-    images = [os.path.join(web_path, x) for x in dir_listing if JPG_RE.match(os.path.basename(x))]
+    images = [os.path.join(web_path, x) for x in dir_listing if JPG_REGEXP.match(os.path.basename(x))]
 
     path = os.path.normpath(web_path)
     dirs = []
@@ -43,7 +43,8 @@ def list_dir(request, web_path):
     dirs.reverse()
 
     directory_contents = {
-        'images': [{'preview': locations.preview_web_path(image),
+        'images': [{'path': image,
+                    'preview': locations.preview_web_path(image),
                     'thumbnail': locations.thumbnail_web_path(image),
                     'description': os.path.basename(image),
                    } for image in images],
@@ -52,7 +53,7 @@ def list_dir(request, web_path):
                     } for path in subdirs],
         'directories': dirs
     }
-    
+
     json_result = json.dumps(directory_contents)
 
     callback = request.GET.get('callback', None)
@@ -66,12 +67,13 @@ def list_dir(request, web_path):
 def browse(request, dir_path):
     collection_dir = locations.COLLECTION_PHYS_ROOT
     if dir_path:
-        collection_dir = os.path.abspath(locations.collection_phys_path(dir_path))
+        collection_dir = locations.collection_phys_path(dir_path)
 
     if not os.path.exists(collection_dir):
         raise Http404()
 
     return render(request, "browse.html", {'directory': dir_path})
+
 
 def _move_files(path1, path2):
     original_src_path = locations.collection_phys_path(path1)
@@ -87,8 +89,8 @@ def _move_files(path1, path2):
     move_without_overwriting(thumbnail_src_path, thumbnail_dst_path, create_destination_dir=True)
 
 
-def _move_image_groups(dst_web_path, src_web_path):
-    src_phys_path = os.path.abspath(locations.collection_phys_path(src_web_path))
+def _move_image_groups(src_web_path, dst_web_path):
+    src_phys_path = locations.collection_phys_path(src_web_path)
     if not os.path.isfile(src_phys_path):
         return HttpResponseBadRequest()
     try:
@@ -102,15 +104,21 @@ def _move_image_groups(dst_web_path, src_web_path):
 
 @require_POST
 def delete_image(request, path):
-    dst_web_path = os.path.join(locations.THRASH_DIRECTORY, path)
-    src_web_path = path
+    src_web_path = os.path.normpath(path)
+    dst_web_path = os.path.join(locations.TRASH_DIRECTORY, path)
 
-    import common.debugtool;common.debugtool.settrace()
+    if re.search(TRASH_DIRECTORY_REGEXP, path):
+        return HttpResponseBadRequest()
 
-    return _move_image_groups(dst_web_path, src_web_path)
+    return _move_image_groups(src_web_path, dst_web_path)
+
 
 @require_POST
 def revert_image(request, path):
-    norm_path = os.path.normpath(path)
-    # TODO: dokończyć
+    src_web_path = os.path.normpath(path)
+    dst_web_path = re.sub(TRASH_DIRECTORY_REGEXP, '', src_web_path)
 
+    if not re.search(TRASH_DIRECTORY_REGEXP, path):
+        return HttpResponseBadRequest()
+
+    return _move_image_groups(src_web_path, dst_web_path)

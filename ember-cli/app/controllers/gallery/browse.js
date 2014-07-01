@@ -1,14 +1,14 @@
 import Ember from 'ember';
 
 export default Ember.ObjectController.extend({
-    previewImage:null,
+    previewImage: null,
 
-    isPreviewMode: function() {
+    isPreviewMode: function () {
         return this.get('previewImage') != null;
     }.property('previewImage'),
 
-    isBrowserVisible: function() {
-        return ! this.get('isPreviewMode');
+    isBrowserVisible: function () {
+        return !this.get('isPreviewMode');
     }.property('isPreviewMode'),
 
     currentImageIndex: function () {
@@ -29,6 +29,18 @@ export default Ember.ObjectController.extend({
         }
     },
 
+    removeCurrentImage: function() {
+        this.get('model.images').replace(this.currentImageIndex(), 1);
+        this.set('previewImage', null);
+    },
+
+    postAction: function(action) {
+        var self = this;
+        Ember.$.post(action + this.get('previewImage.path'), function () {
+            self.removeCurrentImage();
+        });
+    },
+
     actions: {
         preview: function (image) {
             this.set('previewImage', image);
@@ -41,6 +53,12 @@ export default Ember.ObjectController.extend({
         },
         prevImage: function () {
             this.switchToImage(-1);
+        },
+        removeImage: function () {
+            this.postAction('/gallery/deleteImage/');
+        },
+        revertImage: function () {
+            this.postAction('/gallery/revertImage/');
         }
     }
 });

@@ -81,6 +81,7 @@ div#navigation:hover {
 div#navigation button {
     background-size: 100%;
     background-color: transparent;
+    background-repeat: no-repeat;
     width: 30px;
     height: 30px;
     border: 0 none;     /*wyłączenie obramowania*/
@@ -100,4 +101,12 @@ div#navigation button#left {
 
 div#navigation button#up {
     background-image: url('/assets/images/up_arrow.png');
+}
+
+div#navigation button#remove {
+    background-image: url('/assets/images/user_trash.png');
+}
+
+div#navigation button#undo {
+    background-image: url('/assets/images/undo.png');
 }

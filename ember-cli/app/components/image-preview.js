@@ -10,6 +10,12 @@ export default Ember.Component.extend({
         },
         right: function () {
             this.sendAction('rightPressed');
+        },
+        remove: function() {
+            this.sendAction('removePressed');
+        },
+        undo: function() {
+            this.sendAction('undoPressed');
         }
     }
 });

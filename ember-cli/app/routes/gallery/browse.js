@@ -7,6 +7,10 @@ export default Ember.Route.extend({
             return;
         }
 
-        return  Ember.$.getJSON('/gallery/listdir/' + params.directory + '?callback=?');
+        return Ember.$.getJSON('/gallery/listdir/' + params.directory + '?callback=?',
+            function (json) {
+                json.images = Ember.A(json.images);
+            }
+        );
     }
 });
