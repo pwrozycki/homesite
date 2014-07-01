@@ -18,21 +18,21 @@ from common.collectionutils.renameutils import move_without_overwriting
 JPG_RE = re.compile(fnmatch.translate("*.JPG"), re.IGNORECASE)
 
 
-def list_dir(request, dir_path):
+def list_dir(request, web_path):
     collection_dir = locations.COLLECTION_PHYS_ROOT
-    if dir_path:
-        collection_dir = os.path.abspath(locations.collection_phys_path(dir_path))
+    if web_path:
+        collection_dir = os.path.abspath(locations.collection_phys_path(web_path))
 
     if not os.path.exists(collection_dir):
         raise Http404()
 
     dir_listing = [x for x in sorted(os.listdir(collection_dir))]
 
-    subdirs = [os.path.join(dir_path, x) for x in dir_listing if
+    subdirs = [os.path.join(web_path, x) for x in dir_listing if
                not x.startswith('.') and os.path.isdir(os.path.join(collection_dir, x))]
-    images = [os.path.join(dir_path, x) for x in dir_listing if JPG_RE.match(os.path.basename(x))]
+    images = [os.path.join(web_path, x) for x in dir_listing if JPG_RE.match(os.path.basename(x))]
 
-    path = os.path.normpath(dir_path)
+    path = os.path.normpath(web_path)
     dirs = []
     while path not in ('/', '.', ''):
         (dir_name, base) = os.path.split(path)
@@ -73,33 +73,44 @@ def browse(request, dir_path):
 
     return render(request, "browse.html", {'directory': dir_path})
 
-@require_POST
-def delete_image(request, path):
-    image_file = os.path.abspath(locations.collection_phys_path(path))
+def _move_files(path1, path2):
+    original_src_path = locations.collection_phys_path(path1)
+    original_dst_path = locations.collection_phys_path(path2)
+    move_without_overwriting(original_src_path, original_dst_path, create_destination_dir=True)
 
-    import common.debugtool;common.debugtool.settrace()
+    preview_src_path = locations.preview_phys_path(path1)
+    preview_dst_path = locations.preview_phys_path(path2)
+    move_without_overwriting(preview_src_path, preview_dst_path, create_destination_dir=True)
 
-    if not os.path.isfile(image_file):
+    thumbnail_src_path = locations.thumbnail_phys_path(path1)
+    thumbnail_dst_path = locations.thumbnail_phys_path(path2)
+    move_without_overwriting(thumbnail_src_path, thumbnail_dst_path, create_destination_dir=True)
+
+
+def _move_image_groups(dst_web_path, src_web_path):
+    src_phys_path = os.path.abspath(locations.collection_phys_path(src_web_path))
+    if not os.path.isfile(src_phys_path):
         return HttpResponseBadRequest()
-
-    path_in_thrash = os.path.join(locations.THRASH, path)
-
     try:
-        original_path = locations.collection_phys_path(path)
-        thrash_original_path = locations.collection_phys_path(path_in_thrash)
-        move_without_overwriting(original_path, thrash_original_path, create_destination_dir=True)
-
-        preview_path = locations.preview_phys_path(path)
-        thrash_preview_path = locations.preview_phys_path(path_in_thrash)
-        move_without_overwriting(preview_path, thrash_preview_path, create_destination_dir=True)
-
-        thumbnail_path = locations.thumbnail_phys_path(path)
-        thrash_thumbnail_path = locations.thumbnail_phys_path(path_in_thrash)
-        move_without_overwriting(thumbnail_path, thrash_thumbnail_path, create_destination_dir=True)
+        _move_files(src_web_path, dst_web_path)
 
         return HttpResponse()
 
     except Exception as a:
         return HttpResponseServerError()
 
+
+@require_POST
+def delete_image(request, path):
+    dst_web_path = os.path.join(locations.THRASH_DIRECTORY, path)
+    src_web_path = path
+
+    import common.debugtool;common.debugtool.settrace()
+
+    return _move_image_groups(dst_web_path, src_web_path)
+
+@require_POST
+def revert_image(request, path):
+    norm_path = os.path.normpath(path)
+    # TODO: dokończyć
 

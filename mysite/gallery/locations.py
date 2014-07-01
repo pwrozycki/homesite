@@ -7,7 +7,7 @@ import os
 COLLECTION_PHYS_ROOT = '/home/przemas/Desktop/images'
 STATIC_PHYS_ROOT = '/home/przemas/Desktop/homesite'
 
-THRASH = 'Thrash'
+THRASH_DIRECTORY = 'Thrash'
 
 THUMBNAILS_WEB_ROOT = 'static/images/x200'
 PREVIEW_WEB_ROOT = 'static/images/x1280'
