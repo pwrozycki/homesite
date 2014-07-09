@@ -6,8 +6,7 @@ homesite.sock
 
 static/css/
 static/js/
-static/images/x200/
-static/images/x200/
+static/images/
 
 .hg/
 mysite/sqlite.db
