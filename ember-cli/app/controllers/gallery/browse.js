@@ -11,14 +11,18 @@ export default Ember.ObjectController.extend({
         return !this.get('isPreviewMode');
     }.property('isPreviewMode'),
 
-    currentImageIndex: function () {
+    imageIndex: function(image) {
         var images = this.get('model.images');
-        var previewImage = this.get('previewImage');
         for (var i = 0; i < images.length; i++) {
-            if (images[i].description === previewImage.description) {
+            if (images[i].description === image.description) {
                 return i;
             }
         }
+    },
+
+    currentImageIndex: function () {
+        var previewImage = this.get('previewImage');
+        return this.imageIndex(previewImage);
     },
 
     switchToImage: function (offset) {
@@ -29,15 +33,52 @@ export default Ember.ObjectController.extend({
         }
     },
 
-    removeCurrentImage: function() {
-        this.get('model.images').replace(this.currentImageIndex(), 1);
-        this.set('previewImage', null);
+    scrollToImage: function (index) {
+        var images = this.get('model.images');
+        if (images.length <= 0) {
+            return;
+        }
+
+        var imageIndex = index;
+        if (index >= images.length) {
+            imageIndex = images.length - 1;
+        }
+        if (index < 0) {
+            imageIndex = 0;
+        }
+
+        var image = Ember.$('img[data-name="' + images[imageIndex].description + '"]');
+        if (image.length) {
+            Ember.$(window).scrollTop(image.offset().top + image.height() / 2 - Ember.$(window).height() / 2);
+        }
     },
 
-    postAction: function(action) {
+    returnToBrowser: function(returnImageIndex) {
+        var previewImageIndex;
+        if (typeof returnImageIndex === 'undefined') {
+            previewImageIndex = this.currentImageIndex();
+        } else {
+            previewImageIndex = returnImageIndex;
+        }
+
+        this.set('previewImage', null);
+
         var self = this;
-        Ember.$.post(action + this.get('previewImage.path'), function () {
-            self.removeCurrentImage();
+        Ember.run.scheduleOnce('afterRender', function() {
+            self.scrollToImage(previewImageIndex);
+        });
+    },
+
+    removeImage: function (imageIndex) {
+        this.get('model.images').replace(imageIndex, 1);
+    },
+
+    postRemoveAction: function (action, image) {
+        var self = this;
+        Ember.$.post(action + image.path, function () {
+            var imageIndex = self.imageIndex(image);
+            self.removeImage(imageIndex);
+            self.returnToBrowser(imageIndex);
         });
     },
 
@@ -46,7 +87,7 @@ export default Ember.ObjectController.extend({
             this.set('previewImage', image);
         },
         browse: function () {
-            this.set('previewImage', null);
+            this.returnToBrowser();
         },
         nextImage: function () {
             this.switchToImage(1);
@@ -54,11 +95,11 @@ export default Ember.ObjectController.extend({
         prevImage: function () {
             this.switchToImage(-1);
         },
-        removeImage: function () {
-            this.postAction('/gallery/deleteImage/');
+        removeImage: function (image) {
+            this.postRemoveAction('/gallery/deleteImage/', image);
         },
-        revertImage: function () {
-            this.postAction('/gallery/revertImage/');
+        revertImage: function (image) {
+            this.postRemoveAction('/gallery/revertImage/', image);
         }
     }
 });

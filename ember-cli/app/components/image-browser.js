@@ -15,6 +15,12 @@ export default Ember.Component.extend({
     actions: {
         imageClicked: function (image) {
             this.sendAction('imageClicked', image);
+        },
+        remove: function(image) {
+            this.sendAction('removePressed', image);
+        },
+        undo: function(image) {
+            this.sendAction('undoPressed', image);
         }
     }
 });

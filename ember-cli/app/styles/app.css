@@ -1,3 +1,4 @@
+/* Browser obrazków */
 div#images {
     display: flex;
     flex-flow: row wrap;
@@ -13,6 +14,8 @@ div.thumbnail-container {
 
     justify-content: flex-end;
     margin: 0 auto;
+
+    position: relative;
 }
 
 div.thumbnail-container img {
@@ -37,6 +40,8 @@ body > div.ember-view {
     height: 100%;
 }
 
+
+/* Podgląd obrazka */
 div#preview-image {
     height: 100%;
     width: 100%;
@@ -61,11 +66,17 @@ div#preview {
     position: relative;
 }
 
-div#navigation {
+.thumbnail-container .image-overlay {
+    width: 30%;
+    padding: 0 35%;
+}
+
+.image-overlay {
     position: absolute;
-    top: 10px;
-    width: 10%;
-    padding: 0 45%;
+    top: 0;
+    left: 0;
+    width: 20%;
+    padding: 0 40%;
 
     display: flex;
     justify-content: space-around;
@@ -74,16 +85,17 @@ div#navigation {
     z-index: 10;
 }
 
-div#navigation:hover {
+.image-overlay:hover {
     opacity: 1;
 }
 
-div#navigation button {
+.image-overlay button {
     background-size: 100%;
     background-color: transparent;
     background-repeat: no-repeat;
     width: 30px;
     height: 30px;
+    margin: 10px;
     border: 0 none;     /*wyłączenie obramowania*/
 }
 
@@ -91,22 +103,22 @@ div#navigation button {
 :focus {outline:none;}
 ::-moz-focus-inner {border:0;}
 
-div#navigation button#right {
-    background-image: url('/assets/images/right_arrow.png');
+button.rightArrow {
+    background-image: url('images/right_arrow.png');
 }
 
-div#navigation button#left {
-    background-image: url('/assets/images/left_arrow.png');
+button.leftArrow {
+    background-image: url('images/left_arrow.png');
 }
 
-div#navigation button#up {
-    background-image: url('/assets/images/up_arrow.png');
+button.upArrow {
+    background-image: url('images/up_arrow.png');
 }
 
-div#navigation button#remove {
-    background-image: url('/assets/images/user_trash.png');
+button.thrash {
+    background-image: url('images/user_trash.png');
 }
 
-div#navigation button#undo {
-    background-image: url('/assets/images/undo.png');
+button.revert {
+    background-image: url('images/undo.png');
 }

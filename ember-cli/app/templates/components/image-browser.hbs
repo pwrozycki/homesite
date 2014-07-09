@@ -17,11 +17,13 @@
 
 <div id="images">
     {{#each image in model.images}}
-
         <div class="thumbnail-container">
+            <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.description}}{{action "imageClicked" image}}/>
 
-            <img class="lazy" {{bind-attr data-original=image.thumbnail data-index=_view.contentIndex}}{{action "imageClicked" image}}/>
-
+            <div class="image-overlay">
+                <button class="thrash" {{action "remove" image}}></button>
+                <button class="revert" {{action "undo" image}}></button>
+            </div>
             <span>{{ image.description }}</span>
         </div>
 

@@ -1,7 +1,10 @@
 {{image-browser id="browser"
                 model=model
                 imageClicked='preview'
-                isVisible=isBrowserVisible}}
+                removePressed="removeImage"
+                undoPressed="revertImage"
+                isVisible=isBrowserVisible
+}}
 
 {{image-preview id="preview"
                 previewImage=previewImage

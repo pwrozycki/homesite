@@ -21,13 +21,13 @@ def collection_phys_path(path):
     return normpath_join(COLLECTION_PHYS_ROOT, path)
 
 def thumbnail_web_path(path):
-    return normpath_join(THUMBNAILS_WEB_ROOT, path)
+    return normpath_join('/', THUMBNAILS_WEB_ROOT, path)
 
 def thumbnail_phys_path(path):
     return normpath_join(THUMBNAILS_PHYS_ROOT, path)
 
 def preview_web_path(path):
-    return normpath_join(PREVIEW_WEB_ROOT, path)
+    return normpath_join('/', PREVIEW_WEB_ROOT, path)
 
 def preview_phys_path(path):
     return normpath_join(PREVIEW_PHYS_ROOT, path)

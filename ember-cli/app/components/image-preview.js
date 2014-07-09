@@ -11,11 +11,11 @@ export default Ember.Component.extend({
         right: function () {
             this.sendAction('rightPressed');
         },
-        remove: function() {
-            this.sendAction('removePressed');
+        remove: function(image) {
+            this.sendAction('removePressed', image);
         },
-        undo: function() {
-            this.sendAction('undoPressed');
+        undo: function(image) {
+            this.sendAction('undoPressed', image);
         }
     }
 });
