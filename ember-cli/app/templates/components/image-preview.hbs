@@ -1,9 +1,9 @@
 <div class="image-overlay">
     <button {{action 'left'}} class="leftArrow"/>
-    <button {{action 'right'}} class="rightArrow"/>
     <button {{action 'up'}} class="upArrow"/>
-    <button {{action 'remove' previewImage}} class="thrash"/>
+    <button {{action 'right'}} class="rightArrow"/>
     <button {{action 'undo' previewImage}} class="revert"/>
+    <button {{action 'remove' previewImage}} class="thrash"/>
 </div>
 <div id="preview-image">
     <img {{bind-attr src=previewImage.preview}}>

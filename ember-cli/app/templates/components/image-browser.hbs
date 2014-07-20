@@ -21,8 +21,8 @@
             <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.description}}{{action "imageClicked" image}}/>
 
             <div class="image-overlay">
-                <button class="thrash" {{action "remove" image}}></button>
                 <button class="revert" {{action "undo" image}}></button>
+                <button class="thrash" {{action "remove" image}}></button>
             </div>
             <span>{{ image.description }}</span>
         </div>

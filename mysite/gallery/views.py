@@ -102,6 +102,14 @@ def _move_image_groups(src_web_path, dst_web_path):
         return HttpResponseServerError()
 
 
+def _remove_empty_directories(root):
+    for (root, directories, files) in os.walk(root, topdown=False):
+        for directory in directories:
+            joined_path = os.path.join(root, directory)
+            if not os.listdir(joined_path):
+                os.rmdir(joined_path)
+
+
 @require_POST
 def delete_image(request, path):
     src_web_path = os.path.normpath(path)
@@ -121,4 +129,9 @@ def revert_image(request, path):
     if not re.search(TRASH_DIRECTORY_REGEXP, path):
         return HttpResponseBadRequest()
 
-    return _move_image_groups(src_web_path, dst_web_path)
+    response = _move_image_groups(src_web_path, dst_web_path)
+
+    thrash_root_phys_path = locations.collection_phys_path(locations.TRASH_DIRECTORY)
+    _remove_empty_directories(thrash_root_phys_path)
+
+    return response
