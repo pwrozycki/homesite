@@ -6,7 +6,8 @@ import gallery.urls
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-                       url('^gallery/', include(gallery.urls)),
+                       url(r'^gallery/', include(gallery.urls)),
+                       url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
                        # Examples:
                        # url(r'^$', 'mysite.views.home', name='home'),
                        # url(r'^mysite/', include('mysite.foo.urls')),
