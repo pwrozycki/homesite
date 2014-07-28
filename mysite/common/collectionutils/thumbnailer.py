@@ -9,7 +9,7 @@ import logging
 import subprocess
 import sys
 
-from pidfile import create_pidfile
+from common.collectionutils.pidfile import create_pidfile
 from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT
 
 CONFIGURATION = (

@@ -8,9 +8,9 @@ import logging
 from collections import defaultdict
 import atexit
 
-from renameutils import move_without_overwriting
-from exiftool import ImageInfo, JsonUtil
-from pidfile import create_pidfile
+from common.collectionutils.renameutils import move_without_overwriting
+from common.collectionutils.exiftool import ImageInfo, JsonUtil
+from common.collectionutils.pidfile import create_pidfile
 from gallery.locations import COLLECTION_PHYS_ROOT
 
 
