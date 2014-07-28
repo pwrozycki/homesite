@@ -145,8 +145,16 @@ def revert_image(request, path):
 class DirectoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Directory.objects.all()
     serializer_class = DirectorySerializer
+    filter_fields = ('path', 'parent')
+
+    def get_queryset(self):
+        if 'root' in self.request.QUERY_PARAMS:
+            return DirectoryViewSet.queryset.filter(parent__isnull=True)
+        else:
+            return DirectoryViewSet.queryset
 
 
 class ImageViewSet(viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
+    filter_fields = ('name', 'directory')

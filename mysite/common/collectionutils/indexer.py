@@ -49,6 +49,19 @@ class Indexer():
                     image_object = Image(name=name, directory=root_directory_object)
                     image_object.save()
 
+    @staticmethod
+    def remove_obsolete():
+        for image in Image.objects.all():
+            image_web_path = os.path.join(image.directory.path, image.name)
+            image_phys_path = locations.collection_phys_path(image_web_path)
+            if not os.path.exists(image_phys_path):
+                image.delete()
+
+        for directory in Directory.objects.all():
+            directory_phys_path = locations.collection_phys_path(directory.path)
+            if not os.path.exists(directory_phys_path):
+                directory.delete()
 
 if __name__ == '__main__':
     Indexer.walk()
+    Indexer.remove_obsolete()
