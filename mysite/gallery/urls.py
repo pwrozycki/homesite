@@ -1,6 +1,8 @@
 from django.conf.urls import patterns, url, include
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
+
 import gallery.views
+
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -8,7 +10,7 @@ import gallery.views
 
 from gallery.views import DirectoryViewSet, ImageViewSet
 
-router = DefaultRouter(trailing_slash=False)
+router = SimpleRouter(trailing_slash=False)
 router.register(r'directories', DirectoryViewSet)
 router.register(r'images', ImageViewSet)
 

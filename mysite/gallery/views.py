@@ -6,13 +6,12 @@ import os
 import re
 import fnmatch
 
-from django.http import Http404, HttpResponse
-from django.http.response import HttpResponseServerError, HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import Http404
+from django.http.response import HttpResponseServerError, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
-
 from rest_framework import viewsets
-from rest_framework import filters
+from common import debugtool
 
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting
@@ -142,19 +141,32 @@ def revert_image(request, path):
     return response
 
 
-class DirectoryViewSet(viewsets.ReadOnlyModelViewSet):
+class FilterByIdsMixin(object):
+    IDS_PARAM = 'ids[]'
+
+    def get_queryset(self):
+        queryset = super(FilterByIdsMixin, self).get_queryset()
+        if FilterByIdsMixin.IDS_PARAM in self.request.QUERY_PARAMS:
+            ids_param_list = self.request.QUERY_PARAMS.getlist(FilterByIdsMixin.IDS_PARAM)
+            return queryset.filter(pk__in=ids_param_list)
+        else:
+            return queryset
+
+
+class DirectoryViewSet(FilterByIdsMixin, viewsets.ReadOnlyModelViewSet):
     queryset = Directory.objects.all()
     serializer_class = DirectorySerializer
     filter_fields = ('path', 'parent')
 
     def get_queryset(self):
+        queryset = super(DirectoryViewSet, self).get_queryset()
         if 'root' in self.request.QUERY_PARAMS:
-            return DirectoryViewSet.queryset.filter(parent__isnull=True)
+            return queryset.filter(parent__isnull=True)
         else:
-            return DirectoryViewSet.queryset
+            return queryset
 
 
-class ImageViewSet(viewsets.ModelViewSet):
+class ImageViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
     filter_fields = ('name', 'directory')

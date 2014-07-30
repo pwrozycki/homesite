@@ -9,6 +9,7 @@ Router.map(function () {
         this.route('index', {path: '/browse'});
         this.route('browse', {path: '/browse/*directory'});
     });
+    this.route('api');
 });
 
 export default Router;

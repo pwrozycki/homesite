@@ -3,14 +3,18 @@ from gallery.models import Image, Directory
 
 
 class DirectorySerializer(serializers.ModelSerializer):
+    parent = serializers.PrimaryKeyRelatedField()
     images = serializers.PrimaryKeyRelatedField(many=True)
     directories = serializers.PrimaryKeyRelatedField(many=True)
+
     class Meta:
         model = Directory
-        fields = ['path', 'thumbnail_path', 'preview_path', 'images', 'parent', 'directories']
+        fields = ['id', 'path', 'thumbnail_path', 'preview_path', 'parent', 'images', 'directories']
 
 
 class ImageSerializer(serializers.ModelSerializer):
+    directory = serializers.PrimaryKeyRelatedField()
+
     class Meta:
         model = Image
-        fields = ['name', 'directory', 'orientation']
+        fields = ['id', 'name', 'orientation', 'directory']

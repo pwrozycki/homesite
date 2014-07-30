@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/home/sandbox/pycharm-3.1.3/pycharm-debug-py3k.egg")
+sys.path.append("/home/sandbox/pycharm-3.4.1/pycharm-debug-py3k.egg")
 
 def settrace():
     import pydevd
