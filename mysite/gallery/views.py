@@ -21,64 +21,6 @@ from gallery.serializers import DirectorySerializer, ImageSerializer
 TRASH_DIRECTORY_REGEXP = r'^/?{}/'.format(locations.TRASH_DIRECTORY)
 JPG_REGEXP = re.compile(fnmatch.translate("*.JPG"), re.IGNORECASE)
 
-
-def list_dir(request, web_path):
-    collection_dir = locations.COLLECTION_PHYS_ROOT
-    if web_path:
-        collection_dir = locations.collection_phys_path(web_path)
-
-    if not os.path.exists(collection_dir):
-        raise Http404()
-
-    dir_listing = [x for x in sorted(os.listdir(collection_dir))]
-
-    subdirs = [os.path.join(web_path, x) for x in dir_listing if
-               not x.startswith('.') and os.path.isdir(os.path.join(collection_dir, x))]
-    images = [os.path.join(web_path, x) for x in dir_listing if JPG_REGEXP.match(os.path.basename(x))]
-
-    path = os.path.normpath(web_path)
-    dirs = []
-    while path not in ('/', '.', ''):
-        (dir_name, base) = os.path.split(path)
-        dirs.append({'name': base, 'path': path})
-        path = dir_name
-
-    dirs.append({'name': 'ROOT', 'path': path})
-    dirs.reverse()
-
-    directory_contents = {
-        'images': [{'path': image,
-                    'preview': locations.preview_web_path(image),
-                    'thumbnail': locations.thumbnail_web_path(image),
-                    'description': os.path.basename(image),
-                   } for image in images],
-        'subdirs': [{'path': path,
-                     'name': os.path.basename(path),
-                    } for path in subdirs],
-        'directories': dirs
-    }
-
-    json_result = json.dumps(directory_contents)
-
-    callback = request.GET.get('callback', None)
-    if callback:
-        jsonp_result = '{0}({1})'.format(callback, json_result)
-        return HttpResponse(jsonp_result, mimetype="text/javascript")
-
-    return HttpResponse(json_result, mimetype="application/json")
-
-
-def browse(request, dir_path):
-    collection_dir = locations.COLLECTION_PHYS_ROOT
-    if dir_path:
-        collection_dir = locations.collection_phys_path(dir_path)
-
-    if not os.path.exists(collection_dir):
-        raise Http404()
-
-    return render(request, "browse.html", {'directory': dir_path})
-
-
 def _move_files(path1, path2):
     original_src_path = locations.collection_phys_path(path1)
     original_dst_path = locations.collection_phys_path(path2)

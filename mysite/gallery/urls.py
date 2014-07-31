@@ -15,8 +15,6 @@ router.register(r'directories', DirectoryViewSet)
 router.register(r'images', ImageViewSet)
 
 urlpatterns = patterns('',
-                       url(r'^browse/(.*)$', gallery.views.browse),
-                       url(r'^listdir/(.*)$', gallery.views.list_dir, name='listdir'),
                        url(r'^deleteImage/(.*)$', gallery.views.delete_image),
                        url(r'^revertImage/(.*)$', gallery.views.revert_image),
                        url(r'^api/', include(router.urls)),
