@@ -1,5 +1,5 @@
 <div id="directorybar">
-    {{#each model.directories}}
+    {{#each model.components}}
         {{#link-to 'gallery.browse' path}}{{ name }}{{/link-to}}
         &gt;
     {{/each}}
@@ -7,7 +7,7 @@
 
 <div id="dirlisting">
     <ul>
-        {{#each model.subdirs}}
+        {{#each model.directories}}
             <li>
                 {{#link-to 'gallery.browse' path}}{{name}}{{/link-to}}
             </li>
@@ -18,13 +18,13 @@
 <div id="images">
     {{#each image in model.images}}
         <div class="thumbnail-container">
-            <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.description}}{{action "imageClicked" image}}/>
+            <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.name}}{{action "imageClicked" image}}/>
 
             <div class="image-overlay">
                 <button class="revert" {{action "undo" image}}></button>
                 <button class="thrash" {{action "remove" image}}></button>
             </div>
-            <span>{{ image.description }}</span>
+            <span>{{ image.name }}</span>
         </div>
 
     {{/each}}

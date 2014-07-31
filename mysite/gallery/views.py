@@ -11,12 +11,12 @@ from django.http.response import HttpResponseServerError, HttpResponse, HttpResp
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from rest_framework import viewsets
-from common import debugtool
 
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting
 from gallery.models import Directory, Image
 from gallery.serializers import DirectorySerializer, ImageSerializer
+
 
 TRASH_DIRECTORY_REGEXP = r'^/?{}/'.format(locations.TRASH_DIRECTORY)
 JPG_REGEXP = re.compile(fnmatch.translate("*.JPG"), re.IGNORECASE)

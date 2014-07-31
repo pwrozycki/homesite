@@ -2,14 +2,9 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
     model: function (params) {
-        if (!params.directory) {
-            this.transitionTo('gallery.browse', '.');
-            return;
-        }
-
-        return Ember.$.getJSON('/gallery/listdir/' + params.directory,
-            function (json) {
-                json.images = Ember.A(json.images);
+        return this.store.find('directory', { path: params.directory}).then(
+            function (result) {
+                return result.objectAt(0);
             }
         );
     }
