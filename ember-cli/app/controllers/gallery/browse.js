@@ -60,7 +60,8 @@ export default Ember.ObjectController.extend({
         var self = this;
         Ember.$.post(action + image.get('path'), function () {
             var imageIndex = image.get('index');
-            image.deleteRecord();
+            image.get('directory').content.reload();
+            image.reload();
             self.returnToBrowser(imageIndex);
         });
     },
