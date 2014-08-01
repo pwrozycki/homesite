@@ -13,7 +13,8 @@ from django.views.decorators.http import require_POST
 from rest_framework import viewsets
 
 from gallery import locations
-from common.collectionutils.renameutils import move_without_overwriting
+from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory
+from common.debugtool import settrace
 from gallery.models import Directory, Image
 from gallery.serializers import DirectorySerializer, ImageSerializer
 
@@ -21,7 +22,12 @@ from gallery.serializers import DirectorySerializer, ImageSerializer
 TRASH_DIRECTORY_REGEXP = r'^/?{}/'.format(locations.TRASH_DIRECTORY)
 JPG_REGEXP = re.compile(fnmatch.translate("*.JPG"), re.IGNORECASE)
 
-def _move_files(path1, path2):
+
+class BadRequestException(Exception):
+    pass
+
+
+def _move_image_groups_safe(path1, path2):
     original_src_path = locations.collection_phys_path(path1)
     original_dst_path = locations.collection_phys_path(path2)
     move_without_overwriting(original_src_path, original_dst_path, create_destination_dir=True)
@@ -35,17 +41,17 @@ def _move_files(path1, path2):
     move_without_overwriting(thumbnail_src_path, thumbnail_dst_path, create_destination_dir=True)
 
 
-def _move_image_groups(src_web_path, dst_web_path):
+def _move_image_groups(src_web_path, dst_web_path, empty_orphaned_directories=False):
     src_phys_path = locations.collection_phys_path(src_web_path)
+
     if not os.path.isfile(src_phys_path):
-        return HttpResponseBadRequest()
-    try:
-        _move_files(src_web_path, dst_web_path)
+        raise BadRequestException()
 
-        return HttpResponse()
+    _move_image_groups_safe(src_web_path, dst_web_path)
 
-    except Exception as a:
-        return HttpResponseServerError()
+    if empty_orphaned_directories:
+        thrash_root_phys_path = locations.collection_phys_path(locations.TRASH_DIRECTORY)
+        _remove_empty_directories(thrash_root_phys_path)
 
 
 def _remove_empty_directories(root):
@@ -56,31 +62,73 @@ def _remove_empty_directories(root):
                 os.rmdir(joined_path)
 
 
+def _create_directories_in_chain(directory):
+    parent_paths = [directory]
+    parent = os.path.dirname(directory)
+    while len(parent) > 0:
+        parent_paths.append(parent)
+        parent = os.path.dirname(parent)
+
+    previous_parent = None
+    for path in reversed(parent_paths):
+        previous_parent = find_or_create_directory(path, previous_parent)
+
+
+def _update_database_before_move(dst_image_web_path, src_image_web_path):
+    try:
+        image = Image.objects.get(
+            name=(os.path.basename(src_image_web_path)),
+            directory__path=os.path.dirname(src_image_web_path))
+
+        # create parent directory objects
+        dst_dir_web_path = os.path.dirname(dst_image_web_path)
+        _create_directories_in_chain(dst_dir_web_path)
+
+        # parent directory should exist
+        new_directory = Directory.objects.get(path=dst_dir_web_path)
+        image.directory=new_directory
+        image.save()
+
+    except (Image.DoesNotExist, Directory.DoesNotExist):
+        raise BadRequestException()
+
+
 @require_POST
 def delete_image(request, path):
-    src_web_path = os.path.normpath(path)
-    dst_web_path = os.path.join(locations.TRASH_DIRECTORY, path)
+    src_image_web_path = os.path.normpath(path)
+    dst_image_web_path = os.path.join(locations.TRASH_DIRECTORY, path)
 
     if re.search(TRASH_DIRECTORY_REGEXP, path):
         return HttpResponseBadRequest()
 
-    return _move_image_groups(src_web_path, dst_web_path)
+    try:
+        _update_database_before_move(dst_image_web_path, src_image_web_path)
+        _move_image_groups(src_image_web_path, dst_image_web_path)
+    except BadRequestException:
+        return HttpResponseBadRequest()
+    except Exception:
+        return HttpResponseServerError()
+
+    return HttpResponse()
 
 
 @require_POST
 def revert_image(request, path):
-    src_web_path = os.path.normpath(path)
-    dst_web_path = re.sub(TRASH_DIRECTORY_REGEXP, '', src_web_path)
+    src_image_web_path = os.path.normpath(path)
+    dst_image_web_path = re.sub(TRASH_DIRECTORY_REGEXP, '', src_image_web_path)
 
     if not re.search(TRASH_DIRECTORY_REGEXP, path):
         return HttpResponseBadRequest()
 
-    response = _move_image_groups(src_web_path, dst_web_path)
+    try:
+        _update_database_before_move(dst_image_web_path, src_image_web_path)
+        _move_image_groups(src_image_web_path, dst_image_web_path, empty_orphaned_directories=True)
+    except BadRequestException:
+        return HttpResponseBadRequest()
+    except Exception:
+        return HttpResponseServerError()
 
-    thrash_root_phys_path = locations.collection_phys_path(locations.TRASH_DIRECTORY)
-    _remove_empty_directories(thrash_root_phys_path)
-
-    return response
+    return HttpResponse()
 
 
 class FilterByIdsMixin(object):
