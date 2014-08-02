@@ -144,7 +144,7 @@ class FilterByIdsMixin(object):
 
 
 class DirectoryViewSet(FilterByIdsMixin, viewsets.ReadOnlyModelViewSet):
-    queryset = Directory.objects.all()
+    queryset = Directory.objects.all().prefetch_related('directories').prefetch_related('images')
     serializer_class = DirectorySerializer
     filter_fields = ('path', 'parent')
 

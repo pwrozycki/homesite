@@ -4,7 +4,7 @@ from django.db import models
 
 class Directory(models.Model):
     path = models.CharField(max_length=1000, unique=True, db_index=True)
-    parent = models.ForeignKey('self', related_name='directories', null=True)
+    parent = models.ForeignKey('self', related_name='directories', null=True, db_index=True)
     thumbnail_path = models.CharField(max_length=1000)
     preview_path = models.CharField(max_length=1000)
 
@@ -12,7 +12,7 @@ class Directory(models.Model):
 class Image(models.Model):
     name = models.CharField(max_length=100, db_index=True)
     orientation = models.CharField(max_length=10)
-    directory = models.ForeignKey(Directory, related_name='images')
+    directory = models.ForeignKey(Directory, related_name='images', db_index=True)
 
     class Meta:
         unique_together = ('name', 'directory')
