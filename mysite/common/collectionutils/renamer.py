@@ -10,7 +10,7 @@ import atexit
 
 from common.collectionutils.renameutils import move_without_overwriting
 from common.collectionutils.exiftool import ImageInfo, JsonUtil
-from common.collectionutils.pidfile import create_pidfile
+from common.collectionutils.pidfile import handle_pidfile
 from gallery.locations import COLLECTION_PHYS_ROOT
 
 
@@ -23,20 +23,6 @@ LOG_FILE = os.path.join(META_ROOT, "renamer.log")
 
 
 class Renamer:
-    def __init__(self):
-        self._create_pid_file()
-
-    def _create_pid_file(self):
-        logging.info('creating pidfile')
-        if not create_pidfile(PID_FILE):
-            logging.error('pidfile exists: exiting')
-            sys.exit(1)
-        atexit.register(self._remove_pid_file)
-
-    def _remove_pid_file(self):
-        logging.info('removing pidfile')
-        os.unlink(PID_FILE)
-
     def _collect_groups(self, root, images):
         self._image_groups = defaultdict(list)
         for name, image in [(os.path.splitext(x)[0], x) for x in images]:
@@ -96,4 +82,5 @@ class Renamer:
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(asctime)s (%(levelname)s): %(message)s", filename=LOG_FILE, level=logging.INFO)
+    handle_pidfile(PID_FILE)
     Renamer().walk()
