@@ -11,6 +11,13 @@ class DirectorySerializer(serializers.ModelSerializer):
         model = Directory
         fields = ['id', 'path', 'thumbnail_path', 'preview_path', 'parent', 'images', 'directories']
 
+class SubdirectorySerializer(serializers.ModelSerializer):
+    parent = serializers.PrimaryKeyRelatedField()
+
+    class Meta:
+        model = Directory
+        fields = ['id', 'path', 'thumbnail_path', 'preview_path', 'parent' ]
+
 
 class ImageSerializer(serializers.ModelSerializer):
     directory = serializers.PrimaryKeyRelatedField()

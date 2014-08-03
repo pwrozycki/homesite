@@ -10,6 +10,8 @@ class Directory(models.Model):
     thumbnail_path = models.CharField(max_length=1000)
     preview_path = models.CharField(max_length=1000)
 
+    class Meta:
+        ordering = ('path',)
 
 class Image(models.Model):
     name = models.CharField(max_length=100, db_index=True)
@@ -18,6 +20,7 @@ class Image(models.Model):
 
     class Meta:
         unique_together = ('name', 'directory')
+        ordering = ('name',)
 
     @property
     def path(self):

@@ -11,12 +11,13 @@ from django.http.response import HttpResponseServerError, HttpResponse, HttpResp
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from rest_framework import viewsets
+from rest_framework_ember.utils import get_resource_name
 
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory
 from common.debugtool import settrace
 from gallery.models import Directory, Image
-from gallery.serializers import DirectorySerializer, ImageSerializer
+from gallery.serializers import DirectorySerializer, ImageSerializer, SubdirectorySerializer
 
 
 TRASH_DIRECTORY_REGEXP = r'^/?{}/'.format(locations.TRASH_DIRECTORY)
@@ -86,7 +87,7 @@ def _update_database_before_move(dst_image_web_path, src_image_web_path):
 
         # parent directory should exist
         new_directory = Directory.objects.get(path=dst_dir_web_path)
-        image.directory=new_directory
+        image.directory = new_directory
         image.save()
 
     except (Image.DoesNotExist, Directory.DoesNotExist):
@@ -144,7 +145,7 @@ class FilterByIdsMixin(object):
 
 
 class DirectoryViewSet(FilterByIdsMixin, viewsets.ReadOnlyModelViewSet):
-    queryset = Directory.objects.all().prefetch_related('directories').prefetch_related('images')
+    queryset = Directory.objects.all()
     serializer_class = DirectorySerializer
     filter_fields = ('path', 'parent')
 
@@ -154,6 +155,13 @@ class DirectoryViewSet(FilterByIdsMixin, viewsets.ReadOnlyModelViewSet):
             return queryset.filter(parent__isnull=True)
         else:
             return queryset
+
+
+class SubdirectoryViewSet(FilterByIdsMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = Directory.objects.all()
+    serializer_class = SubdirectorySerializer
+    filter_fields = ('path', 'parent')
+    resource_name = 'subdirectory'
 
 
 class ImageViewSet(FilterByIdsMixin, viewsets.ModelViewSet):

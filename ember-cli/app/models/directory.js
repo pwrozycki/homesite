@@ -7,11 +7,7 @@ export default DS.Model.extend({
 
     images: DS.hasMany('image', { async: true }),
     parent: DS.belongsTo('directory', { async: true }),
-    directories: DS.hasMany('directory', { async: true}),
-
-    name: function () {
-        return this.get('path').match(/^.*?([^/]*)$/)[1];
-    }.property('path'),
+    directories: DS.hasMany('subdirectory', { async: true}),
 
     components: function () {
         var path = this.get('path');

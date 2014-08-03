@@ -8,10 +8,11 @@ import gallery.views
 # from django.contrib import admin
 # admin.autodiscover()
 
-from gallery.views import DirectoryViewSet, ImageViewSet
+from gallery.views import DirectoryViewSet, ImageViewSet, SubdirectoryViewSet
 
 router = SimpleRouter(trailing_slash=False)
 router.register(r'directories', DirectoryViewSet)
+router.register(r'subdirectories', SubdirectoryViewSet)
 router.register(r'images', ImageViewSet)
 
 urlpatterns = patterns('',
