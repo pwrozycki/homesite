@@ -9,7 +9,7 @@ import logging
 import subprocess
 import sys
 
-from common.collectionutils.pidfile import create_pidfile
+from common.collectionutils.pidfile import handle_pidfile
 from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT
 
 CONFIGURATION = (
@@ -24,20 +24,6 @@ LOG_FILE = os.path.join(META_ROOT, "thumbnailer.log")
 
 class Thumbnailer:
     JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
-
-    def __init__(self):
-        self._create_pid_file()
-
-    def _create_pid_file(self):
-        logging.info('creating pidfile')
-        if not create_pidfile(PID_FILE):
-            logging.error('pidfile exists: exiting')
-            sys.exit(1)
-        atexit.register(self._remove_pid_file)
-
-    def _remove_pid_file(self):
-        logging.info('removing pidfile')
-        os.unlink(PID_FILE)
 
     @staticmethod
     def change_path_root(path, prev_root, new_root):
@@ -129,6 +115,7 @@ class Thumbnailer:
 
 if __name__ == '__main__':
     logging.basicConfig(format="%(asctime)s (%(levelname)s): %(message)s", filename=LOG_FILE, level=logging.INFO)
-    thumbnailer = Thumbnailer()
+    handle_pidfile(PID_FILE)
+    thumbnailer = Thumbnailer
     thumbnailer.create_images()
     thumbnailer.remove_obsolete()

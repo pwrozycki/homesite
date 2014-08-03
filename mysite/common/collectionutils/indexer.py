@@ -1,4 +1,7 @@
+import datetime
+import logging
 import os
+from common.collectionutils.pidfile import _create_pidfile, handle_pidfile
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
@@ -8,8 +11,11 @@ from common.collectionutils.renameutils import find_or_create_directory
 from gallery import locations
 from gallery.locations import COLLECTION_PHYS_ROOT
 
-from gallery.models import Directory, Image
+from gallery.models import Image
 
+META_ROOT = os.path.join(COLLECTION_PHYS_ROOT, '.meta')
+PID_FILE = os.path.join(META_ROOT, "indexer.pid")
+LOG_FILE = os.path.join(META_ROOT, "indexer.log")
 
 class Indexer():
     JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
@@ -17,42 +23,51 @@ class Indexer():
     @classmethod
     def walk(cls):
         for (root, dirs, files) in os.walk(COLLECTION_PHYS_ROOT):
+            # ignore directories starting with a dot
             dirs[:] = [x for x in dirs if not x.startswith('.')]
             dirs.sort(key=lambda x: x.lower())
+            images = [f for f in sorted(files) if cls.JPG_MATCH.match(f)]
 
-            # find directory corresponding to root
-            # persist directory object
+            # find directory corresponding to root -> create if needed
             root_web_path = locations.collection_web_path(root)
-            root_directory_object = find_or_create_directory(root_web_path)
+            root_object = find_or_create_directory(root_web_path)
+            root_modification_time = datetime.datetime.fromtimestamp(os.path.getmtime(root))
 
-            # add directory objects
-            for directory in dirs:
-                dir_web_path = os.path.join(root_web_path, directory)
-                find_or_create_directory(dir_web_path, parent=root_directory_object)
+            # update underlying objects only if:
+            # a) root is new directory (modification_time is None)
+            # b) modification time has changed
+            if (root_object.modification_time is None or
+                        root_object.modification_time < root_modification_time):
+                root_object.modification_time != root_modification_time
 
-            # find image corresponding to jpg
-            # persist if doesn't exist
-            for name in [f for f in sorted(files) if cls.JPG_MATCH.match(f)]:
-                image_web_path = os.path.abspath(os.path.join(root_web_path, name))
-                image_object = Image.objects.filter(name=name, directory__path=root_web_path)
-                if not image_object:
-                    image_object = Image(name=name, directory=root_directory_object)
+                # if any of directories under root doesn't exist -> remove it from db
+                for directory_object in root_object.directories.all():
+                    if os.path.basename(directory_object.path) not in dirs:
+                        logging.info("Removing directory: " + directory_object.path)
+                        directory_object.delete()
+
+                # if any of images under root doesn't exist -> remove it from db
+                for image_object in root_object.images.all():
+                    if image_object.name not in images:
+                        logging.info("Removing image: " + image_object.path)
+                        image_object.delete()
+
+                # add directory objects if not found on db
+                directories_on_db = {os.path.basename(x.path) for x in (root_object.directories.all())}
+                for directory in set(dirs) - directories_on_db:
+                    dir_web_path = os.path.join(root_web_path, directory)
+                    find_or_create_directory(dir_web_path, parent=root_object)
+                    logging.info("Adding directory: " + dir_web_path)
+
+                # add directory objects if not found on db
+                images_on_db = {x.name for x in (root_object.images.all())}
+                for image in set(images) - images_on_db:
+                    image_object = Image(name=image, directory=root_object)
                     image_object.save()
-
-    @staticmethod
-    def remove_obsolete():
-        for image in Image.objects.all():
-            image_web_path = os.path.join(image.directory.path, image.name)
-            image_phys_path = locations.collection_phys_path(image_web_path)
-            if not os.path.exists(image_phys_path):
-                image.delete()
-
-        for directory in Directory.objects.all():
-            directory_phys_path = locations.collection_phys_path(directory.path)
-            if not os.path.exists(directory_phys_path):
-                directory.delete()
+                    logging.info("Adding file " + image_object.path)
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, filename=LOG_FILE)
+    handle_pidfile(PID_FILE)
     Indexer.walk()
-    Indexer.remove_obsolete()
