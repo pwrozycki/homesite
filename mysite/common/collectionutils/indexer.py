@@ -68,6 +68,6 @@ class Indexer():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, filename=LOG_FILE)
+    logging.basicConfig(format="%(asctime)s (%(levelname)s): %(message)s", filename=LOG_FILE, level=logging.INFO)
     handle_pidfile(PID_FILE)
     Indexer.walk()
