@@ -41,7 +41,7 @@ class Indexer():
                 root_object.modification_time != root_modification_time
 
                 # if any of directories under root doesn't exist -> remove it from db
-                for directory_object in root_object.directories.all():
+                for directory_object in root_object.subdirectories.all():
                     if os.path.basename(directory_object.path) not in dirs:
                         logging.info("Removing directory: " + directory_object.path)
                         directory_object.delete()
@@ -53,7 +53,7 @@ class Indexer():
                         image_object.delete()
 
                 # add directory objects if not found on db
-                directories_on_db = {os.path.basename(x.path) for x in (root_object.directories.all())}
+                directories_on_db = {os.path.basename(x.path) for x in (root_object.subdirectories.all())}
                 for directory in set(dirs) - directories_on_db:
                     dir_web_path = os.path.join(root_web_path, directory)
                     find_or_create_directory(dir_web_path, parent=root_object)

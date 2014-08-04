@@ -4,7 +4,7 @@ export default DS.Model.extend({
     name: DS.attr('string'),
     orientation: DS.attr('string'),
 
-    directory: DS.belongsTo('directory', { async: true }),
+    directory: DS.belongsTo('directory'),
 
     thumbnail: function() {
         return [this.get('directory.thumbnail_path'), this.get('name')].join('/');

@@ -161,7 +161,7 @@ class SubdirectoryViewSet(FilterByIdsMixin, viewsets.ReadOnlyModelViewSet):
     queryset = Directory.objects.all()
     serializer_class = SubdirectorySerializer
     filter_fields = ('path', 'parent')
-    resource_name = 'subdirectory'
+    resource_name = 'subdirectories'
 
 
 class ImageViewSet(FilterByIdsMixin, viewsets.ModelViewSet):

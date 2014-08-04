@@ -5,9 +5,9 @@ export default DS.Model.extend({
     thumbnail_path: DS.attr('string'),
     preview_path: DS.attr('string'),
 
-    images: DS.hasMany('image', { async: true }),
-    parent: DS.belongsTo('directory', { async: true }),
-    directories: DS.hasMany('subdirectory', { async: true}),
+    images: DS.hasMany('image'),
+    parent: DS.belongsTo('directory'),
+    subdirectories: DS.hasMany('subdirectory'),
 
     components: function () {
         var path = this.get('path');

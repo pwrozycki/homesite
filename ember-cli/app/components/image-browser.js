@@ -7,10 +7,8 @@ export default Ember.Component.extend({
 
     imagesChanged: function () {
         var $this = this;
-        this.get('model.images').then(function () {
-            Ember.run.scheduleOnce('afterRender', function () {
-                $this.lazyLoadImages();
-            });
+        Ember.run.scheduleOnce('afterRender', function () {
+            $this.lazyLoadImages();
         });
     }.observes('model.images.@each.thubnail'),
 

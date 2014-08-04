@@ -159,7 +159,7 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser'
     ),
     'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework_ember.renderers.JSONRenderer',
+        'common.rest_framework.renderers.MyJsonRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
