@@ -2,11 +2,12 @@
 # -*- coding: UTF-8 -*-
 
 import os
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
+
 import re
-import sys
 import logging
 from collections import defaultdict
-import atexit
 
 from common.collectionutils.renameutils import move_without_overwriting
 from common.collectionutils.exiftool import ImageInfo, JsonUtil
@@ -32,12 +33,13 @@ class Renamer:
         for name, paths in self._image_groups.items():
             self._rename_group(paths)
 
-    def _rename_group(self, paths):
+    @staticmethod
+    def _rename_group(paths):
         image_infos = [ImageInfo.create_from_json(x) for x in JsonUtil.read_exiftool_json(paths)]
         dates = [x.date for x in image_infos]
 
         if len(set(dates)) > 1:
-            logging.warn("different dates: {}".format(paths))
+            logging.warning("different dates: {}".format(paths))
             return
 
         if dates[0] is None:

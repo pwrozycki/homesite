@@ -1,21 +1,16 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 from __future__ import unicode_literals
-import json
 import os
 import re
 import fnmatch
 
-from django.http import Http404
 from django.http.response import HttpResponseServerError, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from rest_framework import viewsets
-from rest_framework_ember.utils import get_resource_name
 
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory
-from common.debugtool import settrace
 from gallery.models import Directory, Image
 from gallery.serializers import DirectorySerializer, ImageSerializer, SubdirectorySerializer
 

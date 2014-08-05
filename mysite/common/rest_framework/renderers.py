@@ -1,4 +1,5 @@
 from copy import copy
+
 from rest_framework_ember.renderers import JSONRenderer
 from rest_framework_ember.utils import get_resource_name
 
@@ -26,7 +27,7 @@ class MyJsonRenderer(JSONRenderer):
 
         # dig deep through objects and extract sideloaded data
         # replace every occurrence with list of identifiers (flatten deep structure)
-        if (isinstance(content, list)):
+        if isinstance(content, list):
             for entry in content:
                 self.extract_sideloaded_content(entry, sideloaded_content_dict)
         else:
@@ -45,7 +46,6 @@ class MyJsonRenderer(JSONRenderer):
                 for (index, related_element) in enumerate(property_value):
 
                     if isinstance(related_element, dict) and 'id' in related_element:
-
                         self.extract_sideloaded_content(related_element, sideloaded_content_dict)
                         sideloaded_objects_dict = sideloaded_content_dict.setdefault(property_name, {})
                         sideloaded_objects_dict[related_element['id']] = related_element

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import atexit
 import os
 import re
 import fnmatch
@@ -11,6 +10,7 @@ import sys
 
 from common.collectionutils.pidfile import handle_pidfile
 from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT
+
 
 CONFIGURATION = (
     (THUMBNAILS_PHYS_ROOT, 'x200', '-thumbnail'),

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from gallery.models import Image, Directory
 
 
@@ -7,7 +8,8 @@ class SubdirectorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Directory
-        fields = ['id', 'path', 'thumbnail_path', 'preview_path', 'parent' ]
+        fields = ['id', 'path', 'thumbnail_path', 'preview_path', 'parent']
+
 
 class ImageSerializer(serializers.ModelSerializer):
     directory = serializers.PrimaryKeyRelatedField()

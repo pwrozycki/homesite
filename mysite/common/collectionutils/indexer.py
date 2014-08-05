@@ -1,7 +1,9 @@
 import datetime
 import logging
 import os
-from common.collectionutils.pidfile import _create_pidfile, handle_pidfile
+
+from common.collectionutils.pidfile import handle_pidfile
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
@@ -16,6 +18,7 @@ from gallery.models import Image
 META_ROOT = os.path.join(COLLECTION_PHYS_ROOT, '.meta')
 PID_FILE = os.path.join(META_ROOT, "indexer.pid")
 LOG_FILE = os.path.join(META_ROOT, "indexer.log")
+
 
 class Indexer():
     JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
