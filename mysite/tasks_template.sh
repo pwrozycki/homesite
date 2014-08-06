@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export PYTHONPATH=/home/przemas/Desktop/homesite/mysite
-PYTHON=/home/przemas/.virtualenvs/uwsgi/bin/python
+export PYTHONPATH=%PROJECT_ROOT%/mysite
+PYTHON=%UWSGI_ROOT%/bin/python
 
 cd $PYTHONPATH
 for task in common/collectionutils/renamer.py \

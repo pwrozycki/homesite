@@ -5,8 +5,8 @@ from __future__ import unicode_literals
 import os
 import re
 
-COLLECTION_PHYS_ROOT = '/home/przemas/Desktop/images'
-STATIC_PHYS_ROOT = '/home/przemas/Desktop/homesite/static'
+COLLECTION_PHYS_ROOT = '%COLLECTION_PHYS_ROOT%'
+STATIC_PHYS_ROOT = '%STATIC_PHYS_ROOT%'
 
 TRASH_DIRECTORY = 'Trash'
 THUMBNAILS_WEB_ROOT = 'images/x200'

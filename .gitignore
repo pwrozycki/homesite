@@ -9,5 +9,10 @@ static/js/
 static/images/
 static/rest_framework/
 
+homesite_nginx.conf
+homesite_uwsgi.ini
+mysite/gallery/locations.py
+mysite/tasks.sh
+
 .hg/
 mysite/sqlite.db
