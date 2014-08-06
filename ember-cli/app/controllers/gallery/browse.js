@@ -65,6 +65,13 @@ export default Ember.ObjectController.extend({
         });
     },
 
+    rotateImage: function(image, offset) {
+        image.set('orientation', image.nextRotation(offset));
+        image.save().catch(function() {
+            image.set(image.nextRotation(-offset));
+        });
+    },
+
     actions: {
         preview: function (image) {
             this.set('previewImage', image);
@@ -83,6 +90,9 @@ export default Ember.ObjectController.extend({
         },
         revertImage: function (image) {
             this.removeImageAjax('/gallery/revertImage/', image);
+        },
+        rotateImage: function (image) {
+            this.rotateImage(image, 1);
         }
     }
 });

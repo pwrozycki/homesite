@@ -1,6 +1,8 @@
 import DS from "ember-data";
 
 export default DS.Model.extend({
+    ROTATIONS: ['up', 'right', 'down', 'left'],
+
     name: DS.attr('string'),
     orientation: DS.attr('string'),
 
@@ -24,5 +26,11 @@ export default DS.Model.extend({
         var images = this.get('directory.images');
 
         return images.indexOf(this);
-    }.property('directory.images')
+    }.property('directory.images'),
+
+    nextRotation: function(offset) {
+        var currentOrientationIndex = this.ROTATIONS.indexOf(this.get('orientation'));
+        var nextOrientationIndex = (currentOrientationIndex + offset) % this.ROTATIONS.length;
+        return this.ROTATIONS[nextOrientationIndex];
+    }
 });

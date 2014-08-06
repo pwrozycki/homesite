@@ -16,6 +16,9 @@ export default Ember.Component.extend({
         },
         undo: function(image) {
             this.sendAction('undoPressed', image);
+        },
+        rotate: function(image) {
+            this.sendAction('rotatePressed', image);
         }
     }
 });

@@ -4,6 +4,7 @@
     <button {{action 'right'}} class="rightArrow"/>
     <button {{action 'undo' previewImage}} class="revert"/>
     <button {{action 'remove' previewImage}} class="thrash"/>
+    <button {{action 'rotate' previewImage}} {{ bind-attr class="previewImage.orientation" }}/>
 </div>
 <div id="preview-image">
     <img {{bind-attr src=previewImage.preview}}>

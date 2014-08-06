@@ -16,7 +16,7 @@ class Directory(models.Model):
 
 class Image(models.Model):
     name = models.CharField(max_length=100, db_index=True)
-    orientation = models.CharField(max_length=10)
+    orientation = models.CharField(max_length=10, blank=True, default="up")
     directory = models.ForeignKey(Directory, related_name='images', db_index=True)
 
     class Meta:

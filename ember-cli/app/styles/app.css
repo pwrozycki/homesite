@@ -123,3 +123,19 @@ button.thrash {
 button.revert {
     background-image: url('images/undo.png');
 }
+
+.image-overlay button.up {
+    background-image: url('images/orientation_up.png');
+}
+
+.image-overlay button.right {
+    background-image: url('images/orientation_right.png');
+}
+
+.image-overlay button.down {
+    background-image: url('images/orientation_down.png');
+}
+
+.image-overlay button.left {
+    background-image: url('images/orientation_left.png');
+}
