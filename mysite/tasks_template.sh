@@ -1,12 +1,12 @@
 #!/bin/bash
 
 export PYTHONPATH=%PROJECT_ROOT%/mysite
-PYTHON=%UWSGI_ROOT%/bin/python
+PYTHON=%VIRTUALENV%/bin/python
 
 cd $PYTHONPATH
 for task in common/collectionutils/renamer.py \
-            common/collectionutils/indexer.py \
-            common/collectionutils/thumbnailer.py
+            common/collectionutils/thumbnailer.py \
+            common/collectionutils/indexer.py
 do
     echo "Running $task"
     if ! $PYTHON $task

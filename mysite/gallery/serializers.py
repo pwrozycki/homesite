@@ -1,10 +1,19 @@
 from rest_framework import serializers
+from gallery import locations
 
 from gallery.models import Image, Directory
 
 
 class SubdirectorySerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField()
+    thumbnail_path = serializers.SerializerMethodField('get_thumbnail_path')
+    preview_path = serializers.SerializerMethodField('get_preview_path')
+
+    def get_thumbnail_path(self, obj):
+        return locations.thumbnail_web_path(obj.path)
+
+    def get_preview_path(self, obj):
+        return locations.preview_web_path(obj.path)
 
     class Meta:
         model = Directory
@@ -19,8 +28,7 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'orientation', 'directory']
 
 
-class DirectorySerializer(serializers.ModelSerializer):
-    parent = serializers.PrimaryKeyRelatedField()
+class DirectorySerializer(SubdirectorySerializer):
     images = ImageSerializer(many=True)
     subdirectories = SubdirectorySerializer(many=True)
 

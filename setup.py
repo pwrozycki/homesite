@@ -1,8 +1,8 @@
 REPLACEMENTS = {
-    '%COLLECTION_PHYS_ROOT%': '/mnt/dysk/01_ZDJĘCIA',
-    '%STATIC_PHYS_ROOT%': '/mnt/dysk/homesite/static',
+    '%COLLECTION_PHYS_ROOT%': '/mnt/dysk/01_ZDJĘCIA',           # path containing original images
+    '%STATIC_PHYS_ROOT%': '/mnt/dysk/01_ZDJĘCIA/.thumbnails',   # path where thumbnails and previews will be created
     '%PROJECT_ROOT%': '/mnt/dysk/homesite',
-    '%UWSGI_ROOT%': '/mnt/dysk/homesite/virtualenvs/uwsgi',
+    '%VIRTUALENV%': '/mnt/dysk/homesite/virtualenvs/uwsgi',     # virtualenv used by uwsgi
     '%HOST_NAME%': 'majki.mooo.com',
     '%NGINX_PORT%': '80',
     '%UWSGI_PYTHON_PLUGIN%': 'python32',

@@ -15,7 +15,7 @@ from gallery.models import Directory, Image
 from gallery.serializers import DirectorySerializer, ImageSerializer, SubdirectorySerializer
 
 
-TRASH_DIRECTORY_REGEXP = r'^/?{}/'.format(locations.TRASH_DIRECTORY)
+TRASH_DIRECTORY_REGEXP = r'^/?{}/'.format(locations.TRASH_DIR_NAME)
 JPG_REGEXP = re.compile(fnmatch.translate("*.JPG"), re.IGNORECASE)
 
 
@@ -46,7 +46,7 @@ def _move_image_groups(src_web_path, dst_web_path, empty_orphaned_directories=Fa
     _move_image_groups_safe(src_web_path, dst_web_path)
 
     if empty_orphaned_directories:
-        thrash_root_phys_path = locations.collection_phys_path(locations.TRASH_DIRECTORY)
+        thrash_root_phys_path = locations.collection_phys_path(locations.TRASH_DIR_NAME)
         _remove_empty_directories(thrash_root_phys_path)
 
 
@@ -92,7 +92,7 @@ def _update_database_before_move(dst_image_web_path, src_image_web_path):
 @require_POST
 def delete_image(request, path):
     src_image_web_path = os.path.normpath(path)
-    dst_image_web_path = os.path.join(locations.TRASH_DIRECTORY, path)
+    dst_image_web_path = os.path.join(locations.TRASH_DIR_NAME, path)
 
     if re.search(TRASH_DIRECTORY_REGEXP, path):
         return HttpResponseBadRequest()

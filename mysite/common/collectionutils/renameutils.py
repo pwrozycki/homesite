@@ -28,8 +28,6 @@ def find_or_create_directory(web_path, parent=None):
     if queryset:
         return queryset[0]
 
-    directory_instance = Directory(path=web_path, parent=parent,
-                                   thumbnail_path=locations.thumbnail_web_path(web_path),
-                                   preview_path=locations.preview_web_path(web_path))
+    directory_instance = Directory(path=web_path, parent=parent)
     directory_instance.save()
     return directory_instance
