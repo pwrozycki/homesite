@@ -59,9 +59,23 @@ export default Ember.ObjectController.extend({
     removeImageAjax: function (action, image) {
         var self = this;
         Ember.$.post(action + image.get('path'), function () {
+            var imagesCount = self.get('images.length');
             var imageIndex = image.get('index');
+
+            // from preview mode siwtch to next image (unless last)
+            // to previous (otherwise) or return to browsing (if no images left)
+            if (self.get('previewImage') != null) {
+                if (imageIndex + 1 < imagesCount) {
+                    self.switchToImage(1);
+                } else if (imageIndex > 0) {
+                    self.switchToImage(-1);
+                } else {
+                    self.returnToBrowser(imageIndex);
+                }
+            }
+
+            // remove record from store
             image.get('directory.images').removeRecord(image);
-            self.returnToBrowser(imageIndex);
         });
     },
 
