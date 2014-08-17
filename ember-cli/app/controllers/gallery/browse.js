@@ -11,6 +11,10 @@ export default Ember.ObjectController.extend({
         return !this.get('isPreviewMode');
     }.property('isPreviewMode'),
 
+    directoryChanged: function() {
+        $(window).scrollTop(0);
+    }.observes('path'),
+
     switchToImage: function (offset) {
         var images = this.get('images');
         var newImageIndex = this.get('previewImage.index') + offset;
