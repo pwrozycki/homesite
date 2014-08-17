@@ -12,7 +12,7 @@ export default Ember.ObjectController.extend({
     }.property('isPreviewMode'),
 
     directoryChanged: function() {
-        $(window).scrollTop(0);
+        Ember.$(window).scrollTop(0);
     }.observes('path'),
 
     switchToImage: function (offset) {
