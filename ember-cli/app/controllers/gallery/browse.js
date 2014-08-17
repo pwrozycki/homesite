@@ -11,7 +11,7 @@ export default Ember.ObjectController.extend({
         return !this.get('isPreviewMode');
     }.property('isPreviewMode'),
 
-    directoryChanged: function() {
+    directoryChanged: function () {
         Ember.$(window).scrollTop(0);
     }.observes('path'),
 
@@ -83,9 +83,9 @@ export default Ember.ObjectController.extend({
         });
     },
 
-    rotateImage: function(image, offset) {
+    rotateImage: function (image, offset) {
         image.set('orientation', image.nextRotation(offset));
-        image.save().catch(function() {
+        image.save().catch(function () {
             image.set(image.nextRotation(-offset));
         });
     },
@@ -113,4 +113,5 @@ export default Ember.ObjectController.extend({
             this.rotateImage(image, 1);
         }
     }
-});
+})
+    ;
