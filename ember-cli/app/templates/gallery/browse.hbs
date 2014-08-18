@@ -1,13 +1,11 @@
 {{image-browser id="browser"
                 model=model
                 imageClicked='preview'
-                removePressed="removeImage"
-                undoPressed="revertImage"
+                removePressed="removeImage" undoPressed="revertImage" rotatePressed="rotateImage"
                 isVisible=isBrowserVisible
 }}
 
 {{image-preview id="preview"
                 previewImage=previewImage isVisible=isPreviewMode
                 upPressed="browse" leftPressed="prevImage" rightPressed="nextImage"
-                removePressed="removeImage" undoPressed="revertImage"
-                rotatePressed="rotateImage"}}
+                removePressed="removeImage" undoPressed="revertImage" rotatePressed="rotateImage"}}

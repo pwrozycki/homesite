@@ -23,6 +23,7 @@
             <div class="image-overlay">
                 <button class="revert" {{action "undo" image}}></button>
                 <button class="thrash" {{action "remove" image}}></button>
+                <button {{action "rotate" image}}{{bind-attr class=image.orientation}}></button>
             </div>
             <span>{{ image.name }}</span>
         </div>

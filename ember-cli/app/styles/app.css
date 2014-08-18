@@ -68,8 +68,8 @@ div#preview {
 }
 
 .thumbnail-container .image-overlay {
-    width: 30%;
-    padding: 0 35%;
+    width: 50%;
+    padding: 0 25%;
 }
 
 .image-overlay {
