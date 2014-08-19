@@ -26,7 +26,7 @@ export default DS.Model.extend({
         var images = this.get('directory.images');
 
         return images.indexOf(this);
-    }.property('directory.images'),
+    }.property('directory.images.@each'),
 
     nextRotation: function(offset) {
         var currentOrientationIndex = this.ROTATIONS.indexOf(this.get('orientation'));
