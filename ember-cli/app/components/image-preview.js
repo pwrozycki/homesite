@@ -3,22 +3,22 @@ import Ember from 'ember';
 export default Ember.Component.extend({
     setKeyEventHandlers: function () {
         var self = this;
-        $(window).keyup(function (event) {
+        Ember.$(window).keyup(function (event) {
             // left arrow
-            if (event.which == 37) {
+            if (event.which === 37) {
                 self.sendAction('leftPressed');
             // right arrow
-            } else if (event.which == 39) {
+            } else if (event.which === 39) {
                 self.sendAction('rightPressed');
             // up arrow or escape key
-            } else if (event.which == 38 || event.which == 27) {
+            } else if (event.which === 38 || event.which === 27) {
                 self.sendAction('upPressed');
             }
         });
     },
 
     removeKeyEventHandlers: function () {
-        $(window).unbind("keyup");
+        Ember.$(window).unbind("keyup");
     },
 
     visibleChanged: function() {
