@@ -28,6 +28,14 @@ export default DS.Model.extend({
         return images.indexOf(this);
     }.property('directory.images.@each'),
 
+    isLast: function() {
+        return this.get('index') === this.get('directory.images.length') - 1;
+    }.property('index', 'directory.images.length'),
+
+    isFirst: function() {
+        return this.get('index') === 0;
+    }.property('index', 'directory.images.length'),
+
     nextRotation: function(offset) {
         var currentOrientationIndex = this.ROTATIONS.indexOf(this.get('orientation'));
         var nextOrientationIndex = (currentOrientationIndex + offset) % this.ROTATIONS.length;

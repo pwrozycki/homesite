@@ -21,8 +21,11 @@
             <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.name}}{{action "imageClicked" image}}/>
 
             <div class="image-overlay">
-                <button class="revert" {{action "undo" image}}></button>
-                <button class="thrash" {{action "remove" image}}></button>
+                {{#if image.directory.inTrash}}
+                    <button class="revert" {{action "undo" image}}></button>
+                {{else}}
+                    <button class="thrash" {{action "remove" image}}></button>
+                {{/if}}
                 <button {{action "rotate" image}}{{bind-attr class=image.orientation}}></button>
             </div>
             <span>{{ image.name }}</span>

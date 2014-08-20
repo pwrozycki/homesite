@@ -11,6 +11,10 @@ export default DS.Model.extend({
         return this.get('path').match(/^.*?([^/]*)$/)[1];
     }.property('path'),
 
+    inTrash: function() {
+        return this.get('path').indexOf('Trash') === 0;
+    }.property('path'),
+
     parentDirectories: function () {
         var path = this.get('path');
         var directories = [];
