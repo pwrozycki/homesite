@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+var $=Ember.$;
+
 export default Ember.ObjectController.extend({
     previewImage: null,
 
@@ -12,15 +14,48 @@ export default Ember.ObjectController.extend({
     }.property('isPreviewMode'),
 
     directoryChanged: function () {
-        Ember.$(window).scrollTop(0);
+        $(window).scrollTop(0);
     }.observes('path'),
 
-    switchToImage: function (offset) {
+    setupImagePreloading: function (newImageIndex, sign) {
         var images = this.get('images');
-        var newImageIndex = this.get('previewImage.index') + offset;
+
+        // Calculate paths of images that should be preloaded
+        var newPreviewPaths = new Ember.Set();
+        for (var i = 0; Math.abs(i) < 10; i += sign) {
+            var preloadIndex = newImageIndex + i;
+            if (preloadIndex >= 0 && preloadIndex < images.get('length')) {
+                newPreviewPaths.add(images.objectAt(preloadIndex).get('preview'));
+            }
+        }
+
+        $("#preloads").find("img").each(function (index, item) {
+            var previewPath = $(item).attr('src');
+
+            // Remove img objects that should no longer be in preloaded
+            if (!newPreviewPaths.contains(previewPath)) {
+                $(this).remove();
+
+            // Remove paths from set, if corresponding img object already exists
+            } else {
+                newPreviewPaths.remove(previewPath);
+            }
+        });
+
+        // Add img object if there is no corresponding preload for path
+        newPreviewPaths.forEach(function (item) {
+            $("#preloads").append($("<img>", { src: item }));
+        });
+    },
+
+    switchToImage: function (sign) {
+        var images = this.get('images');
+        var newImageIndex = this.get('previewImage.index') + sign;
         if (newImageIndex < images.get('length') && newImageIndex >= 0) {
             this.set('previewImage', images.objectAt(newImageIndex));
         }
+
+        this.setupImagePreloading(newImageIndex, sign);
     },
 
     scrollToImage: function (index) {
@@ -38,9 +73,9 @@ export default Ember.ObjectController.extend({
             imageIndex = 0;
         }
 
-        var $image = Ember.$('img[data-name="' + images.objectAt(imageIndex).get('name') + '"]');
+        var $image = $('img[data-name="' + images.objectAt(imageIndex).get('name') + '"]');
         if ($image.length) {
-            Ember.$(window).scrollTop($image.offset().top + $image.height() / 2 - Ember.$(window).height() / 2);
+            $(window).scrollTop($image.offset().top + $image.height() / 2 - $(window).height() / 2);
         }
     },
 
@@ -62,7 +97,7 @@ export default Ember.ObjectController.extend({
 
     removeImageAjax: function (action, image) {
         var self = this;
-        Ember.$.post(action + image.get('path'), function () {
+        $.post(action + image.get('path'), function () {
             var imagesCount = self.get('images.length');
             var imageIndex = image.get('index');
 
