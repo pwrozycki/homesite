@@ -13,9 +13,26 @@ export default Ember.ObjectController.extend({
         return !this.get('isPreviewMode');
     }.property('isPreviewMode'),
 
-    directoryChanged: function () {
+    scrollTopOnDirectoryChange: function () {
         $(window).scrollTop(0);
     }.observes('path'),
+
+    changeUrlOnPreviewChange: function() {
+        // TODO: it would be better to somehow deduce from route name and model (directory object)
+        var hashMatch = location.hash.match(/^(#.*?)(?:\/([^/]*\.jpg))?$/i);
+        var directory = hashMatch[1];
+
+        // if previewImage is set, add image name to url hash
+        // if previewImage is unset, strip image name from url hash
+        var newHashUrl = null;
+        if (this.get('previewImage') != null) {
+            newHashUrl = [directory, this.get('previewImage.name')].join('/');
+        } else {
+            newHashUrl = directory;
+        }
+
+        history.pushState(null, null, newHashUrl);
+    }.observes('previewImage'),
 
     setupImagePreloading: function (newImageIndex, sign) {
         var images = this.get('images');
@@ -41,9 +58,9 @@ export default Ember.ObjectController.extend({
             }
         });
 
-        $("#preview-image > img").unbind('load');
-        $("#preview-image > img").bind('load', function () {
-            console.log("loaded");
+        var $previewImg = $("#preview-image").find("> img");
+        $previewImg.unbind('load');
+        $previewImg.bind('load', function () {
             // Add img object if there is no corresponding preload for path
             newPreviewPaths.forEach(function (item) {
                 $("#preloads").append($("<img>", { src: item }));
