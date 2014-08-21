@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-var $=Ember.$;
+var $ = Ember.$;
 
 export default Ember.ObjectController.extend({
     previewImage: null,
@@ -33,18 +33,21 @@ export default Ember.ObjectController.extend({
             var previewPath = $(item).attr('src');
 
             // Remove img objects that should no longer be in preloaded
+            // Remove paths from set, if corresponding img object already exists
             if (!newPreviewPaths.contains(previewPath)) {
                 $(this).remove();
-
-            // Remove paths from set, if corresponding img object already exists
             } else {
                 newPreviewPaths.remove(previewPath);
             }
         });
 
-        // Add img object if there is no corresponding preload for path
-        newPreviewPaths.forEach(function (item) {
-            $("#preloads").append($("<img>", { src: item }));
+        $("#preview-image > img").unbind('load');
+        $("#preview-image > img").bind('load', function () {
+            console.log("loaded");
+            // Add img object if there is no corresponding preload for path
+            newPreviewPaths.forEach(function (item) {
+                $("#preloads").append($("<img>", { src: item }));
+            });
         });
     },
 
