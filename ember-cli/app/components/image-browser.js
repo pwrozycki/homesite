@@ -3,6 +3,7 @@ import Ember from 'ember';
 export default Ember.Component.extend({
     lazyLoadImages: function () {
         Ember.$(window).unbind("scroll");
+        Ember.$(window).unbind("resize");
         Ember.$("img.lazy").lazyload({ threshold: 200 });
     }.on('didInsertElement'),
 
