@@ -8,13 +8,20 @@ export default Ember.View.extend({
         Ember.$(window).keyup(function (event) {
             // left arrow
             if (event.which === 37) {
-                self.sendAction('prevImage');
+                self.get('controller').send('prevImage');
+
             // right arrow
             } else if (event.which === 39) {
-                self.sendAction('nextImage');
+                self.get('controller').send('nextImage');
+
             // up arrow or escape key
             } else if (event.which === 38 || event.which === 27) {
-                self.sendAction('exitPreview');
+                self.get('controller').send('exitPreview');
+
+            // delete key
+            } else if (event.which === 46) {
+                var previewImage = self.get('controller.previewImage');
+                self.get('controller').send('removeImage', previewImage);
             }
         });
     },
@@ -23,7 +30,7 @@ export default Ember.View.extend({
         Ember.$(window).unbind("keyup");
     },
 
-    visibleChanged: function() {
+    visibleChanged: function () {
         console.log("isVisible changed");
         var visible = this.get('isVisible');
         if (visible) {
