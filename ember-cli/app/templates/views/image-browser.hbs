@@ -18,15 +18,15 @@
 <div id="images">
     {{#each image in model.images}}
         <div class="thumbnail-container">
-            <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.name}}{{action "imageClicked" image}}/>
+            <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.name}}{{action "showPreview" image}}/>
 
             <div class="image-overlay">
                 {{#if image.directory.inTrash}}
-                    <button class="revert" {{action "undo" image}}></button>
+                    <button class="revert" {{action "revertImage" image}}></button>
                 {{else}}
-                    <button class="thrash" {{action "remove" image}}></button>
+                    <button class="thrash" {{action "removeImage" image}}></button>
                 {{/if}}
-                <button {{action "rotate" image}}{{bind-attr class=image.orientation}}></button>
+                <button {{action "rotateImage" image}}{{bind-attr class=image.orientation}}></button>
             </div>
             <span>{{ image.name }}</span>
         </div>

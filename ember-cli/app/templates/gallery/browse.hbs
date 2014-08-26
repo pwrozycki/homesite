@@ -1,11 +1,3 @@
-{{image-browser id="browser"
-                model=model
-                imageClicked='preview'
-                removePressed="removeImage" undoPressed="revertImage" rotatePressed="rotateImage"
-                isVisible=isBrowserVisible
-}}
+{{view "image-browser" id="browser" isVisible=isBrowserVisible}}
 
-{{image-preview id="preview"
-                previewImage=previewImage isVisible=isPreviewMode
-                upPressed="browse" leftPressed="prevImage" rightPressed="nextImage"
-                removePressed="removeImage" undoPressed="revertImage" rotatePressed="rotateImage"}}
+{{view "image-preview" id="preview" isVisible=isPreviewMode}}

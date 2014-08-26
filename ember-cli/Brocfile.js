@@ -3,6 +3,8 @@
 var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 var app = new EmberApp();
+var mergeTrees = require('broccoli-merge-trees');
+var pickFiles = require('broccoli-static-compiler');
 
 // Use `app.import` to add additional libraries to the generated
 // output files.
@@ -18,5 +20,9 @@ var app = new EmberApp();
 // along with the exports of each module as its value.
 
 app.import('vendor/jquery.lazyload/jquery.lazyload.js');
+var jqueryUiImages = pickFiles('vendor/jquery-ui/themes/smoothness', { srcDir: 'images', destDir: 'assets/images' });
 
-module.exports = app.toTree();
+app.import('vendor/jquery-ui/jquery-ui.js');
+app.import('vendor/jquery-ui/themes/smoothness/jquery-ui.css');
+
+module.exports = mergeTrees([app.toTree(), jqueryUiImages]);

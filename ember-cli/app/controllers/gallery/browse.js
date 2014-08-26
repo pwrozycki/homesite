@@ -17,7 +17,7 @@ export default Ember.ObjectController.extend({
         $(window).scrollTop(0);
     }.observes('path'),
 
-    changeUrlOnPreviewChange: function() {
+    changeUrlOnPreviewChange: function () {
         // TODO: it would be better to somehow deduce from route name and model (directory object)
         var hashMatch = location.hash.match(/^(#.*?)(?:\/([^/]*\.jpg))?$/i);
         var directory = hashMatch[1];
@@ -117,25 +117,29 @@ export default Ember.ObjectController.extend({
 
     removeImageAjax: function (action, image) {
         var self = this;
-        $.post(action + image.get('path'), function () {
-            var imagesCount = self.get('images.length');
-            var imageIndex = image.get('index');
+        $.post(action + image.get('path')).then(
+            function () {
+                var imagesCount = self.get('images.length');
+                var imageIndex = image.get('index');
 
-            // from preview mode siwtch to next image (unless last)
-            // to previous (otherwise) or return to browsing (if no images left)
-            if (self.get('previewImage') != null) {
-                if (imageIndex + 1 < imagesCount) {
-                    self.switchToImage(1);
-                } else if (imageIndex > 0) {
-                    self.switchToImage(-1);
-                } else {
-                    self.returnToBrowser(imageIndex);
+                // from preview mode siwtch to next image (unless last)
+                // to previous (otherwise) or return to browsing (if no images left)
+                if (self.get('previewImage') != null) {
+                    if (imageIndex + 1 < imagesCount) {
+                        self.switchToImage(1);
+                    } else if (imageIndex > 0) {
+                        self.switchToImage(-1);
+                    } else {
+                        self.returnToBrowser(imageIndex);
+                    }
                 }
-            }
 
-            // remove record from store
-            image.get('directory.images').removeRecord(image);
-        });
+                // remove record from store
+                image.get('directory.images').removeRecord(image);
+            },
+            function (result) {
+                self.send('openModal', 'modals/error-modal', { title: "Server error", html: result.responseText });
+            });
     },
 
     rotateImage: function (image, offset) {
@@ -146,10 +150,10 @@ export default Ember.ObjectController.extend({
     },
 
     actions: {
-        preview: function (image) {
+        showPreview: function (image) {
             this.set('previewImage', image);
         },
-        browse: function () {
+        exitPreview: function () {
             this.returnToBrowser();
         },
         nextImage: function () {
@@ -168,5 +172,4 @@ export default Ember.ObjectController.extend({
             this.rotateImage(image, 1);
         }
     }
-})
-    ;
+});

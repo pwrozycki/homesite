@@ -4,7 +4,10 @@ from __future__ import unicode_literals
 import os
 import re
 import fnmatch
+import sys
+import cgitb
 
+from django.db import transaction
 from django.http.response import HttpResponseServerError, HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
 from rest_framework import viewsets
@@ -19,8 +22,16 @@ TRASH_DIRECTORY_REGEXP = r'^/?{}/'.format(locations.TRASH_DIR_NAME)
 JPG_REGEXP = re.compile(fnmatch.translate("*.JPG"), re.IGNORECASE)
 
 
+def get_traceback_string():
+    exc_info = sys.exc_info()
+    return cgitb.html(exc_info)
+
 class BadRequestException(Exception):
-    pass
+    def __init__(self, value):
+        self.value = value
+
+    def __str(self):
+        return repr(self.value)
 
 
 def _move_image_groups_safe(path1, path2):
@@ -41,7 +52,7 @@ def _move_image_groups(src_web_path, dst_web_path, empty_orphaned_directories=Fa
     src_phys_path = locations.collection_phys_path(src_web_path)
 
     if not os.path.isfile(src_phys_path):
-        raise BadRequestException()
+        raise BadRequestException("Source file doesn't exist: " + src_phys_path)
 
     _move_image_groups_safe(src_web_path, dst_web_path)
 
@@ -70,7 +81,7 @@ def _create_directories_in_chain(directory):
         previous_parent = find_or_create_directory(path, previous_parent)
 
 
-def _update_database_before_move(dst_image_web_path, src_image_web_path):
+def _update_database_before_move(src_image_web_path, dst_image_web_path):
     try:
         image = Image.objects.get(
             name=(os.path.basename(src_image_web_path)),
@@ -86,45 +97,45 @@ def _update_database_before_move(dst_image_web_path, src_image_web_path):
         image.save()
 
     except (Image.DoesNotExist, Directory.DoesNotExist):
-        raise BadRequestException()
+        raise BadRequestException("Database object doesn't exist: (name={0})".format(src_image_web_path))
+
+
+@transaction.atomic
+def move_image(src_image_web_path, dst_image_web_path, empty_orphaned_directories=False):
+    _update_database_before_move(src_image_web_path, dst_image_web_path)
+    _move_image_groups(src_image_web_path, dst_image_web_path, empty_orphaned_directories)
 
 
 @require_POST
 def delete_image(request, path):
-    src_image_web_path = os.path.normpath(path)
-    dst_image_web_path = os.path.join(locations.TRASH_DIR_NAME, path)
-
     if re.search(TRASH_DIRECTORY_REGEXP, path):
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest("Image is in Trash already.")
 
     try:
-        _update_database_before_move(dst_image_web_path, src_image_web_path)
-        _move_image_groups(src_image_web_path, dst_image_web_path)
+        src_image_web_path = os.path.normpath(path)
+        dst_image_web_path = os.path.join(locations.TRASH_DIR_NAME, path)
+        move_image(src_image_web_path, dst_image_web_path)
+        return HttpResponse()
     except BadRequestException:
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest(get_traceback_string())
     except Exception:
-        return HttpResponseServerError()
-
-    return HttpResponse()
+        return HttpResponseServerError(get_traceback_string())
 
 
 @require_POST
 def revert_image(request, path):
-    src_image_web_path = os.path.normpath(path)
-    dst_image_web_path = re.sub(TRASH_DIRECTORY_REGEXP, '', src_image_web_path)
-
     if not re.search(TRASH_DIRECTORY_REGEXP, path):
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest("Image should be in Trash.")
 
     try:
-        _update_database_before_move(dst_image_web_path, src_image_web_path)
-        _move_image_groups(src_image_web_path, dst_image_web_path, empty_orphaned_directories=True)
+        src_image_web_path = os.path.normpath(path)
+        dst_image_web_path = re.sub(TRASH_DIRECTORY_REGEXP, '', src_image_web_path)
+        move_image(src_image_web_path, dst_image_web_path)
+        return HttpResponse()
     except BadRequestException:
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest(get_traceback_string())
     except Exception:
-        return HttpResponseServerError()
-
-    return HttpResponse()
+        return HttpResponseServerError(get_traceback_string())
 
 
 class FilterByIdsMixin(object):
