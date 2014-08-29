@@ -8,93 +8,88 @@ import logging
 import subprocess
 import sys
 
-from common.collectionutils.pidfile import handle_pidfile
 from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT
-
 
 CONFIGURATION = (
     (THUMBNAILS_PHYS_ROOT, 'x200', '-thumbnail'),
     (PREVIEW_PHYS_ROOT, 'x1280', '-resize'),
 )
 
-META_ROOT = os.path.join(COLLECTION_PHYS_ROOT, '.meta')
-PID_FILE = os.path.join(META_ROOT, "thumbnailer.pid")
-LOG_FILE = os.path.join(META_ROOT, "thumbnailer.log")
+logger = logging.getLogger(__name__)
 
 
 class Thumbnailer:
     JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
 
     @staticmethod
-    def change_path_root(path, prev_root, new_root):
+    def _change_path_root(path, prev_root, new_root):
         path = os.path.normpath(path)
         prev_root = os.path.normpath(prev_root)
         new_root = os.path.normpath(new_root)
         if not path.startswith(prev_root):
-            logging.critical("terminating: path should be rooted in: {}".format(prev_root))
+            logger.critical("terminating: path should be rooted in: {}".format(prev_root))
             sys.exit(-1)
         return re.sub('^' + prev_root, new_root, path)
 
     @classmethod
-    def dst_path(cls, path, thumbs_root):
-        return cls.change_path_root(path, COLLECTION_PHYS_ROOT, thumbs_root)
+    def _dst_path(cls, path, thumbs_root):
+        return cls._change_path_root(path, COLLECTION_PHYS_ROOT, thumbs_root)
 
     @classmethod
-    def src_path(cls, path, thumbs_root):
-        return cls.change_path_root(path, thumbs_root, COLLECTION_PHYS_ROOT)
+    def _src_path(cls, path, thumbs_root):
+        return cls._change_path_root(path, thumbs_root, COLLECTION_PHYS_ROOT)
 
     @classmethod
-    def create_missing_dst_dir(cls, directory, dst_root):
-        dst_dir = cls.dst_path(directory, dst_root)
+    def _create_missing_dst_dir(cls, directory, dst_root):
+        dst_dir = cls._dst_path(directory, dst_root)
         if not os.path.exists(dst_dir):
-            logging.info("creating directory: {}".format(dst_dir))
+            logger.info("creating directory: {}".format(dst_dir))
             os.makedirs(dst_dir)
 
     @classmethod
-    def create_miniature(cls, image, dst_root, geometry, mode):
-        dst_file = cls.dst_path(image, dst_root)
+    def _create_miniature(cls, image, dst_root, geometry, mode):
+        dst_file = cls._dst_path(image, dst_root)
+
+        # if thumbnail exists and is up-to-date nothing should be done
         if os.path.exists(dst_file):
             if os.path.getmtime(image) <= os.path.getmtime(dst_file):
-                logging.debug("skipping (up to date image exists): {}".format(dst_file))
+                logger.debug("skipping (up to date image exists): {}".format(dst_file))
                 return
 
-        logging.info("creating image: {}".format(dst_file))
+        logger.info("creating image: {}".format(dst_file))
         subprocess.call(['convert', image, mode, geometry, '-quality', '80', dst_file])
 
     @classmethod
-    def create_images(cls):
+    def prepare_phase_hook(cls, root, dirs, files):
+        # for each file in collection create thumbnails or preview images
         for (thumbs_root, geometry, mode) in CONFIGURATION:
-            # for each file in collection create thubnails or resized files
-            for (root, dirs, files) in os.walk(COLLECTION_PHYS_ROOT):
-                dirs[:] = [x for x in dirs if not x.startswith('.')]
-                dirs.sort(key=lambda x: x.lower())
 
-                # create destination directory if missing
-                for directory in dirs:
-                    abspath = os.path.abspath(os.path.join(root, directory))
-                    cls.create_missing_dst_dir(abspath, thumbs_root)
+            # create destination directory if missing
+            for directory in dirs:
+                abspath = os.path.abspath(os.path.join(root, directory))
+                cls._create_missing_dst_dir(abspath, thumbs_root)
 
-                # create thumb / resized
-                for name in [f for f in sorted(files) if cls.JPG_MATCH.match(f)]:
-                    abspath = os.path.abspath(os.path.join(root, name))
-                    cls.create_miniature(abspath, thumbs_root, geometry, mode)
+            # create thumb / resized
+            for name in [f for f in sorted(files) if cls.JPG_MATCH.match(f)]:
+                abspath = os.path.abspath(os.path.join(root, name))
+                cls._create_miniature(abspath, thumbs_root, geometry, mode)
 
     @classmethod
-    def remove_file_not_in_collection(cls, dst_file, thumbs_root):
-        src_file = cls.src_path(dst_file, thumbs_root)
+    def _remove_file_not_in_collection(cls, dst_file, thumbs_root):
+        src_file = cls._src_path(dst_file, thumbs_root)
         if not os.path.exists(src_file):
-            logging.info("removing file: {}".format(dst_file))
+            logger.info("removing file: {}".format(dst_file))
             os.unlink(dst_file)
 
     @classmethod
-    def remove_dir_not_in_collection(cls, dst_dir, thumbs_root):
-        src_dir = cls.src_path(dst_dir, thumbs_root)
+    def _remove_dir_not_in_collection(cls, dst_dir, thumbs_root):
+        src_dir = cls._src_path(dst_dir, thumbs_root)
         if not os.path.exists(src_dir):
-            logging.info("removing directory: {}".format(dst_dir))
+            logger.info("removing directory: {}".format(dst_dir))
             try:
                 os.rmdir(dst_dir)
             except OSError as e:
-                logging.error("couldn't remove directory (not empty): " + dst_dir)
+                logger.error("couldn't remove directory (not empty): " + dst_dir)
 
     @classmethod
     def remove_obsolete(cls):
@@ -105,17 +100,9 @@ class Thumbnailer:
                 # remove files if no corresponding file was found
                 for name in [f for f in sorted(files) if cls.JPG_MATCH.match(f)]:
                     dst_file = os.path.abspath(os.path.join(root, name))
-                    cls.remove_file_not_in_collection(dst_file, thumbs_root)
+                    cls._remove_file_not_in_collection(dst_file, thumbs_root)
 
                 # remove directories if no corresponding dir was found
                 for directory in dirs:
                     dst_dir = os.path.abspath(os.path.join(root, directory))
-                    cls.remove_dir_not_in_collection(dst_dir, thumbs_root)
-
-
-if __name__ == '__main__':
-    logging.basicConfig(format="%(asctime)s (%(levelname)s): %(message)s", filename=LOG_FILE, level=logging.INFO)
-    handle_pidfile(PID_FILE)
-    thumbnailer = Thumbnailer
-    thumbnailer.create_images()
-    thumbnailer.remove_obsolete()
+                    cls._remove_dir_not_in_collection(dst_dir, thumbs_root)

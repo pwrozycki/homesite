@@ -1,6 +1,5 @@
 import os
 
-from gallery import locations
 from gallery.models import Directory
 
 

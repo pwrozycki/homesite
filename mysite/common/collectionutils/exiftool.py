@@ -1,37 +1,23 @@
-import json
 import os
-import subprocess
 import datetime
 import logging
+import gi.repository
+from gi.repository.GExiv2 import Metadata
 
 EXIF_DATE_FIELDS = [
-    'DateTimeOriginal',
-    'DateTime',
-    'FileModifyDate'
+    'Exif.Photo.DateTimeOriginal',
+    'Exif.Image.DateTime',
 ]
-EXIF_FILE_NUMBER = 'FileNumber'
-EXIFTOOL_FIELD_ARGS = ['-dateFormat', "%Y:%m:%d %H:%M:%S"] + \
-                      ["-" + x for x in EXIF_DATE_FIELDS + [EXIF_FILE_NUMBER]]
 
 EXIF_DATE_FORMAT = "%Y:%m:%d %H:%M:%S"
 FILE_DATE_FORMAT = "%Y%m%d_%H%M%S"
 
 
-class JsonUtil:
-    @staticmethod
-    def read_exiftool_json(files):
-        output_bytes = subprocess.check_output(["exiftool", "-json"] + EXIFTOOL_FIELD_ARGS + files,
-                                               stderr=open(os.devnull, 'w'))
-        output_str = output_bytes.decode(encoding='UTF-8')
-        return json.loads(output_str)
-
-
 class ImageInfo:
-    def __init__(self, path, date, file_number):
+    def __init__(self, path, date):
         self.path = path
         self.extension = os.path.splitext(self.filename)[1].lower()
         self.date = date
-        self.file_number = file_number
         self.suffix = None
 
     @property
@@ -49,26 +35,32 @@ class ImageInfo:
                 self.extension)
 
     @classmethod
-    def create_from_json(cls, exif_json):
-        path = os.path.abspath(exif_json.get('SourceFile'))
-        file_number = exif_json.get(EXIF_FILE_NUMBER, None)
-        date = cls.read_date_info(exif_json)
-        return ImageInfo(path, date, file_number)
+    def for_path(cls, path):
+        metadata = Metadata()
+        metadata.open_path(path)
+        date = cls.read_date_info(metadata, path)
+        return ImageInfo(path, date)
 
     @staticmethod
-    def read_date_info(exif_json):
+    def read_date_info(metadata, path):
+        # Try to read date information from exif tags
         for exifField in EXIF_DATE_FIELDS:
-            date_info = exif_json.get(exifField, '')
-            if date_info != '':
-                try:
+            try:
+                date_info = metadata.get_tag_string(exifField)
+                if date_info:
                     date = datetime.datetime.strptime(date_info, EXIF_DATE_FORMAT)
                     return date
-                except ValueError:
-                    logging.error('unable to parse date: {0}: {1}: '.format(exif_json['SourceFile'], date_info))
-                    continue
+            except AttributeError:
+                # Specific exif tag is missing - try with next one
+                pass
+            except ValueError:
+                # Date didn't match expected format - log error
+                logging.error('unable to parse date: {0}: {1}: '.format(path, date_info))
+                pass
 
-        return None
+        # If no tag contains valid date - return modification time
+        return datetime.datetime.fromtimestamp(os.path.getmtime(path))
 
     def __repr__(self):
-        return "date:{0.date}, file_number:{0.file_number}, fileName:{0.filename}, suffix:{0.suffix}, newFile:{0.new_filename}".format(
+        return "date:{0.date}, fileName:{0.filename}, suffix:{0.suffix}, newFile:{0.new_filename}".format(
             self)

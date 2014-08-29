@@ -3,6 +3,8 @@ import os
 import sys
 import atexit
 
+logger = logging.getLogger(__name__)
+
 
 def _create_pidfile(pid_file):
     pid = str(os.getpid())
@@ -14,13 +16,13 @@ def _create_pidfile(pid_file):
 
 
 def handle_pidfile(pid_file):
-    logging.info('creating pidfile')
+    logger.info('creating pidfile')
     if not _create_pidfile(pid_file):
-        logging.error('pidfile exists: exiting')
+        logger.error('pidfile exists: exiting')
         sys.exit(1)
     atexit.register(_remove_pid_file, pid_file)
 
 
 def _remove_pid_file(pid_file):
-    logging.info('removing pidfile')
+    logger.info('removing pidfile')
     os.unlink(pid_file)
