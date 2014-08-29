@@ -12,7 +12,6 @@ templates = [
     'homesite_uwsgi_template.ini',
     'homesite_nginx_template.conf',
     'mysite/gallery/locations_template.py',
-    'mysite/tasks_template.sh',
 ]
 
 import os, re

@@ -32,14 +32,13 @@ class Runner:
 
         handle_pidfile(os.path.join(COLLECTION_PHYS_ROOT, '.meta', 'gallery_runner.pid'))
 
-        for (root, dirs, files) in os.walk(COLLECTION_PHYS_ROOT):
-            dirs[:] = [x for x in dirs if not x.startswith('.')]
-            dirs.sort()
-            files.sort()
+        for processor in (Renamer, Thumbnailer, Indexer):
+            for (root, dirs, files) in os.walk(COLLECTION_PHYS_ROOT):
+                dirs[:] = [x for x in dirs if not x.startswith('.')]
+                dirs.sort()
+                files.sort()
 
-            Renamer.prepare_phase_hook(root, dirs, files)
-            Thumbnailer.prepare_phase_hook(root, dirs, files)
-            Indexer.prepare_phase_hook(root, dirs, files)
+                processor.prepare_phase_hook(root, dirs, files)
 
         Thumbnailer.remove_obsolete()
 
