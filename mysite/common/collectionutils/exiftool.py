@@ -1,8 +1,11 @@
 import os
 import datetime
 import logging
-import gi.repository
-from gi.repository.GExiv2 import Metadata
+
+try:
+    from gi.repository.GExiv2 import Metadata
+except ImportError:
+    from gi.repository.GExiv2 import Metadata
 
 EXIF_DATE_FIELDS = [
     'Exif.Photo.DateTimeOriginal',
