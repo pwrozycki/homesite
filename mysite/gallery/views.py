@@ -81,7 +81,7 @@ def _create_directories_in_chain(directory):
         previous_parent = find_or_create_directory(path, previous_parent)
 
 
-def _update_database_before_move(src_image_web_path, dst_image_web_path):
+def _update_database_after_move(src_image_web_path, dst_image_web_path):
     try:
         image = Image.objects.get(
             name=(os.path.basename(src_image_web_path)),
@@ -102,8 +102,8 @@ def _update_database_before_move(src_image_web_path, dst_image_web_path):
 
 @transaction.atomic
 def move_image(src_image_web_path, dst_image_web_path, empty_orphaned_directories=False):
-    _update_database_before_move(src_image_web_path, dst_image_web_path)
     _move_image_groups(src_image_web_path, dst_image_web_path, empty_orphaned_directories)
+    _update_database_after_move(src_image_web_path, dst_image_web_path)
 
 
 @require_POST
