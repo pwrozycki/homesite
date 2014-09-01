@@ -12,10 +12,10 @@ import sys
 from common.collectionutils.renameutils import get_mtime_datetime
 from gallery import locations
 
-from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT
+from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT, collection_walk
 from gallery.models import Image
 
-CONFIGURATION = (
+THUMBNAILS_CONVERT_CONF = (
     (THUMBNAILS_PHYS_ROOT, 'x200', '-thumbnail'),
     (PREVIEW_PHYS_ROOT, 'x1280', '-resize'),
 )
@@ -45,69 +45,86 @@ class Thumbnailer:
         return cls._change_path_root(thumb_root, COLLECTION_PHYS_ROOT, thumb_phys_path)
 
     @classmethod
-    def _create_missing_dst_dir(cls, dir_phys_path, dst_root):
-        dst_dir = cls._thumb_phys_path(dst_root, dir_phys_path)
-        if not os.path.exists(dst_dir):
-            logger.info("creating directory: {}".format(dst_dir))
-            os.makedirs(dst_dir)
+    def _create_missing_dst_dir(cls, dir_phys_path):
+        for (thumb_root, geometry, mode) in THUMBNAILS_CONVERT_CONF:
+            dst_dir = cls._thumb_phys_path(thumb_root, dir_phys_path)
+            if not os.path.exists(dst_dir):
+                logger.info("creating directory: {}".format(dst_dir))
+                os.makedirs(dst_dir)
 
     @classmethod
-    def _create_minified(cls, image_phys_path, thumb_root, geometry, mode):
-        thumb_phys_path = cls._thumb_phys_path(thumb_root, image_phys_path)
+    def method_name(cls, image_phys_path, thumb_phys_path, geometry, mode):
+        logger.info("creating image: {}".format(thumb_phys_path))
+        subprocess.call(['convert', image_phys_path, mode, geometry, '-quality', '80', thumb_phys_path])
 
-        # if thumbnail exists and is up-to-date nothing should be done
-        if os.path.exists(thumb_phys_path):
-            if os.path.getmtime(image_phys_path) <= os.path.getmtime(thumb_phys_path):
-                logger.debug("skipping (up to date image exists): {}".format(thumb_phys_path))
-                return
+    @classmethod
+    def create_thumbnails(cls, image_phys_path, force_recreate=False):
+        for (thumb_root, geometry, mode) in THUMBNAILS_CONVERT_CONF:
+            # for each file in collection create thumbnails
+            thumb_phys_path = cls._thumb_phys_path(thumb_root, image_phys_path)
 
-        # thumbnail doesn't exist
-        else:
-            image_mtime = get_mtime_datetime(image_phys_path)
-            image_basename = (os.path.basename(image_phys_path))
-            same_image_query = Image.objects.filter(name=image_basename, modification_time=image_mtime)
+            # recreate requested
+            if force_recreate:
+                cls.method_name(image_phys_path, thumb_phys_path, geometry, mode)
 
-            # found images matching name and mtime
-            if same_image_query:
-                # there are many such images - first will be taken into account - but log warning
-                if len(same_image_query) > 1:
-                    logger.warning("found many images with name: {} and matching mtime".format(image_basename))
+            # thumbnail exists and is up-to-date => nothing should be done
+            elif os.path.exists(thumb_phys_path) and not force_recreate:
+                if os.path.getmtime(image_phys_path) <= os.path.getmtime(thumb_phys_path):
+                    logger.debug("skipping (up to date image exists): {}".format(thumb_phys_path))
+                    return
 
-                same_image = same_image_query[0]
-                same_image_phys_path = locations.collection_phys_path(same_image.path)
-                same_image_thumb_phys_path = cls._thumb_phys_path(thumb_root, same_image_phys_path)
-                move_args = (same_image_thumb_phys_path, thumb_phys_path)
-
-                # underlying image exists - thumbnails can be copied
-                if os.path.exists(same_image_phys_path):
-                    logger.warning(
-                        "there exists already image with same name and mtime: copying {} -> {}".format(*move_args))
-                    shutil.copy(same_image_thumb_phys_path, thumb_phys_path)
-
-                # image has been moved - thumbnails should be moved
-                else:
-                    logger.info("move detected, moving {} -> {} ".format(*move_args))
-                    shutil.move(*move_args)
-
-            # no existing thumbnail for such image exists - create one
+            # thumbnail doesn't exist
             else:
-                logger.info("creating image: {}".format(thumb_phys_path))
-                subprocess.call(['convert', image_phys_path, mode, geometry, '-quality', '80', thumb_phys_path])
+                image_mtime = get_mtime_datetime(image_phys_path)
+                image_basename = (os.path.basename(image_phys_path))
+                same_image_query = Image.objects.filter(name=image_basename, modification_time=image_mtime)
+
+                # found images matching name and mtime
+                if same_image_query:
+                    cls._use_existing_thumbnail(thumb_phys_path, same_image_query, thumb_root)
+
+                # no existing thumbnail for such image exists - create one
+                else:
+                    cls.method_name(image_phys_path, thumb_phys_path, geometry, mode)
 
     @classmethod
-    def prepare_phase_hook(cls, root, dirs, files):
-        # for each file in collection create thumbnails or preview images
-        for (thumb_root, geometry, mode) in CONFIGURATION:
+    def _use_existing_thumbnail(cls, thumb_phys_path, same_image_query, thumb_root):
+        # there are many such images - first will be taken into account - but log warning
+        if len(same_image_query) > 1:
+            logger.warning("multiple matching images found: {}".format(os.path.basename(thumb_phys_path)))
 
-            # create destination directory if missing
-            for directory in dirs:
-                dir_phys_path = os.path.abspath(os.path.join(root, directory))
-                cls._create_missing_dst_dir(dir_phys_path, thumb_root)
+        same_image = same_image_query[0]
+        same_image_phys_path = locations.collection_phys_path(same_image.path)
+        same_image_thumb_phys_path = cls._thumb_phys_path(thumb_root, same_image_phys_path)
+        move_args = (same_image_thumb_phys_path, thumb_phys_path)
 
-            # create thumb / resized
-            for name in [f for f in sorted(files) if cls.JPG_MATCH.match(f)]:
-                image_phys_path = os.path.abspath(os.path.join(root, name))
-                cls._create_minified(image_phys_path, thumb_root, geometry, mode)
+        # underlying image exists - thumbnails can be copied
+        if os.path.exists(same_image_phys_path):
+            logger.warning(
+                "there exists already image with same name and mtime: copying {} -> {}".format(*move_args))
+            shutil.copy(same_image_thumb_phys_path, thumb_phys_path)
+
+        # image has been moved - thumbnails should be moved
+        else:
+            logger.info("move detected, moving {} -> {} ".format(*move_args))
+            shutil.move(*move_args)
+
+    @classmethod
+    def walk(cls):
+        for (root, dirs, files) in collection_walk():
+            cls._process_directory(root, dirs, files)
+
+    @classmethod
+    def _process_directory(cls, root, dirs, files):
+        # create destination directory if missing
+        for directory in dirs:
+            dir_phys_path = os.path.abspath(os.path.join(root, directory))
+            cls._create_missing_dst_dir(dir_phys_path)
+
+        # create thumb / resized
+        for name in [f for f in sorted(files) if cls.JPG_MATCH.match(f)]:
+            image_phys_path = os.path.abspath(os.path.join(root, name))
+            cls.create_thumbnails(image_phys_path)
 
     @classmethod
     def _remove_file_not_in_collection(cls, thumb_phys_path, thumb_root):
@@ -128,7 +145,7 @@ class Thumbnailer:
 
     @classmethod
     def remove_obsolete(cls):
-        for (thumb_root, geometry, mode) in CONFIGURATION:
+        for (thumb_root, geometry, mode) in THUMBNAILS_CONVERT_CONF:
             for (root, dirs, files) in os.walk(thumb_root, topdown=False):
                 dirs.sort()
 

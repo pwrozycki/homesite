@@ -2,6 +2,7 @@ import logging
 from logging import Formatter
 from logging.handlers import RotatingFileHandler
 import os
+from common.collectionutils.rotator import Rotator
 
 from gallery.locations import COLLECTION_PHYS_ROOT
 from common.collectionutils.indexer import Indexer
@@ -32,13 +33,10 @@ class Runner:
 
         handle_pidfile(os.path.join(COLLECTION_PHYS_ROOT, '.meta', 'gallery_runner.pid'))
 
-        for processor in (Renamer, Thumbnailer, Indexer):
-            for (root, dirs, files) in os.walk(COLLECTION_PHYS_ROOT):
-                dirs[:] = [x for x in dirs if not x.startswith('.')]
-                dirs.sort()
-                files.sort()
-
-                processor.prepare_phase_hook(root, dirs, files)
+        Renamer.walk()
+        Rotator.go()
+        Thumbnailer.walk()
+        Indexer.walk()
 
         Thumbnailer.remove_obsolete()
 

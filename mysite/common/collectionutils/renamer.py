@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import os
+from gallery.locations import collection_walk
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
@@ -62,7 +63,12 @@ class Renamer:
         logger.error("too many copies, skipping rolling suffixes: {}".format(','.join(paths)))
 
     @classmethod
-    def prepare_phase_hook(cls, root, dirs, files):
+    def walk(cls):
+        for (root, dirs, files) in collection_walk():
+            cls._process_directory(root, dirs, files)
+
+    @classmethod
+    def _process_directory(cls, root, dirs, files):
         images = []
         for name in sorted(files):
             if cls.CORRECT_FILENAME_RE.match(name):

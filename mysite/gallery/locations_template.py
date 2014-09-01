@@ -48,3 +48,11 @@ def thumbnail_phys_path(web_path):
 
 def preview_phys_path(web_path):
     return normpath_join(PREVIEW_PHYS_ROOT, web_path)
+
+
+def collection_walk():
+    for (root, dirs, files) in os.walk(COLLECTION_PHYS_ROOT):
+        dirs[:] = [x for x in dirs if not x.startswith('.')]
+        dirs.sort()
+        files.sort()
+        yield (root, dirs, files)

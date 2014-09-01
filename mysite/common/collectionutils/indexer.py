@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+from gallery.locations import collection_walk
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
@@ -18,7 +19,12 @@ class Indexer():
     JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
 
     @classmethod
-    def prepare_phase_hook(cls, root, dirs, files):
+    def walk(cls):
+        for (root, dirs, files) in collection_walk():
+            cls._process_directory(root, dirs, files)
+
+    @classmethod
+    def _process_directory(cls, root, dirs, files):
         # ignore directories starting with a dot
         images = sorted([f for f in files if cls.JPG_MATCH.match(f)])
 
