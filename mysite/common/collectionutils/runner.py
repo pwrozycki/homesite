@@ -28,9 +28,10 @@ class Runner:
 
     @classmethod
     def go(cls):
-        # create pidfile, exit if creation fails
+        # configure logging
         cls._configure_logging()
 
+        # create pidfile, exit if creation fails
         handle_pidfile(os.path.join(COLLECTION_PHYS_ROOT, '.meta', 'gallery_runner.pid'))
 
         Renamer.walk()

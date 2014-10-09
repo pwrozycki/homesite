@@ -68,8 +68,8 @@ div#preview {
 }
 
 .thumbnail-container .image-overlay {
-    width: 36%;
-    padding: 0 32%;
+    width: 50%;
+    padding: 0 25%;
 }
 
 .image-overlay {
@@ -90,17 +90,17 @@ div#preview {
     opacity: 1;
 }
 
-.image-overlay button.inactive {
+.image-overlay .button.inactive {
     opacity: 0.4;
 }
 
-.image-overlay button:hover:not(.inactive) {
+.image-overlay .button:hover:not(.inactive) {
     top: -2px;
     left: 0px;
     position: relative;
 }
 
-.image-overlay button {
+.image-overlay .button {
     background-size: 100%;
     background-color: transparent;
     background-repeat: no-repeat;
@@ -114,38 +114,42 @@ div#preview {
 :focus {outline:none;}
 ::-moz-focus-inner {border:0;}
 
-button.rightArrow {
+.button.rightArrow {
     background-image: url('images/right_arrow.png');
 }
 
-button.leftArrow {
+.button.leftArrow {
     background-image: url('images/left_arrow.png');
 }
 
-button.upArrow {
+.button.upArrow {
     background-image: url('images/up_arrow.png');
 }
 
-button.thrash {
+.button.download {
+    background-image: url('images/download_arrow.png');
+}
+
+.button.thrash {
     background-image: url('images/user_trash.png');
 }
 
-button.revert {
+.button.revert {
     background-image: url('images/undo.png');
 }
 
-.image-overlay button.up {
+.image-overlay .button.up {
     background-image: url('images/orientation_up.png');
 }
 
-.image-overlay button.right {
+.image-overlay .button.right {
     background-image: url('images/orientation_right.png');
 }
 
-.image-overlay button.down {
+.image-overlay .button.down {
     background-image: url('images/orientation_down.png');
 }
 
-.image-overlay button.left {
+.image-overlay .button.left {
     background-image: url('images/orientation_left.png');
 }

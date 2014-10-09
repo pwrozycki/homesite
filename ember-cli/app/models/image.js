@@ -16,6 +16,10 @@ export default DS.Model.extend({
         return [this.get('directory.preview_path'), this.get('name')].join('/');
     }.property('directory.preview_path', 'name'),
 
+    original: function() {
+        return [this.get('directory.original_path'), this.get('name')].join('/');
+    }.property('directory.original_path', 'name'),
+
     path: function() {
         var directoryPath = this.get('directory.path');
         var name = this.get('name');

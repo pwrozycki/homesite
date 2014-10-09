@@ -3,6 +3,7 @@ import DS from "ember-data";
 export default DS.Model.extend({
     path: DS.attr('string'),
     thumbnail_path: DS.attr('string'),
+    original_path: DS.attr('string'),
     preview_path: DS.attr('string'),
 
     parent: DS.belongsTo('directory'),

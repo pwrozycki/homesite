@@ -22,11 +22,12 @@
 
             <div class="image-overlay">
                 {{#if image.directory.inTrash}}
-                    <button class="revert" {{action "revertImage" image}}></button>
+                    <a class="revert button" {{action "revertImage" image}}></a>
                 {{else}}
-                    <button class="thrash" {{action "removeImage" image}}></button>
+                    <a class="thrash button" {{action "removeImage" image}}></a>
                 {{/if}}
-                <button {{action "rotateImage" image}}{{bind-attr class=image.orientation}}></button>
+                <a {{action "rotateImage" image}}{{bind-attr class="image.orientation :button"}}></a>
+                <a class="download button" {{bind-attr href=image.original}} {{bind-attr download=image.name}}></a>
             </div>
             <span>{{ image.name }}</span>
         </div>
