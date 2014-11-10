@@ -135,7 +135,7 @@ export default Ember.ObjectController.extend({
                 }
 
                 // remove record from store
-                image.get('directory.images').removeRecord(image);
+                self.get('images').replace(imageIndex, 1);
             },
             function (result) {
                 self.send('openModal', 'modals/error-modal', { title: "Server error", html: result.responseText });

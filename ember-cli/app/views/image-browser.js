@@ -2,9 +2,10 @@ import Ember from 'ember';
 import LazyLoader from '../tools/lazy-loader';
 
 var lazyLoader = LazyLoader.create({});
+var $ = Ember.$;
 
 function updateCallback() {
-    lazyLoader.update()
+    lazyLoader.update();
 }
 
 export default Ember.View.extend({
