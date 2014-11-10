@@ -1,19 +1,24 @@
 import Ember from 'ember';
+import LazyLoader from '../tools/lazy-loader';
+
+var lazyLoader = LazyLoader.create({});
+
+function updateCallback() {
+    lazyLoader.update()
+}
 
 export default Ember.View.extend({
     templateName: 'views/image-browser',
 
-    lazyLoadImages: function () {
-        Ember.$(window).unbind("scroll");
-        Ember.$(window).unbind("resize");
-        Ember.$("img.lazy").lazyload({ threshold: 200 });
+    setupLazyLoader: function () {
+        lazyLoader.setImages($("img.lazy"));
     }.on('didInsertElement'),
 
-    // Reload lazyload plugin, when images where changed
+    imageUrlsChanged: function () {
+        Ember.run.scheduleOnce('afterRender', updateCallback);
+    }.observes('controller.model.images.@each.name'),
+
     imagesChanged: function () {
-        var $this = this;
-        Ember.run.scheduleOnce('afterRender', function () {
-            $this.lazyLoadImages();
-        });
-    }.observes('controller.model.images.@each')
+        Ember.run.scheduleOnce('afterRender', this.setupLazyLoader.bind(this));
+    }.observes('controller.model.directory')
 });
