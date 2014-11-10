@@ -63,35 +63,35 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-# STATIC_ROOT = os.path.join(PROJECT_ROOT, '../static')
+STATIC_ROOT = os.path.join(PROJECT_ROOT, '../static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-# STATIC_URL = '/static/'
+STATIC_URL = '/static/'
 
 # Additional locations of static files
-#STATICFILES_DIRS = (
+STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-#)
+)
 
 # List of finder classes that know how to find static files in
 # various locations.
-# STATICFILES_FINDERS = (
-#     'django.contrib.staticfiles.finders.FileSystemFinder',
-#     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
-# )
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'd(f67r*%s$p+um7swbtey+w%!vn9z@fz3vovrd0qk7*q2ep3#8'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    # 'django.template.loaders.filesystem.Loader',
-    # 'django.template.loaders.app_directories.Loader',
-    # 'django.template.loaders.eggs.Loader',
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+    #     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -113,6 +113,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    os.path.join(PROJECT_ROOT, 'templates'),
 )
 
 INSTALLED_APPS = (
@@ -121,7 +122,7 @@ INSTALLED_APPS = (
     # 'django.contrib.sessions',
     # 'django.contrib.sites',
     #'django.contrib.messages',
-    # 'django.contrib.staticfiles',
+    'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -142,10 +143,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny'
     ],
 
-    # filtering configuration
+     # filtering configuration
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
 
-    # rest_framework_ember configuration
+
     'PAGINATE_BY': 10000,
     'PAGINATE_BY_PARAM': 'page_size',
     'MAX_PAGINATE_BY': 10000,
@@ -157,10 +158,9 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser'
     ),
     'DEFAULT_RENDERER_CLASSES': (
-        'common.rest_framework.renderers.MyJsonRenderer',
+        'rest_framework_ember.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
-    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
 }
 
 # A sample logging configuration. The only tangible logging

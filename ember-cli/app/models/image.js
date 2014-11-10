@@ -1,22 +1,31 @@
 import DS from "ember-data";
 
+var ROTATIONS = ['up', 'right', 'down', 'left'];
+
 export default DS.Model.extend({
-    ROTATIONS: ['up', 'right', 'down', 'left'],
+    name: DS.attr(),
+    orientation: DS.attr(),
 
-    name: DS.attr('string'),
-    orientation: DS.attr('string'),
-
-    directory: DS.belongsTo('directory'),
+    directory: DS.belongsTo('directory', { async: true }),
 
     thumbnail: function() {
+        if (!this.get('name')) {
+            return null;
+        }
         return [this.get('directory.thumbnail_path'), this.get('name')].join('/');
     }.property('directory.thumbnail_path', 'name'),
 
     preview: function() {
+        if (!this.get('name')) {
+            return null;
+        }
         return [this.get('directory.preview_path'), this.get('name')].join('/');
     }.property('directory.preview_path', 'name'),
 
     original: function() {
+        if (!this.get('name')) {
+            return null;
+        }
         return [this.get('directory.original_path'), this.get('name')].join('/');
     }.property('directory.original_path', 'name'),
 
@@ -41,8 +50,8 @@ export default DS.Model.extend({
     }.property('index', 'directory.images.length'),
 
     nextRotation: function(offset) {
-        var currentOrientationIndex = this.ROTATIONS.indexOf(this.get('orientation'));
-        var nextOrientationIndex = (currentOrientationIndex + offset) % this.ROTATIONS.length;
-        return this.ROTATIONS[nextOrientationIndex];
+        var currentOrientationIndex = ROTATIONS.indexOf(this.get('orientation'));
+        var nextOrientationIndex = (currentOrientationIndex + offset) % ROTATIONS.length;
+        return ROTATIONS[nextOrientationIndex];
     }
 });

@@ -1,15 +1,15 @@
 import DS from "ember-data";
 
 export default DS.Model.extend({
-    path: DS.attr('string'),
-    thumbnail_path: DS.attr('string'),
-    original_path: DS.attr('string'),
-    preview_path: DS.attr('string'),
+    path: DS.attr(),
+    thumbnail_path: DS.attr(),
+    original_path: DS.attr(),
+    preview_path: DS.attr(),
 
-    parent: DS.belongsTo('directory'),
+    parent: DS.belongsTo('directory', { async: true }),
 
     name: function () {
-        return this.get('path').match(/^.*?([^/]*)$/)[1];
+        return this.get('path') == null ? null : this.get('path').match(/^.*?([^/]*)$/)[1];
     }.property('path'),
 
     inTrash: function() {

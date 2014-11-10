@@ -154,6 +154,7 @@ class DirectoryViewSet(FilterByIdsMixin, viewsets.ReadOnlyModelViewSet):
     queryset = Directory.objects.all()
     serializer_class = DirectorySerializer
     filter_fields = ('path', 'parent')
+    resource_name = 'directories'
 
     def get_queryset(self):
         queryset = super(DirectoryViewSet, self).get_queryset()
