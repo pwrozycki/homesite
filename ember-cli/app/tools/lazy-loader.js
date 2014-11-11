@@ -4,35 +4,47 @@ var $ = Ember.$;
 var $window = $(window);
 
 var THRESHOLD = 200;
+var UPDATE_VIEWPORT_STEP = 200;
 var FAILURE_LIMIT = 10;
 
 export default Ember.Object.extend({
 
-    elements: [],
+    elements: null,
+    lastUpdateViewport: null,
 
     rebindEvents: function () {
         $window.unbind("resize");
         $window.unbind("scroll");
-        $window.bind("resize", this.update.bind(this));
-        $window.bind("scroll", this.update.bind(this));
+        $window.bind("resize", this.tryupdate.bind(this));
+        $window.bind("scroll", this.tryupdate.bind(this));
     },
 
+    /**
+     * Setup lazy loader, by specifying array of DOM images that should be lazy loaded.
+     */
     setImages: function (jqueryRefs) {
         this.rebindEvents();
 
         this.elements = [];
-        var $this = this;
+        this.lastUpdateViewport = null;
 
+        var $this = this;
         jqueryRefs.each(function (index, item) {
             $this.elements.push($(item));
         });
 
-        this.update();
+        this.tryupdate();
     },
 
+    /**
+     * Show specified element i.e. replace src attribute with value assigned to data-original attribute.
+     */
     showElement: function ($element) {
+        var imageSrc = $element.attr("src");
         var imageUrl = $element.attr("data-original");
-        if (imageUrl) {
+
+        // only show if image url is specified and hasn't been already assigned
+        if (imageUrl && imageSrc !== imageUrl) {
             $("<img />")
                 .bind("load", function () {
                     $element.attr("src", imageUrl);
@@ -42,6 +54,10 @@ export default Ember.Object.extend({
         }
     },
 
+    /**
+     * Show elements starting with firstElementIndex, increasing or decreasing indices.
+     * (Until images end up outside viewport).
+     */
     showElements: function (firstElementIndex, step) {
         var counter = 0;
 
@@ -64,6 +80,27 @@ export default Ember.Object.extend({
         }
     },
 
+    /**
+     * Check if update should be started at all (viewport has been changed significantly).
+     */
+    tryupdate: function () {
+        // Check if viewport change was significant enough to perform update
+        // if not return
+        if(this.lastUpdateViewport != null &&
+            $window.scrollTop() > this.lastUpdateViewport.top - UPDATE_VIEWPORT_STEP &&
+            $window.scrollTop() + $window.height() < this.lastUpdateViewport.bottom + UPDATE_VIEWPORT_STEP) {
+            return;
+        }
+
+        // Update will be executed - store this viewport geometry for later reference
+        this.lastUpdateViewport = { top: $window.scrollTop(), bottom: $window.scrollTop() + $window.height() };
+
+        this.update();
+    },
+
+    /**
+     * Find visible images applying binary search algorithm to detect visible images and show them.
+     */
     update: function () {
         if (this.elements.length === 0) {
             // Elements are empty - nothing will be found anyway
