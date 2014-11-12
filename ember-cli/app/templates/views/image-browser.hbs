@@ -9,7 +9,9 @@
     <ul>
         {{#each model.subdirectories}}
             <li>
+                <img src="assets/images/directory.png"/>
                 {{#link-to 'gallery.browse' path}}{{name}}{{/link-to}}
+                <span {{bind-attr class=":directory-access-icon shared:shared" }} {{action "toggleShared" this}}></span>
             </li>
         {{/each}}
     </ul>

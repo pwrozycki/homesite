@@ -1,7 +1,41 @@
-/* Browser obrazków */
+/* Appearance of directory listing */
+
+#dirlisting img {
+    display: inline;
+    vertical-align: middle;
+    width: 25px;
+}
+
+#dirlisting li {
+    font-size: 13px;
+    list-style-type: none;
+    margin: 0 -20px;
+    width: 300px;
+}
+
+#dirlisting a {
+    text-decoration: none;
+}
+
+#dirlisting .directory-access-icon {
+    display: inline-block;
+    background-image: url("images/eye.png");
+    background-size: 100% 100%;
+    width: 18px;
+    height: 11px;
+    vertical-align: middle;
+    opacity: 0.2;
+}
+
+#dirlisting .directory-access-icon.shared {
+    opacity: 1;
+}
+
+/* Appearance of image browser */
 div#images {
     display: flex;
     flex-flow: row wrap;
+    margin: 0 20px;
 }
 
 div.thumbnail-container {
@@ -31,7 +65,7 @@ div#directorybar {
 }
 
 
-/* Główne kontenery - height 100% pozwala podglądowi dopasowywać się do okna */
+/* height 100% required by nested (height 100%) */
 html, body {
     height: 100%;
     margin: 0 auto;
@@ -42,7 +76,8 @@ body > div.ember-view {
 }
 
 
-/* Podgląd obrazka */
+/* Appearance of image preview */
+
 div#preview-image {
     height: 100%;
     width: 100%;
@@ -110,9 +145,7 @@ div#preview {
     border: 0 none;     /*wyłączenie obramowania*/
 }
 
-/* obejście problemu obramowania przycisków */
-:focus {outline:none;}
-::-moz-focus-inner {border:0;}
+/* Appearance of buttons */
 
 .button.rightArrow {
     background-image: url('images/right_arrow.png');
@@ -153,3 +186,7 @@ div#preview {
 .image-overlay .button.left {
     background-image: url('images/orientation_left.png');
 }
+
+/* Disable strange outline on buttons */
+:focus {outline:none;}
+::-moz-focus-inner {border:0;}

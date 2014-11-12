@@ -22,7 +22,7 @@ class SubdirectorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Directory
-        fields = ['id', 'path', 'original_path', 'thumbnail_path', 'preview_path', 'parent']
+        fields = ['id', 'path', 'original_path', 'thumbnail_path', 'preview_path', 'shared', 'parent']
 
 
 class ImageSerializer(serializers.ModelSerializer):

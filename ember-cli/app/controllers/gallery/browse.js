@@ -150,6 +150,13 @@ export default Ember.ObjectController.extend({
     },
 
     actions: {
+        toggleShared: function(directory) {
+            var oldShared = directory.get('shared');
+            directory.set('shared', !oldShared);
+            directory.save().catch(function() {
+                directory.set('shared', oldShared);
+            });
+        },
         showPreview: function (image) {
             this.set('previewImage', image);
         },

@@ -150,11 +150,10 @@ class FilterByIdsMixin(object):
             return queryset
 
 
-class DirectoryViewSet(FilterByIdsMixin, viewsets.ReadOnlyModelViewSet):
+class DirectoryViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
     queryset = Directory.objects.all()
     serializer_class = DirectorySerializer
     filter_fields = ('path', 'parent')
-    resource_name = 'directories'
 
     def get_queryset(self):
         queryset = super(DirectoryViewSet, self).get_queryset()
@@ -164,11 +163,11 @@ class DirectoryViewSet(FilterByIdsMixin, viewsets.ReadOnlyModelViewSet):
             return queryset
 
 
-class SubdirectoryViewSet(FilterByIdsMixin, viewsets.ReadOnlyModelViewSet):
+class SubdirectoryViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
     queryset = Directory.objects.all()
     serializer_class = SubdirectorySerializer
     filter_fields = ('path', 'parent')
-    resource_name = 'subdirectories'
+    resource_name = 'subdirectory'
 
 
 class ImageViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
