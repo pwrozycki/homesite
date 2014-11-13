@@ -102,7 +102,7 @@ export default Ember.Object.extend({
      * Find visible images applying binary search algorithm to detect visible images and show them.
      */
     update: function () {
-        if (this.elements.length === 0) {
+        if (Ember.isEmpty(this.elements)) {
             // Elements are empty - nothing will be found anyway
             return;
         }
