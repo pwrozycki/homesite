@@ -20,7 +20,7 @@ export default Ember.View.extend({
     runAfterImagesLoadedInAfterRednerPhase: function(callback) {
         this.get('controller.model.images').then(function () {
             Ember.run.scheduleOnce('afterRender', callback);
-        })
+        });
     },
 
     /**
