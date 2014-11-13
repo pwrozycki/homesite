@@ -2,24 +2,38 @@ import Ember from 'ember';
 import LazyLoader from '../tools/lazy-loader';
 
 var lazyLoader = LazyLoader.create({});
-var $ = Ember.$;
 
 function updateCallback() {
     lazyLoader.update();
 }
 
+function setupLazyLoader() {
+    lazyLoader.setImages(Ember.$("img.lazy"));
+}
+
 export default Ember.View.extend({
     templateName: 'views/image-browser',
 
+    /**
+      * Defer all lazyloader operations until images are loaded.
+      */
+    runAfterImagesLoadedInAfterRednerPhase: function(callback) {
+        this.get('controller.model.images').then(function () {
+            Ember.run.scheduleOnce('afterRender', callback);
+        })
+    },
+
+    /**
+     * When browser is inserted to DOM or when model (directory) is changed lazy loader is reset.
+     */
     setupLazyLoader: function () {
-        lazyLoader.setImages($("img.lazy"));
-    }.on('didInsertElement'),
+        this.runAfterImagesLoadedInAfterRednerPhase(setupLazyLoader);
+    }.on('didInsertElement').observes('controller.model'),
 
+    /**
+     * When image list is modified call lazy loader update.
+     */
     imageUrlsChanged: function () {
-        Ember.run.scheduleOnce('afterRender', updateCallback);
-    }.observes('controller.model.images.@each.name'),
-
-    imagesChanged: function () {
-        Ember.run.scheduleOnce('afterRender', this.setupLazyLoader.bind(this));
-    }.observes('controller.model.directory')
+        this.runAfterImagesLoadedInAfterRednerPhase(updateCallback);
+    }.observes('controller.model.images.@each.name')
 });

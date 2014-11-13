@@ -31,7 +31,6 @@ export default Ember.View.extend({
     },
 
     visibleChanged: function () {
-        console.log("isVisible changed");
         var visible = this.get('isVisible');
         if (visible) {
             this.setKeyEventHandlers();

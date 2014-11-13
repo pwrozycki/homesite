@@ -19,9 +19,12 @@ var pickFiles = require('broccoli-static-compiler');
 // please specify an object with the list of modules as keys
 // along with the exports of each module as its value.
 
-var jqueryUiImages = pickFiles('vendor/jquery-ui/themes/smoothness', { srcDir: 'images', destDir: 'assets/images' });
+var jqueryUiImages = pickFiles('bower_components/jquery-ui/themes/smoothness', { srcDir: 'images', destDir: 'assets/images' });
 
-app.import('vendor/jquery-ui/jquery-ui.js');
-app.import('vendor/jquery-ui/themes/smoothness/jquery-ui.css');
+app.import('bower_components/jquery-ui/jquery-ui.min.js');
+app.import('bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css');
+
+app.import('bower_components/bootstrap/dist/js/bootstrap.min.js');
+app.import('bower_components/bootstrap/dist/css/bootstrap.min.css');
 
 module.exports = mergeTrees([app.toTree(), jqueryUiImages]);

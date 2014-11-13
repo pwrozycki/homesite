@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import os
 import re
 
-STATIC_URL = '/static'
+IMAGES_URL = '/static/images'
 
 COLLECTION_PHYS_ROOT = '%COLLECTION_PHYS_ROOT%'
 
@@ -30,15 +30,15 @@ def collection_web_path(phys_path):
 
 
 def thumbnail_web_path(web_path):
-    return normpath_join(STATIC_URL, THUMBNAILS_DIR_NAME, web_path)
+    return normpath_join(IMAGES_URL, THUMBNAILS_DIR_NAME, web_path)
 
 
 def original_web_path(web_path):
-    return normpath_join(STATIC_URL, web_path)
+    return normpath_join(IMAGES_URL, web_path)
 
 
 def preview_web_path(web_path):
-    return normpath_join(STATIC_URL, PREVIEW_DIR_NAME, web_path)
+    return normpath_join(IMAGES_URL, PREVIEW_DIR_NAME, web_path)
 
 
 def collection_phys_path(web_path):

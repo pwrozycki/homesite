@@ -32,6 +32,13 @@
 }
 
 /* Appearance of image browser */
+
+/* fix required due to box-sizing: border-box (from bootstrap)  */
+#browser {
+    position: relative;
+    top: 20px;
+}
+
 div#images {
     display: flex;
     flex-flow: row wrap;
@@ -108,6 +115,8 @@ div#preview {
 }
 
 .image-overlay {
+    /* fix required due to box-sizing: border-box (from bootstrap)  */
+    box-sizing: content-box;
     position: absolute;
     top: 0;
     left: 0;

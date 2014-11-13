@@ -1,10 +1,11 @@
 import Ember from 'ember';
+import config from './config/environment';
 
 var Router = Ember.Router.extend({
-    location: TestAppENV.locationType
+  location: config.locationType
 });
 
-Router.map(function () {
+Router.map(function() {
     this.resource('gallery', function() {
         this.route('index', {path: '/browse'});
         this.route('browse', {path: '/browse/*directory'});

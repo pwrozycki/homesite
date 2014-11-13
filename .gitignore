@@ -4,10 +4,7 @@ homesite.sock
 *.swp
 *.pyc
 
-static/css/
-static/js/
-static/images/
-static/rest_framework/
+static/
 
 homesite_nginx.conf
 homesite_uwsgi.ini
