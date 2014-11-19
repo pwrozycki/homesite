@@ -6,16 +6,21 @@ import re
 import fnmatch
 import sys
 import cgitb
+from django.contrib.auth import logout, login, authenticate
+from django.contrib.auth.models import User
 
 from django.db import transaction
 from django.http.response import HttpResponseServerError, HttpResponse, HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory
 from gallery.models import Directory, Image
-from gallery.serializers import DirectorySerializer, ImageSerializer, SubdirectorySerializer
+from gallery.serializers import DirectorySerializer, ImageSerializer, SubdirectorySerializer, UserSerializer
 
 
 TRASH_DIRECTORY_REGEXP = r'^/?{}/'.format(locations.TRASH_DIR_NAME)
@@ -25,6 +30,7 @@ JPG_REGEXP = re.compile(fnmatch.translate("*.JPG"), re.IGNORECASE)
 def get_traceback_string():
     exc_info = sys.exc_info()
     return cgitb.html(exc_info)
+
 
 class BadRequestException(Exception):
     def __init__(self, value):
@@ -174,3 +180,32 @@ class ImageViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
     filter_fields = ('name', 'directory')
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    model = User
+    serializer_class = UserSerializer
+
+
+class SessionView(APIView):
+    def get(self, request, *args, **kwargs):
+        # Get the current user
+        if request.user.is_authenticated():
+            return Response({'user_id': request.user.id})
+        return Response({'user_id': None})
+
+    def post(self, request, *args, **kwargs):
+        # Login
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(username=username, password=password)
+        if user is not None and user.is_active:
+            login(request, user)
+            return Response({'success': True, 'user_id': user.id})
+
+        return Response({'success': False})
+
+    def delete(self, request, *args, **kwargs):
+        # Logout
+        logout(request)
+        return Response(status=status.HTTP_204_NO_CONTENT)

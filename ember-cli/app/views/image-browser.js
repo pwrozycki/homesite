@@ -1,14 +1,12 @@
 import Ember from 'ember';
-import LazyLoader from '../tools/lazy-loader';
-
-var lazyLoader = LazyLoader.create({});
+import lazyloader from '../tools/lazy-loader';
 
 function updateCallback() {
-    lazyLoader.update();
+    lazyloader.update();
 }
 
 function setupLazyLoader() {
-    lazyLoader.setImages(Ember.$("img.lazy"));
+    lazyloader.setImages(Ember.$("img.lazy"));
 }
 
 export default Ember.View.extend({

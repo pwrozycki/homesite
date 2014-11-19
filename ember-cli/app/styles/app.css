@@ -1,4 +1,15 @@
-/* Appearance of directory listing */
+/* Auth box */
+
+div#authbox {
+    position: fixed;
+    right: 0;
+    padding: 5px;
+    z-index: 1;
+    background-color: #ffffff;
+    top: 0;
+}
+
+/* Directory listing */
 
 #dirlisting img {
     display: inline;
@@ -31,7 +42,7 @@
     opacity: 1;
 }
 
-/* Appearance of image browser */
+/* Image browser */
 
 /* fix required due to box-sizing: border-box (from bootstrap)  */
 #browser {
@@ -83,7 +94,7 @@ body > div.ember-view {
 }
 
 
-/* Appearance of image preview */
+/* Image preview */
 
 div#preview-image {
     height: 100%;
@@ -151,10 +162,10 @@ div#preview {
     width: 30px;
     height: 30px;
     margin: 10px;
-    border: 0 none;     /*wyłączenie obramowania*/
+    border: 0 none;
 }
 
-/* Appearance of buttons */
+/* Buttons */
 
 .button.rightArrow {
     background-image: url('images/right_arrow.png');

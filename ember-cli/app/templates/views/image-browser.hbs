@@ -5,6 +5,10 @@
     {{/each}}
 </div>
 
+{{#with session}}
+    {{ partial 'session' }}
+{{/with}}
+
 <div id="dirlisting">
     <ul>
         {{#each model.subdirectories}}

@@ -7,7 +7,7 @@ var THRESHOLD = 200;
 var UPDATE_VIEWPORT_STEP = 200;
 var FAILURE_LIMIT = 10;
 
-export default Ember.Object.extend({
+export default {
 
     elements: null,
     lastUpdateViewport: null,
@@ -165,4 +165,4 @@ export default Ember.Object.extend({
 
         return fold >= $element.offset().left + THRESHOLD + $element.width();
     }
-});
+};

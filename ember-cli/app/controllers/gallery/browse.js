@@ -3,6 +3,9 @@ import Ember from 'ember';
 var $ = Ember.$;
 
 export default Ember.ObjectController.extend({
+    needs: ['session'],
+    session: Ember.computed.alias('controllers.session'),
+
     previewImage: null,
 
     isPreviewMode: function () {
@@ -150,6 +153,12 @@ export default Ember.ObjectController.extend({
     },
 
     actions: {
+        login: function() {
+            this.get('controllers.session').login();
+        },
+        logout: function() {
+            this.get('controllers.session').logout();
+        },
         toggleShared: function(directory) {
             // directory.parent should be fetched, otherwise required parent field isn't supplied
             // when performing save operation
