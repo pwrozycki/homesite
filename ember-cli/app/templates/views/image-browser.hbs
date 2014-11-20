@@ -1,7 +1,7 @@
 <div id="directorybar">
     {{#each model.parentDirectories}}
         {{#link-to 'gallery.browse' path}}{{ name }}{{/link-to}}
-        &gt;
+        <span class="separator">&gt;</span>
     {{/each}}
 </div>
 

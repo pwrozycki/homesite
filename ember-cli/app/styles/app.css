@@ -1,3 +1,19 @@
+/* Global */
+
+/* height 100% required by nested (height 100%) */
+html, body {
+    height: 100%;
+    margin: 0 auto;
+}
+
+body > div.ember-view {
+    height: 100%;
+}
+
+body {
+    background-color: #f1f1f1;
+}
+
 /* Auth box */
 
 div#authbox {
@@ -25,6 +41,7 @@ div#authbox {
 }
 
 #dirlisting a {
+    color: #333;
     text-decoration: none;
 }
 
@@ -47,7 +64,7 @@ div#authbox {
 /* fix required due to box-sizing: border-box (from bootstrap)  */
 #browser {
     position: relative;
-    top: 20px;
+    top: 36px;
 }
 
 div#images {
@@ -76,23 +93,21 @@ div.thumbnail-container img {
 
 div#directorybar {
     position: fixed;
-    background-color: #cccccc;
+    background-color: #ffffff;
+    padding: 7px;
     top: 0;
     left: 0;
     z-index: 20;
 }
 
-
-/* height 100% required by nested (height 100%) */
-html, body {
-    height: 100%;
-    margin: 0 auto;
+div#directorybar a {
+    text-decoration: none;
+    color: #333;
 }
 
-body > div.ember-view {
-    height: 100%;
+div#directorybar .separator {
+    color: #888;
 }
-
 
 /* Image preview */
 
@@ -118,6 +133,7 @@ div#preview-image span {
 div#preview {
     height: 100%;
     position: relative;
+    font-size: 0;
 }
 
 .thumbnail-container .image-overlay {
