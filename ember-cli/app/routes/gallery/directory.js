@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+var $ = Ember.$;
+
 export default Ember.Route.extend({
     images: Ember.computed.alias('controller.model.images'),
 

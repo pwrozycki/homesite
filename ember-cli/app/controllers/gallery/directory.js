@@ -34,14 +34,13 @@ export default Ember.ObjectController.extend({
         // scroll is performed when images are resolved in afterRender phase
         // (otherwise jQuery wouldn't find any images in DOM)
         if (images != null && imageName != null) {
-            var self = this;
             images.then(function () {
                 Ember.run.schedule('afterRender', function () {
                     var $image = $('img[data-name="' + imageName + '"]');
                     if ($image.length) {
                         $(window).scrollTop($image.offset().top + $image.height() / 2 - $(window).height() / 2);
                     }
-                })
+                });
             });
         }
     }.observes('scrollTo', 'model.images'),

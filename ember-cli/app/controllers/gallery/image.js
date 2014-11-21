@@ -1,7 +1,5 @@
 import Ember from 'ember';
 
-var $ = Ember.$;
-
 export default Ember.ObjectController.extend({
     needs: ['gallery/directory'],
     images: Ember.computed.alias('controllers.gallery/directory.images'),

@@ -10,7 +10,7 @@ Router.map(function() {
         this.route('index', {path: '/directory'});
         this.resource('gallery.directory', {path: '/directory/:directory'}, function() {
             this.resource('gallery.image', {path: '/image/:image'});
-        })
+        });
     });
 });
 
