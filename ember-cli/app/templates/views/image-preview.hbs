@@ -1,21 +1,20 @@
 <div class="image-overlay">
-    <a {{action 'prevImage'}} {{bind-attr class=":leftArrow :button previewImage.isFirst:inactive"}}></a>
+    <a {{action 'prevImage'}} {{bind-attr class=":leftArrow :button isFirst:inactive"}}></a>
 
     <a {{action 'exitPreview'}} class="upArrow button"></a>
 
-    <a {{action 'nextImage'}} {{bind-attr class=":rightArrow :button previewImage.isLast:inactive"}}></a>
+    <a {{action 'nextImage'}} {{bind-attr class=":rightArrow :button isLast:inactive"}}></a>
 
-    {{#if previewImage.directory.inTrash}}
-        <a {{action 'revertImage' previewImage}} class="revert button"></a>
+    {{#if directory.inTrash}}
+        <a {{action 'revertImage' model}} class="revert button"></a>
     {{else}}
-        <a {{action 'removeImage' previewImage}} class="thrash button"></a>
+        <a {{action 'removeImage' model}} class="thrash button"></a>
     {{/if}}
 
-    <a {{action 'rotateImage' previewImage}} {{ bind-attr class="previewImage.orientation :button" }}></a>
+    <a {{action 'rotateImage' model}} {{ bind-attr class="orientation :button" }}></a>
 </div>
 
 <div id="preview-image">
-    <img {{bind-attr src=previewImage.preview}}>
+    <img {{bind-attr src=preview}}>
     <span></span>
-    <div id="preloads" style="display:none;"></div>
 </div>

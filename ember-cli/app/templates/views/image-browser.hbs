@@ -1,6 +1,8 @@
 <div id="directorybar">
-    {{#each model.parentDirectories}}
-        {{#link-to 'gallery.browse' path}}{{ name }}{{/link-to}}
+    {{#each directory in model.parentDirectories}}
+        {{#link-to 'gallery.directory' directory.path (query-params scrollTo='null')}}
+            {{ directory.name }}
+        {{/link-to}}
         <span class="separator">&gt;</span>
     {{/each}}
 </div>
@@ -11,11 +13,13 @@
 
 <div id="dirlisting">
     <ul>
-        {{#each model.subdirectories}}
+        {{#each directory in model.subdirectories}}
             <li>
                 <img src="assets/images/directory.png"/>
-                {{#link-to 'gallery.browse' path}}{{name}}{{/link-to}}
-                <span {{bind-attr class=":directory-access-icon shared:shared" }} {{action "toggleShared" this}}></span>
+                {{#link-to 'gallery.directory' directory.pathWithoutSlashes (query-params scrollTo='null')}}
+                    {{directory.name}}
+                {{/link-to}}
+                <span {{bind-attr class=":directory-access-icon directory.shared:shared" }} {{action "toggleShared" this}}></span>
             </li>
         {{/each}}
     </ul>
@@ -24,7 +28,9 @@
 <div id="images">
     {{#each image in model.images}}
         <div class="thumbnail-container">
-            <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.name}}{{action "showPreview" image}}/>
+            {{#link-to 'gallery.image' image.name (query-params scrollTo='null')}}
+                <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.name}}/>
+            {{/link-to}}
 
             <div class="image-overlay">
                 {{#if image.directory.inTrash}}
