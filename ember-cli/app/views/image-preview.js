@@ -24,18 +24,9 @@ export default Ember.View.extend({
                 self.get('controller').send('removeImage', previewImage);
             }
         });
-    },
+    }.on('didInsertElement'),
 
     removeKeyEventHandlers: function () {
         Ember.$(window).unbind("keyup");
-    },
-
-    visibleChanged: function () {
-        var visible = this.get('isVisible');
-        if (visible) {
-            this.setKeyEventHandlers();
-        } else {
-            this.removeKeyEventHandlers();
-        }
-    }.observes('isVisible')
+    }.on('willDestroyElement')
 });
