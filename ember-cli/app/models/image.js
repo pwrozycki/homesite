@@ -6,7 +6,7 @@ export default DS.Model.extend({
     name: DS.attr(),
     orientation: DS.attr(),
 
-    directory: DS.belongsTo('directory', { async: true }),
+    directory: DS.belongsTo('directory'),
 
     thumbnail: function() {
         if (!this.get('name')) {

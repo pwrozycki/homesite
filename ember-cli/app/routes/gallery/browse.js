@@ -38,8 +38,11 @@ export default Ember.Route.extend({
 
         // if image is set on route instance, set selected image as previewImage on controller
         if (this.get('image') != null) {
-            var previewImage = model.get('images').findBy('name', this.get('image'));
-            controller.set('previewImage', previewImage);
+            var self = this;
+            model.get('images').then(function(images) {
+                var previewImage = images.findBy('name', self.get('image'));
+                controller.set('previewImage', previewImage);
+            });
         }
     }
 });

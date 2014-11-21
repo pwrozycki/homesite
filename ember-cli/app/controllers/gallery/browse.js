@@ -160,14 +160,10 @@ export default Ember.ObjectController.extend({
             this.get('controllers.session').logout();
         },
         toggleShared: function(directory) {
-            // directory.parent should be fetched, otherwise required parent field isn't supplied
-            // when performing save operation
-            directory.get('parent').then(function() {
-                var oldShared = directory.get('shared');
-                directory.set('shared', !oldShared);
-                directory.save().catch(function () {
-                    directory.set('shared', oldShared);
-                });
+            var oldShared = directory.get('shared');
+            directory.set('shared', !oldShared);
+            directory.save().catch(function () {
+                directory.set('shared', oldShared);
             });
         },
         showPreview: function (image) {

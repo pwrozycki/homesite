@@ -7,7 +7,7 @@ export default DS.Model.extend({
     original_path: DS.attr(),
     preview_path: DS.attr(),
 
-    parent: DS.belongsTo('directory', { async: true }),
+    parent: DS.belongsTo('directory'),
 
     name: function () {
         return this.get('path') == null ? null : this.get('path').match(/^.*?([^/]*)$/)[1];
