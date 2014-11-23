@@ -51,10 +51,7 @@ export default Ember.Route.extend({
                         self.transitionTo('gallery.directory');
                     }
                 }
-
-                // remove record from list
-                var imageIndex = image.get('index');
-                self.get('images').replace(imageIndex, 1);
+                image.reload();
             },
             // on failure: popup modal window containing output message
             function (result) {
