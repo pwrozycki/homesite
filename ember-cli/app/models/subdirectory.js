@@ -27,7 +27,7 @@ export default DS.Model.extend({
      * Path with / substituted with |.
      */
     pathWithoutSlashes: function() {
-        return this.get('path') == null ? null : this.get('path').replace('/', '|');
+        return this.get('path') == null ? null : this.get('path').replace(/\//g, '|');
     }.property('path'),
 
     /**

@@ -14,7 +14,7 @@ export default Ember.Route.extend({
 
     model: function (params) {
         // sanitize directory
-        var directory = params.directory.replace('|', '/');
+        var directory = params.directory.replace(/\|/g, '/');
         if (params.directory === '.') {
             directory = '';
         }
