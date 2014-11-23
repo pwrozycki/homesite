@@ -13,8 +13,7 @@ export default Ember.Route.extend({
     },
 
     model: function (params) {
-        var promise = null;
-
+        // sanitize directory
         var directory = params.directory.replace('|', '/');
         if (params.directory === '.') {
             directory = '';
@@ -22,13 +21,20 @@ export default Ember.Route.extend({
 
         // try to find directory in store
         var directoryFromStore = this.store.all('directory').findBy('path', directory);
-        if(!Ember.isEmpty(directoryFromStore)) {
+        if (!Ember.isEmpty(directoryFromStore)) {
             return directoryFromStore;
         }
 
-        // otherwise perform query
-        promise = this.store.find('directory', { path: directory});
-        return promise.then(
+        // perform query otherwise
+        // construct queryParams: if root: root=true, path=directory otherwise
+        var query = null;
+        if (params.directory === '.') {
+            query = { root: true };
+        } else {
+            query = { path: directory };
+        }
+
+        return this.store.find('directory', query).then(
             function (result) {
                 return result.objectAt(0);
             }
