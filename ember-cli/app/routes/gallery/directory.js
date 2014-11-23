@@ -15,15 +15,19 @@ export default Ember.Route.extend({
     model: function (params) {
         var promise = null;
 
+        var directory = params.directory.replace('|', '/');
         if (params.directory === '.') {
-            // if no directory is specified -> lookup root directory
-            promise = this.store.find('directory', { root: true });
-        } else {
-            // lookup directory by path
-            var directory = params.directory.replace('|', '/');
-            promise = this.store.find('directory', { path: directory});
+            directory = '';
         }
 
+        // try to find directory in store
+        var directoryFromStore = this.store.all('directory').findBy('path', directory);
+        if(!Ember.isEmpty(directoryFromStore)) {
+            return directoryFromStore;
+        }
+
+        // otherwise perform query
+        promise = this.store.find('directory', { path: directory});
         return promise.then(
             function (result) {
                 return result.objectAt(0);
