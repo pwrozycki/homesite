@@ -19,7 +19,7 @@
                 {{#link-to 'gallery.directory' directory.pathWithoutSlashes (query-params scrollTo='null')}}
                     {{directory.name}}
                 {{/link-to}}
-                <span {{bind-attr class=":directory-access-icon directory.shared:shared" }} {{action "toggleShared" this}}></span>
+                <span {{bind-attr class=":directory-access-icon directory.shared:shared" }} {{action "toggleShared" directory}}></span>
             </li>
         {{/each}}
     </ul>
