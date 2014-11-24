@@ -13,18 +13,16 @@ export default Ember.View.extend({
     templateName: 'views/image-browser',
 
     /**
-      * Defer all lazyloader operations until images are loaded.
-      */
-    runAfterImagesLoadedInAfterRednerPhase: function(callback) {
-        this.get('controller.model.images').then(function () {
-            Ember.run.scheduleOnce('afterRender', callback);
-        });
+     * Defer all lazyloader operations until images are loaded.
+     */
+    runAfterImagesLoadedInAfterRednerPhase: function (callback) {
+        Ember.run.scheduleOnce('afterRender', callback);
     },
 
     /**
      * Disable or enable lazyloader when visibility changes.
      */
-    isVisibleChanged: function() {
+    isVisibleChanged: function () {
         if (this.get('isVisible')) {
             lazyloader.rebindEvents();
         } else {

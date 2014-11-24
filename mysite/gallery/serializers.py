@@ -35,8 +35,8 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class DirectorySerializer(SubdirectorySerializer):
-    images = PrimaryKeyRelatedField(many=True)
-    subdirectories = PrimaryKeyRelatedField(many=True)
+    images = ImageSerializer(many=True)
+    subdirectories = SubdirectorySerializer(many=True)
 
     class Meta:
         model = Directory

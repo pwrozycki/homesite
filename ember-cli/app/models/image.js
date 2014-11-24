@@ -9,23 +9,14 @@ export default DS.Model.extend({
     directory: DS.belongsTo('directory'),
 
     thumbnail: function() {
-        if (!this.get('name')) {
-            return null;
-        }
         return [this.get('directory.thumbnail_path'), this.get('name')].join('/');
     }.property('directory.thumbnail_path', 'name'),
 
     preview: function() {
-        if (!this.get('name')) {
-            return null;
-        }
         return [this.get('directory.preview_path'), this.get('name')].join('/');
     }.property('directory.preview_path', 'name'),
 
     original: function() {
-        if (!this.get('name')) {
-            return null;
-        }
         return [this.get('directory.original_path'), this.get('name')].join('/');
     }.property('directory.original_path', 'name'),
 

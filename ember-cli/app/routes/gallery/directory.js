@@ -47,11 +47,10 @@ export default Ember.Route.extend({
      */
     reloadIfNeeded: function (innerPathObj, outerPathObj, outerPath) {
         if (!Ember.isEmpty(innerPathObj) && Ember.isEmpty(outerPathObj)) {
-            innerPathObj.get('subdirectories').then(function (subdirs) {
-                if (Ember.isEmpty(subdirs.findBy('path', outerPath))) {
-                    innerPathObj.reload();
-                }
-            });
+            var subdirs = innerPathObj.get('subdirectories');
+            if (Ember.isEmpty(subdirs.findBy('path', outerPath))) {
+                innerPathObj.reload();
+            }
         }
     },
 
@@ -66,12 +65,12 @@ export default Ember.Route.extend({
      * after deletion:
      * - 'Trash/a' should be updated to contain 'Trash/b' as one of it's subdirectories
      */
-    updateDirectoriesInTrash: function(image) {
+    updateDirectoriesInTrash: function (image) {
         var directory = image.get('directory');
-        if (! directory.get('inTrash')) {
+        if (!directory.get('inTrash')) {
             var insideTrashPath = directory.get('insideTrashPath');
             var parentPaths = pathlib.parentPaths(insideTrashPath);
-            for (var i = 0; i < parentPaths.length-1; i++) {
+            for (var i = 0; i < parentPaths.length - 1; i++) {
                 var outerPath = parentPaths[i + 1];
                 var outerPathObj = this.store.all('directory').findBy('path', outerPath);
                 var innerPath = parentPaths[i];

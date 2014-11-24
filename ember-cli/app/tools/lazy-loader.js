@@ -13,14 +13,12 @@ export default {
     lastUpdateViewport: null,
 
     unbindEvents: function( ){
-        console.log("unbind");
         $window.unbind("resize");
         $window.unbind("scroll");
     },
 
     rebindEvents: function () {
         this.unbindEvents();
-        console.log("bind");
         $window.bind("resize", this.tryupdate.bind(this));
         $window.bind("scroll", this.tryupdate.bind(this));
     },
