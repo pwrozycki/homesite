@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import preloader from '../../tools/preloader'
 
 export default Ember.ObjectController.extend({
     needs: ['gallery/directory'],
@@ -32,8 +33,7 @@ export default Ember.ObjectController.extend({
             this.transitionToRoute('gallery.image', newImage.get('name'));
         }
 
-        // TODO: fix
-//        this.setupImagePreloading(newImageIndex, sign);
+        preloader.setupImagePreloading(images, newImageIndex, sign);
     },
 
     actions: {
