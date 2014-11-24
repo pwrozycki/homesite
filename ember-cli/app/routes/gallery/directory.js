@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import pathlib from '../../lib/path';
 
 var $ = Ember.$;
 
@@ -42,6 +43,45 @@ export default Ember.Route.extend({
     },
 
     /**
+     * Reload if needed.
+     */
+    reloadIfNeeded: function (innerPathObj, outerPathObj, outerPath) {
+        if (!Ember.isEmpty(innerPathObj) && Ember.isEmpty(outerPathObj)) {
+            innerPathObj.get('subdirectories').then(function (subdirs) {
+                if (Ember.isEmpty(subdirs.findBy('path', outerPath))) {
+                    innerPathObj.reload();
+                }
+            });
+        }
+    },
+
+    /**
+     * Reload directories in trash when image is deleted (i.e moved to trash).
+     * Trash directory should be reloaded in following scenario:
+     *
+     * image 'a/b/img.jpg' is deleted (moved to 'Trash/a/b/img.jpg')
+     * prior to deletion:
+     * - 'Trash/a' exists and is loaded in store
+     * - 'Trash/a/b' dosn't exist
+     * after deletion:
+     * - 'Trash/a' should be updated to contain 'Trash/b' as one of it's subdirectories
+     */
+    updateDirectoriesInTrash: function(image) {
+        var directory = image.get('directory');
+        if (! directory.get('inTrash')) {
+            var insideTrashPath = directory.get('insideTrashPath');
+            var parentPaths = pathlib.parentPaths(insideTrashPath);
+            for (var i = 0; i < parentPaths.length-1; i++) {
+                var outerPath = parentPaths[i + 1];
+                var outerPathObj = this.store.all('directory').findBy('path', outerPath);
+                var innerPath = parentPaths[i];
+                var innerPathObj = this.store.all('directory').findBy('path', innerPath);
+                this.reloadIfNeeded(innerPathObj, outerPathObj, outerPath);
+            }
+        }
+    },
+
+    /**
      * Handle image removal (moving image to trash, or reverting from trash).
      */
     removeImageAjax: function (action, image) {
@@ -58,6 +98,7 @@ export default Ember.Route.extend({
                     }
                 }
                 image.reload();
+                self.updateDirectoriesInTrash(image);
             },
             // on failure: popup modal window containing output message
             function (result) {

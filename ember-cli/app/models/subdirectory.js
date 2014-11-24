@@ -1,4 +1,5 @@
 import DS from "ember-data";
+import pathlib from '../lib/path';
 
 export default DS.Model.extend({
     path: DS.attr(),
@@ -13,39 +14,53 @@ export default DS.Model.extend({
      * Name of directory (last component of path).
      */
     name: function () {
-        return this.get('path') == null ? null : this.get('path').match(/^.*?([^/]*)$/)[1];
+        return this.get('path').match(/^.*?([^/]*)$/)[1];
     }.property('path'),
 
     /**
      * Is directory in trash?.
      */
-    inTrash: function() {
+    inTrash: function () {
         return this.get('path').indexOf('Trash') === 0;
     }.property('path'),
 
     /**
+     * Directory without Trash prefix.
+     */
+    outsideTrashPath: function () {
+        return this.get('inTrash') ? this.get('path').replace(/^Trash/, '') : this.get('path');
+    }.property('path', 'inTrash'),
+
+    /**
+     * Directory with trash prefix.
+     */
+    insideTrashPath: function() {
+        return this.get('inTrash') ? this.get('path') : 'Trash/' + this.get('path');
+    }.property('path', 'inTrash'),
+
+    /**
      * Path with / substituted with |.
      */
-    pathWithoutSlashes: function() {
-        return this.get('path') == null ? null : this.get('path').replace(/\//g, '|');
+    pathWithoutSlashes: function () {
+        return this.get('path').replace(/\//g, '|');
     }.property('path'),
 
     /**
-     * Parent subpaths of directory.
+     * Parent paths of directory.
      */
     parentDirectories: function () {
-        var path = this.get('path');
-        var directories = [];
-        if (path.length > 0) {
-            var elements = path.split('/');
-            for (var i = 0; i < elements.length; i++) {
-                var elementPath = elements.slice(0, elements.length - i).join('|');
-                var elementName = elements[elements.length - i - 1];
-                directories.push({ path: elementPath, name: elementName});
-            }
-        }
-        directories.push({path: '.', name: 'ROOT'});
+        var rootElement = [{path: '.', name: 'ROOT'}];
 
-        return directories.reverse();
-    }.property('path')
+        // if root - return only root element
+        if (this.get('name') === '') {
+            return rootElement;
+        }
+
+        // otherwise return root elements + elements for parent paths
+        return rootElement.concat(pathlib.parentPaths(this.get('path')).map(
+            function (el) {
+                return { path: el, name: pathlib.basename(el) };
+            }
+        ));
+    }.property('path', 'parent')
 });
