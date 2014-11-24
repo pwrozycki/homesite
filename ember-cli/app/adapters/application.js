@@ -1,6 +1,6 @@
 import DS from 'ember-data';
 
-var BATCH_SIZE = 100;
+var BATCH_SIZE = 200;
 
 export default DS.RESTAdapter.extend({
     namespace: 'gallery/api',

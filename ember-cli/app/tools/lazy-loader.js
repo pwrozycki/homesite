@@ -3,18 +3,24 @@ import Ember from 'ember';
 var $ = Ember.$;
 var $window = $(window);
 
-var THRESHOLD = 200;
+var THRESHOLD = 400;
 var UPDATE_VIEWPORT_STEP = 200;
-var FAILURE_LIMIT = 10;
+var FAILURE_LIMIT = 0;
 
 export default {
 
     elements: null,
     lastUpdateViewport: null,
 
-    rebindEvents: function () {
+    unbindEvents: function( ){
+        console.log("unbind");
         $window.unbind("resize");
         $window.unbind("scroll");
+    },
+
+    rebindEvents: function () {
+        this.unbindEvents();
+        console.log("bind");
         $window.bind("resize", this.tryupdate.bind(this));
         $window.bind("scroll", this.tryupdate.bind(this));
     },

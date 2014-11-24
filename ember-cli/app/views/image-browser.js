@@ -22,6 +22,17 @@ export default Ember.View.extend({
     },
 
     /**
+     * Disable or enable lazyloader when visibility changes.
+     */
+    isVisibleChanged: function() {
+        if (this.get('isVisible')) {
+            lazyloader.rebindEvents();
+        } else {
+            lazyloader.unbindEvents();
+        }
+    }.observes('isVisible'),
+
+    /**
      * When browser is inserted to DOM or when model (directory) is changed lazy loader is reset.
      */
     setupLazyLoader: function () {
