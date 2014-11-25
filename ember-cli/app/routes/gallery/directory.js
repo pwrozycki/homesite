@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import pathlib from '../../lib/path';
-import lazyloader from '../../tools/lazy-loader';
+import lazyloader from '../../utils/lazy-loader';
 
 var $ = Ember.$;
 

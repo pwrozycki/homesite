@@ -24,7 +24,7 @@ export default {
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
     },
 
-    setupCsrf: function () {
+    setupAjaxForCSRF: function () {
         var self = this;
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {

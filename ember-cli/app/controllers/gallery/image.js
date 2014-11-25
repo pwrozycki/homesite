@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import preloader from '../../tools/preloader';
+import preloader from '../../utils/preloader';
 
 export default Ember.ObjectController.extend({
     needs: ['gallery/directory'],

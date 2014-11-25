@@ -2,8 +2,14 @@ import Ember from 'ember';
 
 export default Ember.ObjectController.extend({
     needs: ['session'],
-    init: function() {
-        // TODO: should be moved to initializer
-        this.get('controllers.session').setupApplication();
+    session: Ember.computed.alias('controllers.session'),
+
+    actions: {
+        login: function () {
+            this.get('session').login();
+        },
+        logout: function () {
+            this.get('session').logout();
+        }
     }
 });

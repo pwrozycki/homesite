@@ -3,8 +3,7 @@ import Ember from 'ember';
 var $ = Ember.$;
 
 export default Ember.ObjectController.extend({
-    needs: ['session', 'application'],
-    session: Ember.computed.alias('controllers.session'),
+    needs: ['application'],
     currentRouteName: Ember.computed.alias('controllers.application.currentRouteName'),
 
     queryParams: ['scrollTo'],
@@ -44,12 +43,6 @@ export default Ember.ObjectController.extend({
     }.observes('scrollTo', 'model.images'),
 
     actions: {
-        login: function () {
-            this.get('controllers.session').login();
-        },
-        logout: function () {
-            this.get('controllers.session').logout();
-        },
         toggleShared: function (directory) {
             var oldShared = directory.get('shared');
             directory.set('shared', !oldShared);

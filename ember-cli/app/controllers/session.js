@@ -1,5 +1,4 @@
 import Ember from 'ember';
-import csrfutil from '../tools/csrftoken';
 
 var REST_SESSION_URL = '/gallery/api/session';
 
@@ -23,13 +22,11 @@ export default Ember.ObjectController.extend({
         return !Ember.isEmpty(this.get('model'));
     }.property('model'),
 
-    setupApplication: function () {
+    getActiveSessions: function () {
         var self = this;
         Ember.$.getJSON(REST_SESSION_URL).then(function (response) {
             self.fetchCurrentUser(response.sessionView.user_id);
         });
-
-        csrfutil.setupCsrf();
     },
 
     fetchCurrentUser: function (user_id) {
