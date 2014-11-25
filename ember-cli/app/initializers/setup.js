@@ -6,7 +6,7 @@ export default {
 
     /**
      * setup CSRF: add token passed as cookie to every ajax request
-     * get active sessions ->
+     * get active sessions
      */
     initialize: function(container) {
         csrfutil.setupAjaxForCSRF();
