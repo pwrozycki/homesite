@@ -37,10 +37,6 @@ export default Ember.ObjectController.extend({
     },
 
     actions: {
-        exitPreview: function () {
-            // exit preview, scroll to previewed image
-            this.transitionToRoute('gallery.directory', {queryParams: {scrollTo: this.get('model.name')}});
-        },
         nextImage: function () {
             this.switchToImage(1);
         },

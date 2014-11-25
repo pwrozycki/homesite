@@ -28,9 +28,7 @@
 <div id="images">
     {{#each image in model.images}}
         <div class="thumbnail-container">
-            {{#link-to 'gallery.image' image.name (query-params scrollTo='null')}}
-                <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.name}}/>
-            {{/link-to}}
+            <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.name}} {{action 'showPreview' image}}/>
 
             <div class="image-overlay">
                 {{#if image.directory.inTrash}}

@@ -16,11 +16,11 @@ export default Ember.View.extend({
 
             // up arrow or escape key
             } else if (event.which === 38 || event.which === 27) {
-                self.get('controller').send('exitPreview');
+                self.get('controller').send('exitPreview', self.get('controller.model'));
 
             // delete key
             } else if (event.which === 46) {
-                var previewImage = self.get('controller.previewImage');
+                var previewImage = self.get('controller.model');
                 self.get('controller').send('removeImage', previewImage);
             }
         });

@@ -1,7 +1,7 @@
 <div class="image-overlay">
     <a {{action 'prevImage'}} {{bind-attr class=":leftArrow :button isFirst:inactive"}}></a>
 
-    <a {{action 'exitPreview'}} class="upArrow button"></a>
+    <a {{action 'exitPreview' model}} class="upArrow button"></a>
 
     <a {{action 'nextImage'}} {{bind-attr class=":rightArrow :button isLast:inactive"}}></a>
 

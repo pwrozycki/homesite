@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import pathlib from '../../lib/path';
+import lazyloader from '../../tools/lazy-loader';
 
 var $ = Ember.$;
 
@@ -8,9 +9,13 @@ export default Ember.Route.extend({
 
     /**
      * Scroll window to top after entering new directory.
+     * Launch lazy loader with new images.
      */
     afterModel: function () {
         $(window).scrollTop(0);
+        Ember.run.scheduleOnce('afterRender', function () {
+            lazyloader.setImages($('img.lazy'));
+        });
     },
 
     model: function (params) {
@@ -96,8 +101,15 @@ export default Ember.Route.extend({
                         self.transitionTo('gallery.directory');
                     }
                 }
+
+                // update data structures from database
                 image.reload();
                 self.updateDirectoriesInTrash(image);
+
+                // update lazyloader (new images could have moved to viewport)
+                if (self.controller.get('isBrowserVisible')) {
+                    lazyloader.update();
+                }
             },
             // on failure: popup modal window containing output message
             function (result) {
@@ -116,6 +128,14 @@ export default Ember.Route.extend({
     },
 
     actions: {
+        showPreview: function (image) {
+            lazyloader.unbindEvents();
+            this.transitionTo('gallery.image', image.get('name'), {queryParams: {scrollTo: null}});
+        },
+        exitPreview: function (image) {
+            lazyloader.rebindEvents();
+            this.transitionTo('gallery.directory', {queryParams: {scrollTo: image.get('name')}});
+        },
         removeImage: function (image) {
             this.removeImageAjax('/gallery/deleteImage/', image);
         },
