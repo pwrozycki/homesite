@@ -12,7 +12,7 @@ export default {
     elements: null,
     lastUpdateViewport: null,
 
-    unbindEvents: function( ){
+    unbindEvents: function () {
         $window.unbind("resize");
         $window.unbind("scroll");
     },
@@ -59,10 +59,11 @@ export default {
     },
 
     /**
-     * Show elements starting with firstElementIndex, increasing or decreasing indices.
+     * Find visible elements starting with firstElementIndex, increasing or decreasing indices.
      * (Until images end up outside viewport).
      */
-    showElements: function (firstElementIndex, step) {
+    getElements: function (firstElementIndex, step) {
+        var elements = [];
         var counter = 0;
 
         // iterate downwards or upwards (depending on step value)
@@ -74,14 +75,16 @@ export default {
 
                 // element in viewport - reset counter
                 counter = 0;
-                this.showElement($element);
+                elements.push($element);
             } else {
                 // to many failures -> stop iterating
                 if (++counter >= FAILURE_LIMIT) {
-                    return;
+                    break;
                 }
             }
         }
+
+        return step < 1 ? elements.reverse() : elements;
     },
 
     /**
@@ -90,7 +93,7 @@ export default {
     tryupdate: function () {
         // Check if viewport change was significant enough to perform update
         // if not return
-        if(this.lastUpdateViewport != null &&
+        if (this.lastUpdateViewport != null &&
             $window.scrollTop() > this.lastUpdateViewport.top - UPDATE_VIEWPORT_STEP &&
             $window.scrollTop() + $window.height() < this.lastUpdateViewport.bottom + UPDATE_VIEWPORT_STEP) {
             return;
@@ -103,14 +106,9 @@ export default {
     },
 
     /**
-     * Find visible images applying binary search algorithm to detect visible images and show them.
+     * Find visible images applying binary search algorithm.
      */
-    update: function () {
-        if (Ember.isEmpty(this.elements)) {
-            // Elements are empty - nothing will be found anyway
-            return;
-        }
-
+    binarySearchVisibleImage: function () {
         /* Set initial values - lower and upper indices pointing at beginning and end of array */
         var lowerIndex = 0;
         var upperIndex = this.elements.length - 1;
@@ -137,11 +135,29 @@ export default {
                 break;
             }
         }
+        return testedIndex;
+    },
 
-        // iterate over images downwards, beginning with testedIndex
-        this.showElements(testedIndex, -1);
-        // iterate over images upwards, beginning with testedIndex
-        this.showElements(testedIndex, 1);
+    /**
+     * Find visible images applying binary search algorithm to detect visible images and show them.
+     */
+    update: function () {
+        var self = this;
+
+        // Elements are empty - nothing will be found anyway
+        if (Ember.isEmpty(this.elements)) {
+            return;
+        }
+
+        var visibleImageIndex = this.binarySearchVisibleImage();
+
+        // iterate over images downwards, beginning with visibleImageIndex
+        // iterate over images upwards, beginning with visibleImageIndex
+        this.getElements(visibleImageIndex, -1).concat(this.getElements(visibleImageIndex, 1))
+            .forEach(function (element) {
+                self.showElement(element);
+            });
+
     },
 
 
