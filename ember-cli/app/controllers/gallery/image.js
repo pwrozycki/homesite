@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import preloader from '../../utils/preloader';
+import lazyloader from '../../utils/lazy-loader';
 
 export default Ember.ObjectController.extend({
     needs: ['gallery/directory'],
@@ -37,6 +38,10 @@ export default Ember.ObjectController.extend({
     },
 
     actions: {
+        exitPreview: function (image) {
+            lazyloader.rebindEvents();
+            this.transitionToRoute('gallery.directory', {queryParams: {scrollTo: image.get('name')}});
+        },
         nextImage: function () {
             this.switchToImage(1);
         },

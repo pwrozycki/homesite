@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import pathlib from '../../lib/path';
+import storelib from '../../lib/store';
 import lazyloader from '../../utils/lazy-loader';
 
 var $ = Ember.$;
@@ -18,33 +19,59 @@ export default Ember.Route.extend({
         });
     },
 
+    /**
+     * Return root directory for authenticated - i.e. real root.
+     */
+    rootDirectoryForAuthenticated: function () {
+        return storelib.getUniqueFromCacheOrFetch(this.store, 'directory', {'path': '' }, {root: true });
+    },
+
+    /**
+     * Return root directory for non authenticated - composed of shared directories (shared=true)
+     * displayed as subdirectories of virtual root.
+     */
+    rootDirectoryForNonAuthenticated: function () {
+        var self = this;
+        return this.store.find('subdirectory', { shared: 'True' }).then(
+            function (subdirs) {
+                var rootObject = self.store.createRecord('directory', {path: ''});
+                rootObject.get('subdirectories').pushObjects(subdirs);
+                return rootObject;
+            });
+    },
+
     model: function (params) {
-        // sanitize directory
+        var sessionController = this.controllerFor('session');
+        var self = this;
+
+        // sanitize directory (replace | with /, substitute '.' with '' - ROOT)
         var directory = params.directory.replace(/\|/g, '/');
         if (params.directory === '.') {
             directory = '';
         }
 
-        // try to find directory in store
-        var directoryFromStore = this.store.all('directory').findBy('path', directory);
-        if (!Ember.isEmpty(directoryFromStore)) {
-            return directoryFromStore;
-        }
-
-        // perform query otherwise
-        // construct queryParams: if root: root=true, path=directory otherwise
-        var query = null;
-        if (params.directory === '.') {
-            query = { root: true };
-        } else {
-            query = { path: directory };
-        }
-
-        return this.store.find('directory', query).then(
-            function (result) {
-                return result.objectAt(0);
+        // Get root directory
+        if (directory === '') {
+            if (sessionController.get('isAuthenticated')) {
+                return this.rootDirectoryForAuthenticated();
+            } else {
+                return this.rootDirectoryForNonAuthenticated();
             }
-        );
+            // Get non-root directory as specified by path
+        } else {
+            return storelib.getUniqueFromCacheOrFetch(this.store, 'directory', { path: directory }).then(
+                function (directory) {
+                    if (Ember.isEmpty(directory)) {
+                        self.transitionTo('gallery.index');
+                    }
+                    return directory;
+                },
+                function () {
+                    self.transitionTo('gallery.index');
+                    return null;
+                }
+            );
+        }
     },
 
     /**
@@ -66,9 +93,9 @@ export default Ember.Route.extend({
      * image 'a/b/img.jpg' is deleted (moved to 'Trash/a/b/img.jpg')
      * prior to deletion:
      * - 'Trash/a' exists and is loaded in store
-     * - 'Trash/a/b' dosn't exist
+     * - 'Trash/a/b' doesn't exist
      * after deletion:
-     * - 'Trash/a' should be updated to contain 'Trash/b' as one of it's subdirectories
+     * - 'Trash/a' should be updated to contain 'Trash/a/b' as one of it's subdirectories
      */
     updateDirectoriesInTrash: function (image) {
         var directory = image.get('directory');
@@ -128,14 +155,6 @@ export default Ember.Route.extend({
     },
 
     actions: {
-        showPreview: function (image) {
-            lazyloader.unbindEvents();
-            this.transitionTo('gallery.image', image.get('name'), {queryParams: {scrollTo: null}});
-        },
-        exitPreview: function (image) {
-            lazyloader.rebindEvents();
-            this.transitionTo('gallery.directory', {queryParams: {scrollTo: image.get('name')}});
-        },
         removeImage: function (image) {
             this.removeImageAjax('/gallery/deleteImage/', image);
         },

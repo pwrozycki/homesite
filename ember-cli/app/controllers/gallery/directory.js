@@ -2,12 +2,25 @@ import Ember from 'ember';
 
 var $ = Ember.$;
 
+import lazyloader from '../../utils/lazy-loader';
+
 export default Ember.ObjectController.extend({
     needs: ['application'],
     currentRouteName: Ember.computed.alias('controllers.application.currentRouteName'),
 
     queryParams: ['scrollTo'],
     scrollTo: null,
+
+    /**
+     * Reset store after sign-in / sign-out.
+     * Go to 'gallery.index' to reload models.
+     */
+    resetAfterAuthenticate: function() {
+        this.store.unloadAll('directory');
+        this.store.unloadAll('subdirectory');
+        this.store.unloadAll('image');
+        this.transitionToRoute('gallery.index');
+    }.observes('session.isAuthenticated'),
 
     /**
      * Determine if gallery is in preview mode.
@@ -43,6 +56,10 @@ export default Ember.ObjectController.extend({
     }.observes('scrollTo', 'model.images'),
 
     actions: {
+        showPreview: function (image) {
+            lazyloader.unbindEvents();
+            this.transitionTo('gallery.image', image.get('name'), {queryParams: {scrollTo: null}});
+        },
         toggleShared: function (directory) {
             var oldShared = directory.get('shared');
             directory.set('shared', !oldShared);

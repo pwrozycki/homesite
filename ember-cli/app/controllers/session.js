@@ -24,18 +24,25 @@ export default Ember.ObjectController.extend({
 
     getActiveSessions: function () {
         var self = this;
-        Ember.$.getJSON(REST_SESSION_URL).then(function (response) {
-            self.fetchCurrentUser(response.sessionView.user_id);
+        var ajaxJsonPromise = Ember.$.getJSON(REST_SESSION_URL);
+
+        // embed jquery promise in RSVP promise
+        // otherwise promise is resolved before user is fetched
+        return Ember.RSVP.resolve(ajaxJsonPromise).then(function (response) {
+            return self.fetchCurrentUser(response.sessionView.user_id);
         });
     },
 
     fetchCurrentUser: function (user_id) {
         var self = this;
         if (!Ember.isEmpty(user_id)) {
-            this.store.find('user', user_id).then(function (user) {
+            return this.store.find('user', user_id).then(function (user) {
                 self.set('model', user);
             });
         }
+
+        // return fake promise that is resolved at once
+        return Ember.RSVP.resolve(null);
     },
 
     login: function () {

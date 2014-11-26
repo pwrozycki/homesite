@@ -5,13 +5,16 @@
 
     <a {{action 'nextImage'}} {{bind-attr class=":rightArrow :button isLast:inactive"}}></a>
 
-    {{#if directory.inTrash}}
-        <a {{action 'revertImage' model}} class="revert button"></a>
-    {{else}}
-        <a {{action 'removeImage' model}} class="thrash button"></a>
+    {{#if session.isAuthenticated}}
+        {{#if directory.inTrash}}
+            <a {{action 'revertImage' model}} class="revert button"></a>
+        {{else}}
+            <a {{action 'removeImage' model}} class="thrash button"></a>
+        {{/if}}
+
+        <a {{action 'rotateImage' model}} {{ bind-attr class="orientation :button" }}></a>
     {{/if}}
 
-    <a {{action 'rotateImage' model}} {{ bind-attr class="orientation :button" }}></a>
 </div>
 
 <div id="preview-image">

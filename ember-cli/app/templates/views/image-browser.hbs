@@ -7,19 +7,19 @@
     {{/each}}
 </div>
 
-{{#with session}}
-    {{ partial 'session' }}
-{{/with}}
-
 <div id="dirlisting">
     <ul>
         {{#each directory in model.subdirectories}}
             <li>
                 <img src="assets/images/directory.png"/>
+
                 {{#link-to 'gallery.directory' directory.pathWithoutSlashes (query-params scrollTo='null')}}
                     {{directory.name}}
                 {{/link-to}}
-                <span {{bind-attr class=":directory-access-icon directory.shared:shared" }} {{action "toggleShared" directory}}></span>
+
+                {{#if session.isAuthenticated}}
+                    <span {{bind-attr class=":directory-access-icon directory.shared:shared" }} {{action "toggleShared" directory}}></span>
+                {{/if}}
             </li>
         {{/each}}
     </ul>
@@ -31,12 +31,16 @@
             <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.name}} {{action 'showPreview' image}}/>
 
             <div class="image-overlay">
-                {{#if image.directory.inTrash}}
-                    <a class="revert button" {{action "revertImage" image}}></a>
-                {{else}}
-                    <a class="thrash button" {{action "removeImage" image}}></a>
+
+                {{#if session.isAuthenticated}}
+                    {{#if image.directory.inTrash}}
+                        <a class="revert button" {{action "revertImage" image}}></a>
+                    {{else}}
+                        <a class="thrash button" {{action "removeImage" image}}></a>
+                    {{/if}}
+                    <a {{action "rotateImage" image}}{{bind-attr class="image.orientation :button"}}></a>
                 {{/if}}
-                <a {{action "rotateImage" image}}{{bind-attr class="image.orientation :button"}}></a>
+
                 <a class="download button" {{bind-attr href=image.original}} {{bind-attr download=image.name}}></a>
             </div>
             <span>{{ image.name }}</span>

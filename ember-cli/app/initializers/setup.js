@@ -5,11 +5,21 @@ export default {
     after: 'store',
 
     /**
-     * setup CSRF: add token passed as cookie to every ajax request
-     * get active sessions
+     * Perform application initialization.
      */
-    initialize: function(container) {
+    initialize: function (container, application) {
+        // setup CSRF: add token passed as cookie to every ajax request
         csrfutil.setupAjaxForCSRF();
-        container.lookup('controller:session').getActiveSessions();
+
+        // defer readiness until session information is loaded
+        application.deferReadiness();
+        var sessionController = container.lookup('controller:session');
+        sessionController.getActiveSessions().then(function () {
+            application.advanceReadiness();
+        });
+
+        // inject session into every controller
+        container.register('session:main', sessionController, {instantiate: false});
+        application.inject('controller', 'session', 'session:main');
     }
 };

@@ -6,14 +6,15 @@ import re
 import fnmatch
 import sys
 import cgitb
+
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.models import User
-
 from django.db import transaction
+from django.db.models import Q
 from django.http.response import HttpResponseServerError, HttpResponse, HttpResponseBadRequest
-from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 from rest_framework import viewsets, status
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -156,24 +157,45 @@ class FilterByIdsMixin(object):
             return queryset
 
 
-class DirectoryViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
+class SubdirectoryViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
     queryset = Directory.objects.all()
-    serializer_class = DirectorySerializer
-    filter_fields = ('path', 'parent')
+    serializer_class = SubdirectorySerializer
+    filter_fields = ('path', 'parent', 'shared')
+    resource_name = 'subdirectory'
 
     def get_queryset(self):
-        queryset = super(DirectoryViewSet, self).get_queryset()
+        queryset = super(SubdirectoryViewSet, self).get_queryset()
+
+        # if user not authenticated return only shared directories and their descendants
+        if not self.request.user.is_authenticated():
+            shared_dirs = Directory.objects.filter(shared=True).values_list('path', flat=True)
+            if not shared_dirs:
+                queryset = queryset.none()
+            else:
+                is_child_of_shared = self.is_descendant_of_path(shared_dirs)
+                queryset = queryset.filter(is_child_of_shared | Q(shared=True))
+
+        # return only root directory
         if 'root' in self.request.QUERY_PARAMS:
             return queryset.filter(parent__isnull=True)
         else:
             return queryset
 
+    def is_descendant_of_path(self, shared_paths):
+        """ Returns expression matching paths that are children of paths listed in shared_paths  """
+        exp = None
+        for path in shared_paths:
+            new_exp = Q(path__startswith=path + '/')
+            if exp:
+                exp = exp | new_exp
+            else:
+                exp = new_exp
+        return exp
 
-class SubdirectoryViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
-    queryset = Directory.objects.all()
-    serializer_class = SubdirectorySerializer
-    filter_fields = ('path', 'parent')
-    resource_name = 'subdirectory'
+
+class DirectoryViewSet(SubdirectoryViewSet):
+    serializer_class = DirectorySerializer
+    resource_name = 'directory'
 
 
 class ImageViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
@@ -188,6 +210,8 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SessionView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         # Get the current user
         if request.user.is_authenticated():
