@@ -81,9 +81,10 @@ export default Ember.Route.extend({
         if (!Ember.isEmpty(innerPathObj) && Ember.isEmpty(outerPathObj)) {
             var subdirs = innerPathObj.get('subdirectories');
             if (Ember.isEmpty(subdirs.findBy('path', outerPath))) {
-                innerPathObj.reload();
+                return innerPathObj.reload();
             }
         }
+        return null;
     },
 
     /**
@@ -107,41 +108,61 @@ export default Ember.Route.extend({
                 var outerPathObj = this.store.all('directory').findBy('path', outerPath);
                 var innerPath = parentPaths[i];
                 var innerPathObj = this.store.all('directory').findBy('path', innerPath);
-                this.reloadIfNeeded(innerPathObj, outerPathObj, outerPath);
+                var promise = this.reloadIfNeeded(innerPathObj, outerPathObj, outerPath);
+                if (promise) {
+                    return promise;
+                }
             }
         }
+
+        return Ember.RSVP.resolve();
     },
+
 
     /**
      * Handle image removal (moving image to trash, or reverting from trash).
      */
     removeImageAjax: function (action, image) {
         var self = this;
-        $.post(action + image.get('path')).then(
-            // on success: if in preview mode: switch image to next if possible, switch back otherwise
-            // leave preview mode if no images left
+
+        var postRemove = $.post(action + image.get('path'));
+        image.set('modificationPending', true);
+        var nextImage = image.get('next') || image.get('previous');
+
+        Ember.RSVP.resolve(postRemove).then(
+            // update data structures from database
             function () {
-                if (self.controller.get('isPreviewMode')) {
-                    if (self.get('images.length') > 1) {
-                        self.controllerFor('gallery.image').changeImageAfterRemoval(image);
-                    } else {
-                        self.transitionTo('gallery.directory');
-                    }
-                }
-
-                // update data structures from database
                 image.reload();
-                self.updateDirectoriesInTrash(image);
-
-                // update lazyloader (new images could have moved to viewport)
-                if (self.controller.get('isBrowserVisible')) {
-                    lazyloader.update();
-                }
+                return Ember.RSVP.all([
+                        self.updateDirectoriesInTrash(image) ]
+                );
             },
             // on failure: popup modal window containing output message
             function (result) {
                 self.send('openModal', 'modals/error-modal', { title: "Server error", html: result.responseText });
-            });
+            }
+        ).then(
+            // switch image to next if possible, switch back otherwise
+            // leave preview mode if no images left
+            // update lazyloader in case new images appeared in viewport
+            function () {
+                if (self.controller.get('isPreviewMode')) {
+                    if (nextImage) {
+                        self.transitionTo('gallery.image', nextImage.get('name'));
+                    } else {
+                        self.transitionTo('gallery.directory');
+                    }
+
+                } else {
+                    lazyloader.update();
+                }
+            }
+        ).finally(
+            // disable modification Pending flag (controls whether modification buttons are inactive)
+            function () {
+                image.set('modificationPending', false);
+            }
+        );
     },
 
     /**
@@ -149,8 +170,13 @@ export default Ember.Route.extend({
      */
     rotateImage: function (image, offset) {
         image.set('orientation', image.nextRotation(offset));
+        image.set('modificationPending', true);
+
         image.save().catch(function () {
+            // if error occurred - revert to previous rotation
             image.set(image.nextRotation(-offset));
+        }).finally(function () {
+            image.set('modificationPending', false);
         });
     },
 

@@ -12,10 +12,10 @@ export default {
      * Preload images from images argument, starting with newImageIndex, advancing up (sign == 1)
      * or down (sign == -1).
      */
-    setupImagePreloading: function (images, newImageIndex, sign) {
+    setupImagePreloading: function (images, newImageIndex) {
         var self = this;
 
-        var newPreviewPaths = this.getNewPaths(images, newImageIndex, sign);
+        var newPreviewPaths = this.getNewPaths(images, newImageIndex);
 
         this.updatePreloadsArray(newPreviewPaths);
 
@@ -33,11 +33,14 @@ export default {
     /**
      * Calculate paths of images that should be preloaded.
      */
-    getNewPaths: function (images, newImageIndex, sign) {
+    getNewPaths: function (images, newImageIndex) {
         var newPreviewPaths = [];
 
-        for (var i = 0; Math.abs(i) < 10; i += sign) {
-            var preloadIndex = newImageIndex + i;
+        // get indices in following order 1, -1, 2, -2, 3, -3 relative to newImageIndex
+        for (var i = 0; Math.abs(i) < 10; i += 1) {
+            var sign = i%2 === 0 ? 1 : -1;
+            var preloadIndex = newImageIndex + (Math.floor(i/2)+1) * sign;
+
             if (preloadIndex >= 0 && preloadIndex < images.get('length')) {
                 newPreviewPaths.push(images.objectAt(preloadIndex).get('preview'));
             }

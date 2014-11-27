@@ -1,19 +1,15 @@
 <div class="image-overlay">
-    <a {{action 'prevImage'}} {{bind-attr class=":leftArrow :button isFirst:inactive"}}></a>
+    <a {{action 'prevImage'}}
+        {{bind-attr disabled="isFirst" class=":leftArrow :button isFirst:inactive"}}></a>
 
     <a {{action 'exitPreview' model}} class="upArrow button"></a>
 
-    <a {{action 'nextImage'}} {{bind-attr class=":rightArrow :button isLast:inactive"}}></a>
+    <a {{action 'nextImage'}}
+        {{bind-attr disabled="isLast" class=":rightArrow :button isLast:inactive"}}></a>
 
-    {{#if session.isAuthenticated}}
-        {{#if directory.inTrash}}
-            <a {{action 'revertImage' model}} class="revert button"></a>
-        {{else}}
-            <a {{action 'removeImage' model}} class="thrash button"></a>
-        {{/if}}
-
-        <a {{action 'rotateImage' model}} {{ bind-attr class="orientation :button" }}></a>
-    {{/if}}
+    {{#with model as image}}
+        {{ partial 'partials/image-modification-buttons' }}
+    {{/with}}
 
 </div>
 
