@@ -11,9 +11,9 @@ from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q
-from django.http.response import HttpResponseServerError, HttpResponse, HttpResponseBadRequest
-from django.views.decorators.http import require_POST
+from django.http.response import HttpResponseServerError
 from rest_framework import viewsets, status
+from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -113,36 +113,41 @@ def move_image(src_image_web_path, dst_image_web_path, empty_orphaned_directorie
     _update_database_after_move(src_image_web_path, dst_image_web_path)
 
 
-@require_POST
-def delete_image(request, path):
-    if re.search(TRASH_DIRECTORY_REGEXP, path):
-        return HttpResponseBadRequest("Image is in Trash already.")
-
+def trash_or_revert_image(path):
     try:
         src_image_web_path = os.path.normpath(path)
-        dst_image_web_path = os.path.join(locations.TRASH_DIR_NAME, path)
+
+        if not re.search(TRASH_DIRECTORY_REGEXP, path):
+            dst_image_web_path = os.path.join(locations.TRASH_DIR_NAME, path)
+        else:
+            dst_image_web_path = re.sub(TRASH_DIRECTORY_REGEXP, '', src_image_web_path)
+
         move_image(src_image_web_path, dst_image_web_path)
-        return HttpResponse()
+        return Response()
     except BadRequestException:
-        return HttpResponseBadRequest(get_traceback_string())
+        return Response({'traceback': get_traceback_string()}, status=status.HTTP_400_BAD_REQUEST)
     except Exception:
         return HttpResponseServerError(get_traceback_string())
 
 
-@require_POST
-def revert_image(request, path):
-    if not re.search(TRASH_DIRECTORY_REGEXP, path):
-        return HttpResponseBadRequest("Image should be in Trash.")
+class ImageModificationAPIView(GenericAPIView):
+    serializer_class = ImageSerializer
+    model = Image
 
-    try:
-        src_image_web_path = os.path.normpath(path)
-        dst_image_web_path = re.sub(TRASH_DIRECTORY_REGEXP, '', src_image_web_path)
-        move_image(src_image_web_path, dst_image_web_path)
-        return HttpResponse()
-    except BadRequestException:
-        return HttpResponseBadRequest(get_traceback_string())
-    except Exception:
-        return HttpResponseServerError(get_traceback_string())
+    def post(self, request, *args, **kwargs):
+        image = self.get_object()
+
+        return self.handle_post(image)
+
+
+class TrashImageAPIView(ImageModificationAPIView):
+    def handle_post(self, image):
+        return trash_or_revert_image(image.path)
+
+
+class RevertImageAPIView(ImageModificationAPIView):
+    def handle_post(self, image):
+        return trash_or_revert_image(image.path)
 
 
 class FilterByIdsMixin(object):

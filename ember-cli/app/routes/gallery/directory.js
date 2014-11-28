@@ -132,13 +132,13 @@ export default Ember.Route.extend({
      */
     removeImageAjax: function (action, image) {
         var self = this;
-        var postRemove = $.post(action + image.get('path'));
+        var url = '/gallery/api/images/%@/%@'.fmt(image.get('id'), action);
 
         image.set('modificationPending', true);
         var directory = image.get('directory');
         var nextImage = image.get('next') || image.get('previous');
 
-        Ember.RSVP.resolve(postRemove).then(
+        Ember.RSVP.resolve($.post(url)).then(
             function () {
                 // switch image to next if possible, switch back otherwise
                 // leave preview mode if no images left
@@ -188,10 +188,10 @@ export default Ember.Route.extend({
 
     actions: {
         removeImage: function (image) {
-            this.removeImageAjax('/gallery/deleteImage/', image);
+            this.removeImageAjax('trash', image);
         },
         revertImage: function (image) {
-            this.removeImageAjax('/gallery/revertImage/', image);
+            this.removeImageAjax('revert', image);
         },
         rotateImage: function (image) {
             this.rotateImage(image, 1);
