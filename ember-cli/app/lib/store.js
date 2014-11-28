@@ -18,7 +18,7 @@ export default {
 
         // find object of type 'type' by findByQuery key and value
         var objectFromStore = store.all(type).findBy(findByQueryKey, findByQueryValue);
-        if (!Ember.isEmpty(objectFromStore)) {
+        if (!Ember.isEmpty(objectFromStore) && ! objectFromStore.get('needsToBeReloaded')) {
             // return promise instead of raw object (as expected)
             return Ember.RSVP.resolve(objectFromStore);
         }
@@ -26,7 +26,9 @@ export default {
         // fetch object from store
         return store.find(type, query).then(
             function (result) {
-                return result.objectAt(0);
+                var fetchedObject = result.objectAt(0);
+                fetchedObject.set('needsToBeReloaded', false);
+                return  fetchedObject;
             }
         );
     }

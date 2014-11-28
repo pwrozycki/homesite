@@ -8,6 +8,10 @@ export default DS.Model.extend({
 
     directory: DS.belongsTo('directory'),
 
+    /**
+     * signifies if some modification to image state is beeing synced to backend.
+     * if so no image modification buttons should be active.
+     */
     modificationPending: false,
 
     thumbnail: function () {

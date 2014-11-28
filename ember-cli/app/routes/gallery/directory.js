@@ -75,47 +75,54 @@ export default Ember.Route.extend({
     },
 
     /**
-     * Reload if needed.
-     */
-    reloadIfNeeded: function (innerPathObj, outerPathObj, outerPath) {
-        if (!Ember.isEmpty(innerPathObj) && Ember.isEmpty(outerPathObj)) {
-            var subdirs = innerPathObj.get('subdirectories');
-            if (Ember.isEmpty(subdirs.findBy('path', outerPath))) {
-                return innerPathObj.reload();
-            }
-        }
-        return null;
-    },
-
-    /**
-     * Reload directories in trash when image is deleted (i.e moved to trash).
+     * Mark directories at opposite side as outdated when image is deleted / reverted from Trash.
      * Trash directory should be reloaded in following scenario:
      *
      * image 'a/b/img.jpg' is deleted (moved to 'Trash/a/b/img.jpg')
+     * a.1)
      * prior to deletion:
      * - 'Trash/a' exists and is loaded in store
      * - 'Trash/a/b' doesn't exist
      * after deletion:
      * - 'Trash/a' should be updated to contain 'Trash/a/b' as one of it's subdirectories
+     *
+     * a.2)
+     * prior to deletion:
+     * - 'Trash/a/b' exists and is loaded in store
+     * after deletion:
+     * - 'Trash/a/b' should be updated to contain deleted images
+     *
+     * b)
+     * image 'Trash/a/b/img.jpg' is reverted
+     * prior to deletion:
+     * - 'a/b' exists and is loaded in store
+     * after detetion:
+     * - 'a/b' should be updated to contain reverted images
      */
-    updateDirectoriesInTrash: function (image) {
-        var directory = image.get('directory');
-        if (!directory.get('inTrash')) {
-            var insideTrashPath = directory.get('insideTrashPath');
-            var parentPaths = pathlib.parentPaths(insideTrashPath);
-            for (var i = 0; i < parentPaths.length - 1; i++) {
-                var outerPath = parentPaths[i + 1];
-                var outerPathObj = this.store.all('directory').findBy('path', outerPath);
-                var innerPath = parentPaths[i];
-                var innerPathObj = this.store.all('directory').findBy('path', innerPath);
-                var promise = this.reloadIfNeeded(innerPathObj, outerPathObj, outerPath);
-                if (promise) {
-                    return promise;
-                }
-            }
+    markDirectoriesAsOutdated: function (directory) {
+        var oppositeSidePath = directory.get('inTrash') ? directory.get('outsideTrashPath') : directory.get('insideTrashPath');
+        var parentPaths = pathlib.parentPaths(oppositeSidePath);
+
+        // image is reverted - only the target directory needs to be updated - i.e. directory to which image
+        //                     will be reverted
+        // image is deleted - deepest directory in store should be updated -either directory which contains newly
+        //                    created directory or directory to which image will be reverted)
+        if (directory.get('inTrash')) {
+            parentPaths = parentPaths.slice(parentPaths.length - 1);
         }
 
-        return Ember.RSVP.resolve();
+        // iterate over parent paths in reverse order
+        parentPaths = parentPaths.reverse();
+        for (var i = 0; i < parentPaths.length; i++) {
+
+            var path = parentPaths[i];
+            var directoryObj = this.store.all('directory').findBy('path', path);
+
+            if (!Ember.isEmpty(directoryObj)) {
+                directoryObj.set('needsToBeReloaded', true);
+                break;
+            }
+        }
     },
 
 
@@ -124,28 +131,17 @@ export default Ember.Route.extend({
      */
     removeImageAjax: function (action, image) {
         var self = this;
-
         var postRemove = $.post(action + image.get('path'));
+
         image.set('modificationPending', true);
+        var directory = image.get('directory');
         var nextImage = image.get('next') || image.get('previous');
 
         Ember.RSVP.resolve(postRemove).then(
-            // update data structures from database
             function () {
-                image.reload();
-                return Ember.RSVP.all([
-                        self.updateDirectoriesInTrash(image) ]
-                );
-            },
-            // on failure: popup modal window containing output message
-            function (result) {
-                self.send('openModal', 'modals/error-modal', { title: "Server error", html: result.responseText });
-            }
-        ).then(
-            // switch image to next if possible, switch back otherwise
-            // leave preview mode if no images left
-            // update lazyloader in case new images appeared in viewport
-            function () {
+                // switch image to next if possible, switch back otherwise
+                // leave preview mode if no images left
+                // update lazyloader in case new images appeared in viewport
                 if (self.controller.get('isPreviewMode')) {
                     if (nextImage) {
                         self.transitionTo('gallery.image', nextImage.get('name'));
@@ -153,12 +149,21 @@ export default Ember.Route.extend({
                         self.transitionTo('gallery.directory');
                     }
 
-                } else {
-                    lazyloader.update();
                 }
+
+                lazyloader.update();
+
+                // remove image from directory
+                image.get('directory.images').removeObject(image);
+                // mark opposite directory as outdated
+                self.markDirectoriesAsOutdated(directory);
+            },
+            // on failure: popup modal window containing output message
+            function (result) {
+                self.send('openModal', 'modals/error-modal', { title: "Server error", html: result.responseText });
             }
         ).finally(
-            // disable modification Pending flag (controls whether modification buttons are inactive)
+            // disable modification pending flag (controls whether modification buttons are inactive)
             function () {
                 image.set('modificationPending', false);
             }

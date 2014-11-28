@@ -25,14 +25,14 @@ export default DS.Model.extend({
     }.property('path'),
 
     /**
-     * Directory without Trash prefix.
+     * Directory without 'Trash' prefix.
      */
     outsideTrashPath: function () {
-        return this.get('inTrash') ? this.get('path').replace(/^Trash/, '') : this.get('path');
+        return this.get('inTrash') ? this.get('path').replace(/^Trash\//, '') : this.get('path');
     }.property('path', 'inTrash'),
 
     /**
-     * Directory with trash prefix.
+     * Directory with 'Trash' prefix.
      */
     insideTrashPath: function() {
         return this.get('inTrash') ? this.get('path') : 'Trash/' + this.get('path');

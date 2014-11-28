@@ -58,7 +58,7 @@ export default Ember.ObjectController.extend({
     actions: {
         showPreview: function (image) {
             lazyloader.unbindEvents();
-            this.transitionTo('gallery.image', image.get('name'), {queryParams: {scrollTo: null}});
+            this.transitionToRoute('gallery.image', image.get('name'), {queryParams: {scrollTo: null}});
         },
         toggleShared: function (directory) {
             var oldShared = directory.get('shared');
