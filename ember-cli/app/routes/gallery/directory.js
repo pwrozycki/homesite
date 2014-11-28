@@ -118,6 +118,7 @@ export default Ember.Route.extend({
             var path = parentPaths[i];
             var directoryObj = this.store.all('directory').findBy('path', path);
 
+            // mark deepest directory available in store as outdated and exit loop
             if (!Ember.isEmpty(directoryObj)) {
                 directoryObj.set('needsToBeReloaded', true);
                 break;
