@@ -12,8 +12,9 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q
 from django.http.response import HttpResponseServerError
+import resource
 from rest_framework import viewsets, status
-from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -140,12 +141,12 @@ class ImageModificationAPIView(GenericAPIView):
         return self.handle_post(image)
 
 
-class TrashImageAPIView(ImageModificationAPIView):
+class TrashImageView(ImageModificationAPIView):
     def handle_post(self, image):
         return trash_or_revert_image(image.path)
 
 
-class RevertImageAPIView(ImageModificationAPIView):
+class RevertImageView(ImageModificationAPIView):
     def handle_post(self, image):
         return trash_or_revert_image(image.path)
 
@@ -212,6 +213,18 @@ class ImageViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     model = User
     serializer_class = UserSerializer
+
+
+class CollectionInfoView(APIView):
+    resource_name = 'collectionInfo'
+
+    def get(self, request):
+        return Response({
+            'id': 1,
+            'thumbnailsRoot': locations.thumbnail_web_path(''),
+            'previewsRoot': locations.preview_web_path(''),
+            'originalsRoot': locations.original_web_path('')
+        })
 
 
 class SessionView(APIView):

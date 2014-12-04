@@ -4,10 +4,6 @@ import pathlib from '../lib/path';
 export default DS.Model.extend({
     path: DS.attr(),
     shared: DS.attr('boolean'),
-    thumbnail_path: DS.attr(),
-    original_path: DS.attr(),
-    preview_path: DS.attr(),
-
     parent: DS.belongsTo('directory'),
 
     /**

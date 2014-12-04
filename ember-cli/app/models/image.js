@@ -1,11 +1,11 @@
 import DS from "ember-data";
+import pathlib from "../lib/path";
 
 var ROTATIONS = ['up', 'right', 'down', 'left'];
 
 export default DS.Model.extend({
-    name: DS.attr(),
     orientation: DS.attr(),
-
+    path: DS.attr(),
     directory: DS.belongsTo('directory'),
 
     /**
@@ -14,23 +14,21 @@ export default DS.Model.extend({
      */
     modificationPending: false,
 
+    name: function() {
+        return pathlib.basename(this.get('path'));
+    }.property('path'),
+
     thumbnail: function () {
-        return [this.get('directory.thumbnail_path'), this.get('name')].join('/');
-    }.property('directory.thumbnail_path', 'name'),
+        return [this.get('collectionInfo.thumbnailsRoot'), this.get('path')].join('/');
+    }.property('collectionInfo.thumbnailsRoot', 'path'),
 
     preview: function () {
-        return [this.get('directory.preview_path'), this.get('name')].join('/');
-    }.property('directory.preview_path', 'name'),
+        return [this.get('collectionInfo.previewsRoot'), this.get('path')].join('/');
+    }.property('collectionInfo.previewsRoot', 'path'),
 
     original: function () {
-        return [this.get('directory.original_path'), this.get('name')].join('/');
-    }.property('directory.original_path', 'name'),
-
-    path: function () {
-        var directoryPath = this.get('directory.path');
-        var name = this.get('name');
-        return directoryPath === '' ? name : [directoryPath, name].join('/');
-    }.property('directory.path', 'name'),
+        return [this.get('collectionInfo.originalsRoot'), this.get('path')].join('/');
+    }.property('collectionInfo.originalsRoot', 'path'),
 
     index: function () {
         var images = this.get('directory.images');
