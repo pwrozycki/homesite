@@ -26,7 +26,7 @@ export default Ember.ObjectController.extend({
      * Determine if gallery is in preview mode.
      */
     isPreviewMode: function () {
-        return this.get('currentRouteName') === 'gallery.image';
+        return this.get('currentRouteName') === 'gallery.directory.image';
     }.property('currentRouteName'),
 
     /**
@@ -58,7 +58,7 @@ export default Ember.ObjectController.extend({
     actions: {
         showPreview: function (image) {
             lazyloader.unbindEvents();
-            this.transitionToRoute('gallery.image', image.get('name'), {queryParams: {scrollTo: null}});
+            this.transitionToRoute('gallery.directory.image', image.get('name'), {queryParams: {scrollTo: null}});
         },
         toggleShared: function (directory) {
             var oldShared = directory.get('shared');

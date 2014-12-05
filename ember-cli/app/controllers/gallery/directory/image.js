@@ -1,6 +1,6 @@
 import Ember from 'ember';
-import preloader from '../../utils/preloader';
-import lazyloader from '../../utils/lazy-loader';
+import preloader from '../../../utils/preloader';
+import lazyloader from '../../../utils/lazy-loader';
 
 export default Ember.ObjectController.extend({
     needs: ['gallery/directory'],
@@ -11,7 +11,7 @@ export default Ember.ObjectController.extend({
      * 1 - next image, -1 - previous image
      */
     switchToImage: function (newImage) {
-        this.transitionToRoute('gallery.image', newImage.get('name'));
+        this.transitionToRoute('gallery.directory.image', newImage.get('name'));
         preloader.setupImagePreloading(this.get('images'), newImage.get('index'));
     },
 

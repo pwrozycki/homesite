@@ -12,9 +12,8 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q
 from django.http.response import HttpResponseServerError
-import resource
 from rest_framework import viewsets, status
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -225,6 +224,38 @@ class CollectionInfoView(APIView):
             'previewsRoot': locations.preview_web_path(''),
             'originalsRoot': locations.original_web_path('')
         })
+
+
+class RedundantImagesView(APIView):
+    resource_name = 'redundantImage'
+
+
+    def get(self, request):
+        directory_id = request.QUERY_PARAMS.get('directoryId', None)
+        if not directory_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        directory = get_object_or_404(Directory.objects, id=directory_id)
+
+        redundant_images = []
+        for image in directory.images.all():
+            date_in_name_match = re.match(r'(\d{8}_\d{6})', image.name)
+
+            if date_in_name_match:
+                date_in_name = date_in_name_match.group(0)
+                other_images_with_same_name = Image.objects.filter(~Q(id__exact=image.pk),
+                                                                   Q(name__startswith=date_in_name)).order_by('name')
+
+                if other_images_with_same_name:
+                    redundant_images.append(
+                        {'id': image.pk,
+                         'image': ImageSerializer(image).data,
+                         'redundant': ImageSerializer(other_images_with_same_name, many=True).data})
+
+        if not redundant_images:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(redundant_images)
 
 
 class SessionView(APIView):

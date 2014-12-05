@@ -5,6 +5,11 @@ export default Ember.Route.extend({
         // fetch image from gallery.directory controller
         // choose the one with correct name
         var images = this.modelFor('gallery/directory').get('images');
-        return images.findBy('name', params.image);
+        var image = images.findBy('name', params.image);
+        if (Ember.isEmpty(image)) {
+            this.transitionTo('gallery.directory');
+            return null;
+        }
+        return  image;
     }
 });

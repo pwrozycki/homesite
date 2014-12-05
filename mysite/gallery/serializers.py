@@ -16,12 +16,11 @@ class SubdirectorySerializer(serializers.ModelSerializer):
 
 
 class ImageSerializer(serializers.ModelSerializer):
-    directory = serializers.PrimaryKeyRelatedField()
     path = serializers.SerializerMethodField('get_path')
 
     class Meta:
         model = Image
-        fields = ['id', 'path', 'orientation', 'directory']
+        fields = ['id', 'path', 'orientation']
 
     def get_path(self, obj):
         return getattr(obj, 'path')

@@ -145,7 +145,7 @@ export default Ember.Route.extend({
                 // update lazyloader in case new images appeared in viewport
                 if (self.controller.get('isPreviewMode')) {
                     if (nextImage) {
-                        self.transitionTo('gallery.image', nextImage.get('name'));
+                        self.transitionTo('gallery.directory.image', nextImage.get('name'));
                     } else {
                         self.transitionTo('gallery.directory');
                     }

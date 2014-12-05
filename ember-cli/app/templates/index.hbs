@@ -1,4 +1,6 @@
 <ul>
     <li>{{#link-to 'gallery.directory' '.'}}Galeria{{/link-to}}</li>
-    <li><a href="assets/jwplayer/test.html">Kamerka</a></li>
+    {{#if session.isAuthenticated}}
+        <li><a href="assets/jwplayer/test.html">Kamerka</a></li>
+    {{/if}}
 </ul>
