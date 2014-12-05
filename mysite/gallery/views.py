@@ -13,15 +13,16 @@ from django.db import transaction
 from django.db.models import Q
 from django.http.response import HttpResponseServerError
 from rest_framework import viewsets, status
-from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory
-from gallery.models import Directory, Image
-from gallery.serializers import DirectorySerializer, ImageSerializer, SubdirectorySerializer, UserSerializer
+from gallery.models import Directory, Image, ImageGroup
+from gallery.serializers import DirectorySerializer, ImageSerializer, SubdirectorySerializer, UserSerializer, \
+    ImageGroupSerializer
 
 
 TRASH_DIRECTORY_REGEXP = r'^/?{}/'.format(locations.TRASH_DIR_NAME)
@@ -226,36 +227,19 @@ class CollectionInfoView(APIView):
         })
 
 
-class RedundantImagesView(APIView):
-    resource_name = 'redundantImage'
-
+class ImageGroupView(APIView):
+    resource_name = 'imageGroup'
 
     def get(self, request):
         directory_id = request.QUERY_PARAMS.get('directoryId', None)
         if not directory_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        directory = get_object_or_404(Directory.objects, id=directory_id)
-
-        redundant_images = []
-        for image in directory.images.all():
-            date_in_name_match = re.match(r'(\d{8}_\d{6})', image.name)
-
-            if date_in_name_match:
-                date_in_name = date_in_name_match.group(0)
-                other_images_with_same_name = Image.objects.filter(~Q(id__exact=image.pk),
-                                                                   Q(name__startswith=date_in_name)).order_by('name')
-
-                if other_images_with_same_name:
-                    redundant_images.append(
-                        {'id': image.pk,
-                         'image': ImageSerializer(image).data,
-                         'redundant': ImageSerializer(other_images_with_same_name, many=True).data})
-
-        if not redundant_images:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        image_groups = ImageGroup.objects.filter(images__directory__pk=directory_id)
+        if image_groups:
+            return Response(ImageGroupSerializer(image_groups.all(), many=True).data)
         else:
-            return Response(redundant_images)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class SessionView(APIView):

@@ -1,7 +1,14 @@
 # Create your models here.
 import os
+
 from django.db import models
-from gallery import locations
+
+
+class ImageGroup(models.Model):
+    time_string = models.CharField(max_length=15, unique=True, null=True)
+
+    class Meta:
+        ordering = ('time_string',)
 
 
 class Directory(models.Model):
@@ -18,6 +25,7 @@ class Image(models.Model):
     name = models.CharField(max_length=100, db_index=True)
     orientation = models.CharField(max_length=10, blank=True, default="up")
     directory = models.ForeignKey(Directory, related_name='images', db_index=True)
+    image_group = models.ForeignKey(ImageGroup, related_name='images', db_index=True)
     modification_time = models.DateTimeField(null=True)
 
     class Meta:

@@ -1,10 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.fields import Field
-from rest_framework.relations import PrimaryKeyRelatedField
-from gallery import locations
 
-from gallery.models import Image, Directory
+from gallery.models import Image, Directory, ImageGroup
 
 
 class SubdirectorySerializer(serializers.ModelSerializer):
@@ -24,6 +22,13 @@ class ImageSerializer(serializers.ModelSerializer):
 
     def get_path(self, obj):
         return getattr(obj, 'path')
+
+
+class ImageGroupSerializer(serializers.ModelSerializer):
+    images = ImageSerializer(many=True)
+
+    class Meta:
+        model = ImageGroup
 
 
 class DirectorySerializer(SubdirectorySerializer):
