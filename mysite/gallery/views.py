@@ -11,6 +11,7 @@ from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.aggregates import Count
 from django.http.response import HttpResponseServerError
 from rest_framework import viewsets, status
 from rest_framework.generics import GenericAPIView
@@ -235,7 +236,11 @@ class ImageGroupView(APIView):
         if not directory_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        image_groups = ImageGroup.objects.filter(images__directory__pk=directory_id)
+        # restrict image groups to the ones containing images from different directories
+        image_groups = ImageGroup.objects \
+            .annotate(num_dirs=Count('images__directory', distinct=True)) \
+            .filter(num_dirs__gt=1).filter(images__directory__pk=directory_id)
+
         if image_groups:
             return Response(ImageGroupSerializer(image_groups.all(), many=True).data)
         else:
