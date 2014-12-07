@@ -33,8 +33,17 @@ export default Ember.ObjectController.extend({
      * Determine if gallery is in browsing mode.
      */
     isBrowserVisible: function () {
-        return !this.get('isPreviewMode');
-    }.property('isPreviewMode'),
+        console.log(this.get('currentRouteName'));
+        return this.get('currentRouteName') === 'gallery.directory' ||
+            this.get('currentRouteName') === 'gallery.directory.index';
+    }.property('currentRouteName'),
+
+    /**
+     * Determine if redundant images mode is selected.
+     */
+    isRedundantImagesMode: function() {
+        return this.get('currentRouteName') === 'gallery.directory.redundant';
+    }.property('currentRouteName'),
 
     /**
      * Scroll to image as passed in scrollTo request parameter.

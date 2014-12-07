@@ -1,0 +1,18 @@
+<div id="redundantImages">
+    {{#link-to 'gallery.directory'}}Back to directory{{/link-to}}
+    <p>
+        Showing redundant images
+    </p>
+    <ul>
+        {{#each imageGroup in model}}
+            <li>
+                {{#each image in imageGroup.images}}
+                    <div class="image-container">
+                        <img {{bind-attr src=image.thumbnail}}>
+                        <p>{{image.path}}</p>
+                    </div>
+                {{/each}}
+            </li>
+        {{/each}}
+    </ul>
+</div>
