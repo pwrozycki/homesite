@@ -59,6 +59,33 @@ div#authbox {
     opacity: 1;
 }
 
+/* Listing of redundant images */
+
+#redundantImages div.image-container {
+    float:left;
+    margin: 0px 10px
+}
+
+#redundantImages div.image-container img {
+    display: block;
+    margin: auto;
+
+}
+
+#redundantImages li p {
+    text-align: center;
+}
+
+#redundantImages li {
+    margin-top: 10px;
+    float: left;
+    clear: both;
+}
+
+#redundantImages ul {
+    list-style-type: none;
+}
+
 /* Image browser */
 
 /* fix required due to box-sizing: border-box (from bootstrap)  */
