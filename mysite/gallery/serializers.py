@@ -25,10 +25,16 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class ImageGroupSerializer(serializers.ModelSerializer):
-    images = ImageSerializer(many=True)
+    images = serializers.SerializerMethodField('get_images')
 
     class Meta:
         model = ImageGroup
+
+    def get_images(self, obj):
+        images_queryset = obj.images\
+            .exclude(directory__path__iexact='Trash')\
+            .exclude(directory__path__startswith='Trash/')
+        return ImageSerializer(images_queryset, many=True).data
 
 
 class DirectorySerializer(SubdirectorySerializer):

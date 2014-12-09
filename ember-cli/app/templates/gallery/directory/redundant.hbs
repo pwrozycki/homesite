@@ -5,14 +5,21 @@
     </p>
     <ul>
         {{#each imageGroup in model}}
-            <li>
-                {{#each image in imageGroup.images}}
-                    <div class="image-container">
-                        <img {{bind-attr src=image.thumbnail}}>
-                        <p>{{image.path}}</p>
-                    </div>
-                {{/each}}
-            </li>
+            {{#if imageGroup.hasAtLeastTwoImages}}
+                <li>
+                    {{#each image in imageGroup.images}}
+                        <div class="image-container">
+                            <div class="image-overlay">
+                                <a {{action 'removeImage' image}}
+                                    {{bind-attr disabled="image.modificationPending" class=":thrash :button image.modificationPending:inactive"}}></a>
+                            </div>
+                            <img {{bind-attr src=image.thumbnail}}>
+
+                            <p>{{image.path}}</p>
+                        </div>
+                    {{/each}}
+                </li>
+            {{/if}}
         {{/each}}
     </ul>
 </div>

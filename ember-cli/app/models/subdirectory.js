@@ -17,22 +17,8 @@ export default DS.Model.extend({
      * Is directory in trash?.
      */
     inTrash: function () {
-        return this.get('path').indexOf('Trash') === 0;
+        return pathlib.isInTrash(this.get('path'));
     }.property('path'),
-
-    /**
-     * Directory without 'Trash' prefix.
-     */
-    outsideTrashPath: function () {
-        return this.get('inTrash') ? this.get('path').replace(/^Trash\//, '') : this.get('path');
-    }.property('path', 'inTrash'),
-
-    /**
-     * Directory with 'Trash' prefix.
-     */
-    insideTrashPath: function() {
-        return this.get('inTrash') ? this.get('path') : 'Trash/' + this.get('path');
-    }.property('path', 'inTrash'),
 
     /**
      * Path with / substituted with |.

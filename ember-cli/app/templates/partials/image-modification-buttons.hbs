@@ -1,12 +1,12 @@
 {{#if session.isAuthenticated}}
     {{#if image.directory.inTrash}}
-        <a {{action 'revertImage' image}}
-            {{bind-attr disabled="image.modificationPending" class=":revert :button image.modificationPending:inactive"}}></a>
+        <button {{action 'revertImage' image}}
+            {{bind-attr disabled="image.modificationPending" class=":revert :button image.modificationPending:inactive"}}></button>
     {{else}}
-        <a {{action 'removeImage' image}}
-            {{bind-attr disabled="image.modificationPending" class=":thrash :button image.modificationPending:inactive"}}></a>
+        <button {{action 'removeImage' image}}
+            {{bind-attr disabled="image.modificationPending" class=":thrash :button image.modificationPending:inactive"}}></button>
     {{/if}}
 
-    <a {{action 'rotateImage' image}}
-        {{ bind-attr disabled="image.modificationPending" class="image.orientation :button image.modificationPending:inactive" }}></a>
+    <button {{action 'rotateImage' image}}
+        {{ bind-attr disabled="image.modificationPending" class="image.orientation :button image.modificationPending:inactive" }}></button>
 {{/if}}

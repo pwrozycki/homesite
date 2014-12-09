@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import pathlib from '../../lib/path';
+import Directory from '../../models/directory';
 import storelib from '../../lib/store';
 import lazyloader from '../../utils/lazy-loader';
 
@@ -99,15 +100,16 @@ export default Ember.Route.extend({
      * after detetion:
      * - 'a/b' should be updated to contain reverted images
      */
-    markDirectoriesAsOutdated: function (directory) {
-        var oppositeSidePath = directory.get('inTrash') ? directory.get('outsideTrashPath') : directory.get('insideTrashPath');
+    markDirectoriesAsOutdated: function (directoryPath) {
+        var isInTrash = pathlib.isInTrash(directoryPath);
+        var oppositeSidePath = isInTrash ? pathlib.outsideTrash(directoryPath) : pathlib.insideTrash(directoryPath);
         var parentPaths = pathlib.parentPaths(oppositeSidePath);
 
         // image is reverted - only the target directory needs to be updated - i.e. directory to which image
         //                     will be reverted
         // image is deleted - deepest directory in store should be updated -either directory which contains newly
         //                    created directory or directory to which image will be reverted)
-        if (directory.get('inTrash')) {
+        if (isInTrash) {
             parentPaths = parentPaths.slice(parentPaths.length - 1);
         }
 
@@ -135,8 +137,8 @@ export default Ember.Route.extend({
         var url = '/gallery/api/images/%@/%@'.fmt(image.get('id'), action);
 
         image.set('modificationPending', true);
-        var directory = image.get('directory');
-        var nextImage = image.get('next') || image.get('previous');
+        var imagePath = image.get('path');
+        var directoryPath = pathlib.dirname(imagePath);
 
         Ember.RSVP.resolve($.post(url)).then(
             function () {
@@ -144,6 +146,7 @@ export default Ember.Route.extend({
                 // leave preview mode if no images left
                 // update lazyloader in case new images appeared in viewport
                 if (self.controller.get('isPreviewMode')) {
+                    var nextImage = image.get('next') || image.get('previous');
                     if (nextImage) {
                         self.transitionTo('gallery.directory.image', nextImage.get('name'));
                     } else {
@@ -155,9 +158,19 @@ export default Ember.Route.extend({
                 lazyloader.update();
 
                 // remove image from directory
-                image.get('directory.images').removeObject(image);
+                var directory = self.store.all('directory').findBy('path', directoryPath);
+                if (! Ember.isEmpty(directory)) {
+                    directory.get('images').removeObject(image);
+                }
+
+                // remove image from image groups
+                self.store.all('image-group').forEach(function(imageGroup) {
+                    var images = imageGroup.get('images');
+                    images.removeObject(images.findBy('path', imagePath));
+                });
+
                 // mark opposite directory as outdated
-                self.markDirectoriesAsOutdated(directory);
+                self.markDirectoriesAsOutdated(directoryPath);
             },
             // on failure: popup modal window containing output message
             function (result) {

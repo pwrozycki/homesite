@@ -1,11 +1,11 @@
 <div class="image-overlay">
-    <a {{action 'prevImage'}}
-        {{bind-attr disabled="isFirst" class=":leftArrow :button isFirst:inactive"}}></a>
+    <button {{action 'prevImage'}}
+        {{bind-attr disabled="isFirst" class=":leftArrow :button isFirst:inactive"}}></button>
 
-    <a {{action 'exitPreview' model}} class="upArrow button"></a>
+    <button {{action 'exitPreview' model}} class="upArrow button"></button>
 
-    <a {{action 'nextImage'}}
-        {{bind-attr disabled="isLast" class=":rightArrow :button isLast:inactive"}}></a>
+    <button {{action 'nextImage'}}
+        {{bind-attr disabled="isLast" class=":rightArrow :button isLast:inactive"}}></button>
 
     {{#with model as image}}
         {{ partial 'partials/image-modification-buttons' }}
