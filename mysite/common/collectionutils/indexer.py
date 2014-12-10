@@ -5,13 +5,11 @@ import re
 import fnmatch
 
 from django.db.models import Q
-from pytz import timezone
 
 from gallery.locations import collection_walk
 from common.collectionutils.renameutils import find_or_create_directory, get_mtime_datetime
 from gallery import locations
 from gallery.models import Image, ImageGroup
-from mysite import settings
 
 
 logger = logging.getLogger(__name__)
@@ -80,7 +78,7 @@ class Indexer():
         Image.objects \
             .filter(Q(directory__path__startswith='Trash/') | Q(directory__path__exact='Trash')) \
             .filter(trash_time__isnull=True) \
-            .update(trash_time=datetime.now(timezone(settings.TIME_ZONE)))
+            .update(trash_time=datetime.now())
 
     @classmethod
     def _process_directory(cls, root_phys_path, dirs, files):
