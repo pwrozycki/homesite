@@ -6,6 +6,7 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
 from common.collectionutils.rotator import Rotator
+
 from common.collectionutils.trash_cleaner import TrashCleaner
 from gallery.locations import COLLECTION_PHYS_ROOT
 from common.collectionutils.indexer import Indexer

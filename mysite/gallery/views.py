@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q
 from django.http.response import HttpResponseServerError
+from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
@@ -103,7 +104,8 @@ def _update_database_after_move(src_image_web_path, dst_image_web_path, move_to_
         # if image is moved to trash save current timestamp as trash_time
         # otherwise unset trash_time
         if move_to_trash:
-            trash_time = datetime.now()
+            now = timezone.make_aware(datetime.now(), timezone.get_default_timezone())
+            trash_time = now
         else:
             trash_time = None
 

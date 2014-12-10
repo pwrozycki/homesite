@@ -3,6 +3,7 @@ import logging
 import os
 
 from django.db.models import Q
+from django.utils import timezone
 
 from gallery import locations
 from gallery.models import Image
@@ -13,7 +14,7 @@ class TrashCleaner(object):
 
     @staticmethod
     def go():
-        month_before = datetime.now() - timedelta(days=30)
+        month_before = timezone.make_aware(datetime.now() - timedelta(days=30), timezone.get_default_timezone())
 
         # select images from trash that were moved month before or earlier
         old_images_in_trash = Image.objects \

@@ -31,8 +31,8 @@ class ImageGroupSerializer(serializers.ModelSerializer):
         model = ImageGroup
 
     def get_images(self, obj):
-        images_queryset = obj.images\
-            .exclude(directory__path__iexact='Trash')\
+        images_queryset = obj.images \
+            .exclude(directory__path__iexact='Trash') \
             .exclude(directory__path__startswith='Trash/')
         return ImageSerializer(images_queryset, many=True).data
 

@@ -6,7 +6,10 @@ import fnmatch
 
 from django.db.models import Q
 
+from django.utils import timezone
+
 from gallery.locations import collection_walk
+
 from common.collectionutils.renameutils import find_or_create_directory, get_mtime_datetime
 from gallery import locations
 from gallery.models import Image, ImageGroup
@@ -75,10 +78,11 @@ class Indexer():
             cls.assign_image_to_image_group(image)
 
         # for all images in Trash with empty trash_time, set it to current timestamp
+        now = timezone.make_aware(datetime.now(), timezone.get_default_timezone())
         Image.objects \
             .filter(Q(directory__path__startswith='Trash/') | Q(directory__path__exact='Trash')) \
             .filter(trash_time__isnull=True) \
-            .update(trash_time=datetime.now())
+            .update(trash_time=now)
 
     @classmethod
     def _process_directory(cls, root_phys_path, dirs, files):

@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 
 class Thumbnailer:
-
     JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
 
     @staticmethod
