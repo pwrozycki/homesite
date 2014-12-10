@@ -1,17 +1,18 @@
+from datetime import datetime
 import logging
 import os
-
-from gallery.locations import collection_walk
-
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
-
 import re
 import fnmatch
+
+from django.db.models import Q
+from pytz import timezone
+
+from gallery.locations import collection_walk
 from common.collectionutils.renameutils import find_or_create_directory, get_mtime_datetime
 from gallery import locations
-
 from gallery.models import Image, ImageGroup
+from mysite import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,8 @@ class Indexer():
     def walk(cls):
         for (root, dirs, files) in collection_walk():
             cls._process_directory(root, dirs, files)
+
+        cls._fix_image_properties()
 
     @classmethod
     def _process_directories(cls, dirs, root_object, root_web_path):
@@ -68,6 +71,18 @@ class Indexer():
             logging.info("Added image {} to group {}".format(image.name, image_group.time_string))
 
     @classmethod
+    def _fix_image_properties(cls):
+        # assign any non assigned images to image group
+        for image in Image.objects.filter(image_group__isnull=True):
+            cls.assign_image_to_image_group(image)
+
+        # for all images in Trash with empty trash_time, set it to current timestamp
+        Image.objects \
+            .filter(Q(directory__path__startswith='Trash/') | Q(directory__path__exact='Trash')) \
+            .filter(trash_time__isnull=True) \
+            .update(trash_time=datetime.now(timezone(settings.TIME_ZONE)))
+
+    @classmethod
     def _process_directory(cls, root_phys_path, dirs, files):
         # ignore directories starting with a dot
         images = sorted([f for f in files if cls.JPG_MATCH.match(f)])
@@ -88,7 +103,3 @@ class Indexer():
             cls._process_directories(dirs, root_object, root_web_path)
 
             cls._process_images(images, root_object, root_phys_path)
-
-        # assign any non assigned images to image group
-        for image in Image.objects.filter(image_group__isnull=True):
-            cls.assign_image_to_image_group(image)

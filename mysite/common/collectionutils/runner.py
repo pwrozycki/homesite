@@ -2,8 +2,11 @@ import logging
 from logging import Formatter
 from logging.handlers import RotatingFileHandler
 import os
-from common.collectionutils.rotator import Rotator
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
+
+from common.collectionutils.rotator import Rotator
+from common.collectionutils.trash_cleaner import TrashCleaner
 from gallery.locations import COLLECTION_PHYS_ROOT
 from common.collectionutils.indexer import Indexer
 from common.collectionutils.renamer import Renamer
@@ -37,6 +40,7 @@ class Runner:
         Renamer.walk()
         Rotator.go()
         Thumbnailer.walk()
+        TrashCleaner.go()
         Indexer.walk()
 
         Thumbnailer.remove_obsolete()

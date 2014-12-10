@@ -2,16 +2,14 @@
 # -*- coding: UTF-8 -*-
 
 import os
-from gallery.locations import collection_walk
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
-
 import re
 import logging
 from collections import defaultdict
 
+from gallery.locations import collection_walk
 from common.collectionutils.renameutils import move_without_overwriting
 from common.collectionutils.exiftool import ImageInfo
+
 
 logger = logging.getLogger(__name__)
 

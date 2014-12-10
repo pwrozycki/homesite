@@ -1,8 +1,9 @@
 import datetime
 import os
-from django.utils import timezone
-from gallery import locations
 
+from django.utils import timezone
+
+from gallery import locations
 from gallery.models import Directory
 
 

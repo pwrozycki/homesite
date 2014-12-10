@@ -1,4 +1,3 @@
-# Create your models here.
 import os
 
 from django.db import models
@@ -27,6 +26,7 @@ class Image(models.Model):
     directory = models.ForeignKey(Directory, related_name='images', db_index=True)
     image_group = models.ForeignKey(ImageGroup, related_name='images', db_index=True)
     modification_time = models.DateTimeField(null=True)
+    trash_time = models.DateTimeField(null=True)
 
     class Meta:
         unique_together = ('name', 'directory')

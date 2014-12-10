@@ -2,13 +2,12 @@ import logging
 import os
 import subprocess
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
-
-from common import debugtool
-from common.collectionutils.thumbnailer import Thumbnailer
 from django.db.models.query_utils import Q
+
+from common.collectionutils.thumbnailer import Thumbnailer
 from gallery import locations
 from gallery.models import Image
+
 
 try:
     from gi.repository.GExiv2 import Metadata

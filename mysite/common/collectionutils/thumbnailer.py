@@ -11,9 +11,9 @@ import sys
 
 from common.collectionutils.renameutils import get_mtime_datetime
 from gallery import locations
-
 from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT, collection_walk
 from gallery.models import Image
+
 
 THUMBNAILS_CONVERT_CONF = (
     (THUMBNAILS_PHYS_ROOT, 'x200', '-thumbnail'),
@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class Thumbnailer:
+
     JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
 
     @staticmethod
@@ -53,7 +54,7 @@ class Thumbnailer:
                 os.makedirs(dst_dir)
 
     @classmethod
-    def method_name(cls, image_phys_path, thumb_phys_path, geometry, mode):
+    def _create_thumbnail(cls, image_phys_path, thumb_phys_path, geometry, mode):
         logger.info("creating image: {}".format(thumb_phys_path))
         subprocess.call(['convert', image_phys_path, mode, geometry, '-quality', '80', thumb_phys_path])
 
@@ -65,7 +66,7 @@ class Thumbnailer:
 
             # recreate requested
             if force_recreate:
-                cls.method_name(image_phys_path, thumb_phys_path, geometry, mode)
+                cls._create_thumbnail(image_phys_path, thumb_phys_path, geometry, mode)
 
             # thumbnail exists and is up-to-date => nothing should be done
             elif os.path.exists(thumb_phys_path) and not force_recreate:
@@ -75,39 +76,37 @@ class Thumbnailer:
 
             # thumbnail doesn't exist
             else:
-                image_mtime = get_mtime_datetime(image_phys_path)
-                image_basename = (os.path.basename(image_phys_path))
-                same_image_query = Image.objects.filter(name=image_basename, modification_time=image_mtime)
-
                 # found images matching name and mtime
-                if same_image_query:
-                    cls._use_existing_thumbnail(thumb_phys_path, same_image_query, thumb_root)
+                thumbnail_copied = cls._try_copying_existing_thumbnail(image_phys_path, thumb_phys_path, thumb_root)
 
                 # no existing thumbnail for such image exists - create one
-                else:
-                    cls.method_name(image_phys_path, thumb_phys_path, geometry, mode)
+                if not thumbnail_copied:
+                    cls._create_thumbnail(image_phys_path, thumb_phys_path, geometry, mode)
 
     @classmethod
-    def _use_existing_thumbnail(cls, thumb_phys_path, same_image_query, thumb_root):
-        # there are many such images - first will be taken into account - but log warning
-        if len(same_image_query) > 1:
-            logger.warning("multiple matching images found: {}".format(os.path.basename(thumb_phys_path)))
+    def _try_copying_existing_thumbnail(cls, image_phys_path, thumb_phys_path, thumb_root):
+        image_mtime = get_mtime_datetime(image_phys_path)
+        image_basename = (os.path.basename(image_phys_path))
 
-        same_image = same_image_query[0]
-        same_image_phys_path = locations.collection_phys_path(same_image.path)
-        same_image_thumb_phys_path = cls._thumb_phys_path(thumb_root, same_image_phys_path)
-        move_args = (same_image_thumb_phys_path, thumb_phys_path)
+        # images with same basename and modification time are considered as identical
+        # therefore if there exists thumbnail it can be used instead of creating new one
+        same_image_query = Image.objects.filter(name=image_basename, modification_time=image_mtime)
 
-        # underlying image exists - thumbnails can be copied
-        if os.path.exists(same_image_phys_path):
-            logger.warning(
-                "there exists already image with same name and mtime: copying {} -> {}".format(*move_args))
-            shutil.copy(same_image_thumb_phys_path, thumb_phys_path)
+        for same_image in same_image_query.all():
+            same_image_phys_path = locations.collection_phys_path(same_image.path)
+            same_image_thumb_phys_path = cls._thumb_phys_path(thumb_root, same_image_phys_path)
+            move_args = (same_image_thumb_phys_path, thumb_phys_path)
 
-        # image has been moved - thumbnails should be moved
-        else:
-            logger.info("move detected, moving {} -> {} ".format(*move_args))
-            shutil.move(*move_args)
+            # underlying thumbnail exists - thumbnails can be copied
+            if os.path.exists(same_image_thumb_phys_path):
+                logger.warning(
+                    "there exists already image with same name and mtime: copying {} -> {}".format(*move_args))
+                shutil.copy(same_image_thumb_phys_path, thumb_phys_path)
+                return True
+
+        # there was no thumbnail yet
+        # this could happen when two image exact copies are added and no thumbnail was created for any of them
+        return False
 
     @classmethod
     def walk(cls):
