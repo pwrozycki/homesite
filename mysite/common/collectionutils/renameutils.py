@@ -1,16 +1,13 @@
 import datetime
 import os
 
-from django.utils import timezone
-
+from common.collectionutils.misc import localized_time
 from gallery import locations
 from gallery.models import Directory
 
 
 def get_mtime_datetime(path):
-    return timezone.make_aware(
-        datetime.datetime.fromtimestamp(os.path.getmtime(path)),
-        timezone.get_default_timezone())
+    return localized_time(datetime.datetime.fromtimestamp(os.path.getmtime(path)))
 
 
 def move_without_overwriting(src, dst, create_destination_dir=False):

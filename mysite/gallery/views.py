@@ -13,13 +13,13 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q
 from django.http.response import HttpResponseServerError
-from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from common.collectionutils.misc import localized_time
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory
 from gallery.models import Directory, Image, ImageGroup
@@ -104,7 +104,7 @@ def _update_database_after_move(src_image_web_path, dst_image_web_path, move_to_
         # if image is moved to trash save current timestamp as trash_time
         # otherwise unset trash_time
         if move_to_trash:
-            now = timezone.make_aware(datetime.now(), timezone.get_default_timezone())
+            now = localized_time(datetime.now())
             trash_time = now
         else:
             trash_time = None
