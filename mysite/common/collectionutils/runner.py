@@ -2,6 +2,7 @@ import logging
 from logging import Formatter
 from logging.handlers import RotatingFileHandler
 import os
+import traceback
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
@@ -48,4 +49,8 @@ class Runner:
 
 
 if __name__ == '__main__':
-    Runner.go()
+    try:
+        Runner.go()
+    except Exception:
+        # log any uncaught exceptions
+        logging.error("Following unhandled exception occurred:\n{}".format(traceback.format_exc()))
