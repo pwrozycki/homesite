@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 
+from common.collectionutils.renamer import Renamer
 from common.collectionutils.renameutils import get_mtime_datetime
 from gallery import locations
 from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT, collection_walk
@@ -148,7 +149,8 @@ class Thumbnailer:
                 dirs.sort()
 
                 # remove files if no corresponding file was found
-                for name in [f for f in sorted(files) if cls.JPG_MATCH.match(f)]:
+                # only index files that have correct name - it will be changed anyway during next Runner loop
+                for name in [f for f in sorted(files) if Renamer.CORRECT_FILENAME_RE.match(f)]:
                     thumb_phys_path = os.path.abspath(os.path.join(root, name))
                     cls._remove_file_not_in_collection(thumb_phys_path, thumb_root)
 

@@ -39,29 +39,42 @@ class ImageInfo:
 
     @classmethod
     def for_path(cls, path):
-        metadata = Metadata()
-        metadata.open_path(path)
-        date = cls.read_date_info(metadata, path)
+        date = cls.read_date_info(path)
         return ImageInfo(path, date)
 
     @staticmethod
-    def read_date_info(metadata, path):
-        # Try to read date information from exif tags
-        for exifField in EXIF_DATE_FIELDS:
-            try:
-                date_info = metadata.get_tag_string(exifField)
-                if date_info:
-                    date = datetime.datetime.strptime(date_info, EXIF_DATE_FORMAT)
-                    return date
-            except AttributeError:
-                # Specific exif tag is missing - try with next one
-                pass
-            except ValueError:
-                # Date didn't match expected format - log error
-                logging.error('unable to parse date: {0}: {1}: '.format(path, date_info))
-                pass
+    def get_exif_metadata(path):
+        try:
+            metadata = Metadata()
+            metadata.open_path(path)
+            return metadata
+        except Exception:
+            logging.error('error reading metadata: {0}'.format(path))
 
-        # If no tag contains valid date - return modification time
+        return None
+
+    @classmethod
+    def read_date_info(cls, path):
+        # try to read metadata
+        metadata = cls.get_exif_metadata(path)
+
+        # Try to read date information from exif tags
+        # (if metadata was read correctly)
+        if metadata:
+            for exif_field in EXIF_DATE_FIELDS:
+                date_info = metadata.get_tag_string(exif_field)
+                if date_info:
+                    try:
+                        date = datetime.datetime.strptime(date_info, EXIF_DATE_FORMAT)
+                        return date
+                    except ValueError:
+                        # Date didn't match expected format - log error
+                        logging.error('unable to parse date: {0}: {1}: '.format(path, date_info))
+                else:
+                    # There was no matching date for given exif field -> try next one
+                    logging.info('missing field: {} in {}'.format(exif_field, path))
+
+        # If file has no valid date information - return modification time
         return datetime.datetime.fromtimestamp(os.path.getmtime(path))
 
     def __repr__(self):
