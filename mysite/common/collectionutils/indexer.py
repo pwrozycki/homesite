@@ -2,6 +2,7 @@ from datetime import datetime
 import logging
 import os
 import re
+import fnmatch
 
 from django.db.models import Q
 
@@ -17,6 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 class Indexer():
+    JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
+
     @classmethod
     def walk(cls):
         for (root, dirs, files) in collection_walk():
@@ -83,7 +86,7 @@ class Indexer():
     @classmethod
     def _process_directory(cls, root_phys_path, dirs, files):
         # only index files that have correct name - it will be changed anyway during next Runner loop
-        images = sorted([f for f in files if Renamer.CORRECT_FILENAME_RE.match(f)])
+        images = sorted([f for f in files if cls.JPG_MATCH.match(f) and Renamer.CORRECT_FILENAME_RE.match(f)])
 
         # find directory object corresponding to root -> create if needed
         root_web_path = locations.collection_web_path(root_phys_path)

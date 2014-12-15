@@ -121,7 +121,8 @@ class Thumbnailer:
             cls._create_missing_dst_dir(dir_phys_path)
 
         # create thumb / resized
-        for name in [f for f in sorted(files) if cls.JPG_MATCH.match(f)]:
+        # only for files that have correct name - it will be changed anyway during next Runner loop
+        for name in [f for f in sorted(files) if cls.JPG_MATCH.match(f) and Renamer.CORRECT_FILENAME_RE.match(f)]:
             image_phys_path = os.path.abspath(os.path.join(root, name))
             cls.create_thumbnails(image_phys_path)
 
@@ -149,8 +150,7 @@ class Thumbnailer:
                 dirs.sort()
 
                 # remove files if no corresponding file was found
-                # only index files that have correct name - it will be changed anyway during next Runner loop
-                for name in [f for f in sorted(files) if Renamer.CORRECT_FILENAME_RE.match(f)]:
+                for name in [f for f in sorted(files) if cls.JPG_MATCH.match(f)]:
                     thumb_phys_path = os.path.abspath(os.path.join(root, name))
                     cls._remove_file_not_in_collection(thumb_phys_path, thumb_root)
 
