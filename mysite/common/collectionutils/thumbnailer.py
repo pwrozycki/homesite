@@ -69,10 +69,11 @@ class Thumbnailer:
                 cls._create_thumbnail(image_phys_path, thumb_phys_path, geometry, mode)
 
             # thumbnail exists and is up-to-date => nothing should be done
+            # (process next thumbnail resolution)
             elif os.path.exists(thumb_phys_path):
                 if os.path.getmtime(image_phys_path) <= os.path.getmtime(thumb_phys_path):
                     logger.debug("skipping (up to date image exists): {}".format(thumb_phys_path))
-                    return
+                    continue
 
             # thumbnail doesn't exist
             else:
