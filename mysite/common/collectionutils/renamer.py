@@ -15,6 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 class Renamer:
+    """
+    Renames images based on creation date. Creation date is derived from exif information stored in JPG images -
+    namely DateTimeOriginal and DateTime exif fields. If exif metadata is missing file modification time is used.
+    Renamer processes groups of images differing only by their extension - NEF, CR2, JPG, XMP files will be renamed too.
+    """
     IMG_RE = re.compile(r'^(?i).*\.(cr2|nef|jpg|xmp)$')
     CORRECT_FILENAME_RE = re.compile(r'^\d{8}_\d{6}(_\d+)?\.\w{3}$')
 

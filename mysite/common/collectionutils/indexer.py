@@ -4,7 +4,7 @@ import os
 import re
 import fnmatch
 
-from django.db.models import Q
+from django.db.models import Q, Count
 
 from common.collectionutils.misc import localized_time
 from common.collectionutils.renamer import Renamer
@@ -18,6 +18,10 @@ logger = logging.getLogger(__name__)
 
 
 class Indexer():
+    """
+    Keeps Image, Directory and ImageGroup objects in sync with collection of images.
+    Traverses image collection and removes outdated objects or creates if missing.
+    """
     JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
 
     @classmethod
@@ -26,6 +30,8 @@ class Indexer():
             cls._process_directory(root, dirs, files)
 
         cls._fix_image_properties()
+
+        cls._delete_empty_image_groups()
 
     @classmethod
     def _process_directories(cls, dirs, root_object, root_web_path):
@@ -62,13 +68,14 @@ class Indexer():
 
     @classmethod
     def assign_image_to_image_group(cls, image):
+        # create or find image group based on date in image name => assign it to image
         date_time_match = re.match(r'\d{8}_\d{6}', image.name)
         if date_time_match:
             date_time = date_time_match.group(0)
             image_group, created = ImageGroup.objects.get_or_create(time_string=date_time)
             image.image_group = image_group
             image.save()
-            logging.info("Added image {} to group {}".format(image.name, image_group.time_string))
+            logging.info("added image {} to group {}".format(image.name, image_group.time_string))
 
     @classmethod
     def _fix_image_properties(cls):
@@ -77,11 +84,23 @@ class Indexer():
             cls.assign_image_to_image_group(image)
 
         # for all images in Trash with empty trash_time, set it to current timestamp
-        now = localized_time(datetime.now())
-        Image.objects \
+        count = Image.objects \
             .filter(Q(directory__path__startswith='Trash/') | Q(directory__path__exact='Trash')) \
             .filter(trash_time__isnull=True) \
-            .update(trash_time=now)
+            .update(trash_time=(localized_time(datetime.now())))
+
+        if count:
+            logging.info("updated trash_time of {} trashed images.".format(count))
+
+    @classmethod
+    def _delete_empty_image_groups(cls):
+        # remove image groups having no images
+        empty_image_groups = ImageGroup.objects.annotate(num_images=Count('images')).filter(num_images__lte=0)
+        count = empty_image_groups.count()
+
+        if count:
+            empty_image_groups.delete()
+            logging.info("removed {} unneeded image groups".format(count))
 
     @classmethod
     def _process_directory(cls, root_phys_path, dirs, files):
