@@ -145,7 +145,7 @@ def trash_or_revert_image(path):
 
 class ImageModificationAPIView(GenericAPIView):
     serializer_class = ImageSerializer
-    model = Image
+    queryset = Image.objects.all()
 
     def post(self, request, *args, **kwargs):
         image = self.get_object()
@@ -168,8 +168,8 @@ class FilterByIdsMixin(object):
 
     def get_queryset(self):
         queryset = super(FilterByIdsMixin, self).get_queryset()
-        if FilterByIdsMixin.IDS_PARAM in self.request.QUERY_PARAMS:
-            ids_param_list = self.request.QUERY_PARAMS.getlist(FilterByIdsMixin.IDS_PARAM)
+        if FilterByIdsMixin.IDS_PARAM in self.request.query_params:
+            ids_param_list = self.request.query_params.getlist(FilterByIdsMixin.IDS_PARAM)
             return queryset.filter(pk__in=ids_param_list)
         else:
             return queryset
@@ -194,7 +194,7 @@ class SubdirectoryViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
                 queryset = queryset.filter(is_child_of_shared | Q(shared=True))
 
         # return only root directory
-        if 'root' in self.request.QUERY_PARAMS:
+        if 'root' in self.request.query_params:
             return queryset.filter(parent__isnull=True)
         else:
             return queryset
@@ -223,7 +223,7 @@ class ImageViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    model = User
+    queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
@@ -243,7 +243,7 @@ class ImageGroupView(APIView):
     resource_name = 'imageGroup'
 
     def get(self, request):
-        directory_id = request.QUERY_PARAMS.get('directoryId', None)
+        directory_id = request.query_params.get('directoryId', None)
         if not directory_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 

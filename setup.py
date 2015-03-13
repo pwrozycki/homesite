@@ -5,7 +5,7 @@ REPLACEMENTS = {
     '%VIRTUALENV%': '/mnt/dysk/homesite/virtualenvs/uwsgi',     # virtualenv used by uwsgi
     '%HOST_NAME%': 'majki.mooo.com',
     '%NGINX_PORT%': '80',
-    '%UWSGI_PYTHON_PLUGIN%': 'python32',
+    '%UWSGI_PYTHON_PLUGIN%': 'python34',
 }
 
 templates = [

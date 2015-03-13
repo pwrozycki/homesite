@@ -1,12 +1,12 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from rest_framework.fields import Field
+from rest_framework.fields import ReadOnlyField 
 
 from gallery.models import Image, Directory, ImageGroup
 
 
 class SubdirectorySerializer(serializers.ModelSerializer):
-    parent = serializers.PrimaryKeyRelatedField()
+    parent = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Directory
@@ -14,7 +14,7 @@ class SubdirectorySerializer(serializers.ModelSerializer):
 
 
 class ImageSerializer(serializers.ModelSerializer):
-    path = serializers.SerializerMethodField('get_path')
+    path = serializers.SerializerMethodField()
 
     class Meta:
         model = Image
@@ -25,7 +25,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class ImageGroupSerializer(serializers.ModelSerializer):
-    images = serializers.SerializerMethodField('get_images')
+    images = serializers.SerializerMethodField()
 
     class Meta:
         model = ImageGroup
@@ -47,8 +47,8 @@ class DirectorySerializer(SubdirectorySerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    firstName = Field(source="first_name")
-    lastName = Field(source="last_name")
+    firstName = ReadOnlyField(source="first_name")
+    lastName = ReadOnlyField(source="last_name")
 
     class Meta:
         model = User
