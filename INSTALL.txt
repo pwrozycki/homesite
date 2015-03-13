@@ -1,0 +1,41 @@
+Install system packages:
+  virtualenvwrapper, nginx, uwsgi, uwsgi-plugin-python3
+  python-pyexiv2, python-gobject, gir1.2-gexiv2-0.10
+  libjpeg-progs, imagemagick
+  npm, nodejs-legacy
+
+Fetch site sources:
+   git clone https://github.com/pwrozycki/homesite.git
+
+Prepare virtualenv environment:
+   virtualenv -p `which python3` uwsgi
+   source ./bin/activate
+   pip install -r requirements.txt
+
+Within virtualenv's lib/python3.4 create link to system-wide gi:
+   ln -s /usr/lib/python3/dist-packages/gi/ ./
+
+Create link under nginx and uwsgi sites:
+   sudo ln -s homesite_nginx.conf /etc/nginx/sites-enabled/
+   sudo ln -s homesite_uwsgi.ini /etc/uwsgi/apps-enabled/
+   sudo rm /etc/nginx/sites-enabled/default
+
+Modify user running nginx / uwsgi: - set uid and gid of user running uwsgi (must have write access to collection directory)
+   /usr/share/uwsgi/conf/default.ini
+   /etc/nginx/nginx.conf
+
+Setup ember-cli:
+   cd homesite/ember-cli
+   npm install
+  ./node_modules/.bin/bower install
+  ./node_modules/.bin/ember build
+
+Setup mysite:
+   source ./bin/activate
+   cd homesite/mysite
+   PYTHONPATH=. python manage.py syncdb
+   PYTHONPATH=. python common/collectionutils/runner.py
+
+Fix rest_framework_ember for python 3.4:
+   /mnt/dysk/homesite/virtualenvs/uwsgi/lib/python3.4/site-packages/rest_framework_ember/utils.py - swap basestring to django.utils.six.string_types
+
