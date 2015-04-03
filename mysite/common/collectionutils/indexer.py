@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 class Indexer():
     """
-    Keeps Image, Directory and ImageGroup objects in sync with collection of images.
-    Traverses image collection and removes outdated objects or creates if missing.
+    Keeps database objects in sync with collection of images.
+    Traverses image collection and removes outdated objects or creates missing ones.
     """
     JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
 

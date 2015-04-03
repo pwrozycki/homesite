@@ -17,6 +17,9 @@ from common.collectionutils.pidfile import handle_pidfile
 
 
 class Runner:
+    """
+    Runs task to manage various aspects of gallery.
+    """
     LOG_FILE = os.path.join(COLLECTION_PHYS_ROOT, '.meta', 'runner.log')
 
     @classmethod

@@ -30,6 +30,8 @@ def move_without_overwriting(src, dst, create_destination_dir=False):
 
 
 def find_or_create_directory(web_path, parent=None, save_modification_time=True):
+    # TODO: replace with get_or_create
+    # TODO: remove save_modification_time (and the notion that directory with modification_time unset is unprocessed)
     queryset = Directory.objects.filter(path=web_path)
 
     # if directory exists return from queryset

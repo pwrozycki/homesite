@@ -10,8 +10,9 @@ from gallery.models import Image
 
 
 class TrashCleaner(object):
-    """ Remove images moved to trash month ago or earlier. """
-
+    """
+    Remove images moved to trash month ago or earlier.
+    """
     @staticmethod
     def go():
         month_before = localized_time(datetime.now() - timedelta(days=30))

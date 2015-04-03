@@ -25,6 +25,10 @@ logger = logging.getLogger(__name__)
 
 
 class Thumbnailer:
+    """
+    Goes through collection of images and creates corresponding thumbnail directories.
+    Keeps them in sync when new images are added or old ones are removed.
+    """
     JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
 
     @staticmethod
@@ -60,8 +64,12 @@ class Thumbnailer:
 
     @classmethod
     def create_thumbnails(cls, image_phys_path, force_recreate=False):
+        """
+        For each file in collection create missing thumbnails.
+        Possibly move thumbnails if original file has been moved.
+        Recreate ones that are outdated.
+        """
         for (thumb_root, geometry, mode) in THUMBNAILS_CONVERT_CONF:
-            # for each file in collection create thumbnails
             thumb_phys_path = cls._thumb_phys_path(thumb_root, image_phys_path)
 
             # recreate requested
@@ -86,8 +94,11 @@ class Thumbnailer:
 
     @classmethod
     def _try_copying_existing_thumbnail(cls, image_phys_path, thumb_phys_path, thumb_root):
+        """
+        When image in collection is moved to new directory, copy existing thumbnail instead of creating a new one.
+        """
         image_mtime = get_mtime_datetime(image_phys_path)
-        image_basename = (os.path.basename(image_phys_path))
+        image_basename = os.path.basename(image_phys_path)
 
         # images with same basename and modification time are considered as identical
         # therefore if there exists thumbnail it can be used instead of creating new one
@@ -116,6 +127,11 @@ class Thumbnailer:
 
     @classmethod
     def _process_directory(cls, root, dirs, files):
+        """
+        Process directory.
+        Go through collection directories and create corresponding thumbnails directories.
+        Then create thumbnails for every image in collection.
+        """
         # create destination directory if missing
         for directory in dirs:
             dir_phys_path = os.path.abspath(os.path.join(root, directory))
@@ -146,6 +162,10 @@ class Thumbnailer:
 
     @classmethod
     def remove_obsolete(cls):
+        """
+        Remove thumbnails if corresponding image in collection has been removed.
+        Also remove empty directories in thumbnails tree.
+        """
         for (thumb_root, geometry, mode) in THUMBNAILS_CONVERT_CONF:
             for (root, dirs, files) in os.walk(thumb_root, topdown=False):
                 dirs.sort()

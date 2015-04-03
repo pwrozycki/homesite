@@ -45,6 +45,8 @@ class BadRequestException(Exception):
 
 
 def _move_image_groups_safe(path1, path2):
+    """Move file in collection from path1 to path2. Also move associated thumbnail and preview file """
+    # TODO: move also NEF and CR2 files
     original_src_path = locations.collection_phys_path(path1)
     original_dst_path = locations.collection_phys_path(path2)
     move_without_overwriting(original_src_path, original_dst_path, create_destination_dir=True)

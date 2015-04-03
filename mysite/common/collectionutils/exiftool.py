@@ -62,17 +62,17 @@ class ImageInfo:
         # (if metadata was read correctly)
         if metadata:
             for exif_field in EXIF_DATE_FIELDS:
-                date_info = metadata.get_tag_string(exif_field)
-                if date_info:
-                    try:
+                try:
+                    date_info = metadata.get_tag_string(exif_field)
+                    if date_info:
                         date = datetime.datetime.strptime(date_info, EXIF_DATE_FORMAT)
                         return date
-                    except ValueError:
-                        # Date didn't match expected format - log error
-                        logging.error('unable to parse date: {0}: {1}: '.format(path, date_info))
-                else:
-                    # There was no matching date for given exif field -> try next one
-                    logging.info('missing field: {} in {}'.format(exif_field, path))
+                    else:
+                        # There was no matching date for given exif field -> try next one
+                        logging.info('missing field: {} in {}'.format(exif_field, path))
+                except ValueError:
+                    # Date didn't match expected format - log error
+                    logging.error('unable to parse date: {0} '.format(path))
 
         # If file has no valid date information - return modification time
         return datetime.datetime.fromtimestamp(os.path.getmtime(path))
