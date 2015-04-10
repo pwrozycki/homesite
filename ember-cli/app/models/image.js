@@ -14,6 +14,11 @@ export default DS.Model.extend({
      */
     modificationPending: false,
 
+    /**
+     * is image selected in browser?
+     */
+    selected: false,
+
     name: function() {
         return pathlib.basename(this.get('path'));
     }.property('path'),

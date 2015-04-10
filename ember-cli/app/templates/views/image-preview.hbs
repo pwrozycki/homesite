@@ -1,3 +1,8 @@
+<div id="preview-image">
+    <img {{bind-attr src=preview}}>
+    <span></span>
+</div>
+
 <div class="image-overlay">
     <button {{action 'prevImage'}}
         {{bind-attr disabled="isFirst" class=":leftArrow :button isFirst:inactive"}}></button>
@@ -11,9 +16,4 @@
         {{ partial 'partials/image-modification-buttons' }}
     {{/with}}
 
-</div>
-
-<div id="preview-image">
-    <img {{bind-attr src=preview}}>
-    <span></span>
 </div>

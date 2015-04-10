@@ -20,7 +20,6 @@ div#authbox {
     position: fixed;
     right: 0;
     padding: 5px;
-    z-index: 1;
     background-color: #ffffff;
     top: 0;
 }
@@ -109,7 +108,7 @@ div.thumbnail-container {
     align-items: center;
 
     justify-content: flex-end;
-    margin: 0 auto;
+    margin: 1px auto;
 
     position: relative;
 }
@@ -118,13 +117,21 @@ div.thumbnail-container img {
     max-width: 100%;
 }
 
+div.thumbnail-container img.selected {
+    opacity: 0.5;
+}
+
+div.thumbnail-container.selected {
+    background-color: slategray;
+}
+
 div#directorybar {
     position: fixed;
     background-color: #ffffff;
     padding: 7px;
     top: 0;
     left: 0;
-    z-index: 20;
+    z-index: 1;
 }
 
 div#directorybar a {
@@ -140,6 +147,100 @@ div#directorybar .separator {
     width: 120px;
 }
 
+div#selectionBar {
+    position: fixed;
+    bottom: 0;
+    background-color: white;
+    padding: 7px;
+    z-index: 1;
+}
+
+/* Generic autocomplete */
+
+.autocomplete {
+    display: inline-block;
+    position: relative;
+}
+
+.autocomplete-list {
+    display: none;
+    position: absolute;
+    z-index: 1;
+    border: 1px solid #aaa;
+    background: #fff;
+    top: 100%;
+    padding: 5px 0px;
+    max-height: 400px;
+    overflow: auto;
+    font-size: 12px;
+    width: 100%;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.autocomplete[is-open] .autocomplete-list {
+    display: block;
+}
+
+.autocomplete-option {
+    display: block;
+    padding: 2px 16px;
+    cursor: default;
+}
+
+.autocomplete-option:focus {
+    outline: 0;
+    color: white;
+    background: hsl(200, 50%, 50%);
+}
+
+.autocomplete-option[selected]:before {
+    content: '✓';
+    position: absolute;
+    left: 4px;
+}
+
+.autocomplete-toggle {
+    display: inline-block;
+    outline: none;
+    position: absolute;
+    top: 2px;
+    right: 6px;
+    font-size: 14px;
+    cursor: default;
+}
+
+.autocomplete-input {
+    position: relative;
+    padding-right: 20px;
+    width: 100%;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+/* Autocomplete */
+
+#selectionBar .autocomplete {
+    width: 200px;
+}
+
+#selectionBar .autocomplete-option {
+    font-size: 14px;
+}
+
+#selectionBar .autocomplete-list {
+    max-height: 500px;
+    bottom: 25px;
+    top: initial;
+    display: block;
+}
+
+#selectionBar .autocomplete-toggle {
+    display: none;
+}
+
 /* Image preview */
 
 div#preview-image {
@@ -149,7 +250,6 @@ div#preview-image {
     white-space: nowrap;
     position: relative;
     background-color: #f1f1f1;
-    z-index: 10;
 }
 
 div#preview-image img {
@@ -193,7 +293,6 @@ div#preview {
     justify-content: space-around;
 
     opacity: 0;
-    z-index: 11;
 }
 
 .image-overlay:hover {
@@ -206,7 +305,7 @@ div#preview {
 
 .image-overlay .button:hover:not(.inactive) {
     top: -2px;
-    left: 0px;
+    left: 0;
     position: relative;
 }
 

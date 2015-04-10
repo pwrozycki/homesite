@@ -1,0 +1,9 @@
+<img {{bind-attr class=":lazy image.selected:selected"}} {{bind-attr data-original=image.thumbnail data-name=image.name}}/>
+
+<div class="image-overlay">
+    {{ partial 'partials/image-modification-buttons' }}
+
+    <a class="download button" {{bind-attr href=image.original}} {{bind-attr download=image.name}}></a>
+</div>
+
+<span>{{ image.name }}</span>

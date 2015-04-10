@@ -11,11 +11,16 @@ export default Ember.ObjectController.extend({
     queryParams: ['scrollTo'],
     scrollTo: null,
 
+    // Selection view parameters
+    destinationFolder: null,
+    selectedFolderFocus: null,
+    fetchFoldersRun: null,
+
     /**
      * Reset store after sign-in / sign-out.
      * Go to 'gallery.index' to reload models.
      */
-    resetAfterAuthenticate: function() {
+    resetAfterAuthenticate: function () {
         this.store.unloadAll('directory');
         this.store.unloadAll('subdirectory');
         this.store.unloadAll('image');
@@ -41,9 +46,32 @@ export default Ember.ObjectController.extend({
     /**
      * Determine if redundant images mode is selected.
      */
-    isRedundantImagesMode: function() {
+    isRedundantImagesMode: function () {
         return this.get('currentRouteName') === 'gallery.directory.redundant';
     }.property('currentRouteName'),
+
+    /**
+     * Determine if any of images has been selected.
+     */
+    isSelectionMode: function () {
+        return this.get('model.images').isAny('selected', true);
+    }.property('model.images.@each.selected'),
+
+    /**
+     * Clear selected images.
+     */
+    clearSelection: function () {
+        this.get('model.images').filterBy('selected', true).forEach(function (image) {
+            image.set('selected', false);
+        });
+    }.observes('model.images'),
+
+    /**
+     * Number of selected images.
+     */
+    numSelectedImages: function () {
+        return this.get('model.images').filterBy('selected', true).length;
+    }.property('model.images.@each.selected'),
 
     /**
      * Scroll to image as passed in scrollTo request parameter.
@@ -64,11 +92,51 @@ export default Ember.ObjectController.extend({
         }
     }.observes('scrollTo', 'model.images'),
 
+    /**
+     * Search for autocomplete results
+     */
+    fetchMatchingFolders: function () {
+        this.set('matchingFolders', null);
+
+        var destinationFolder = this.get('destinationFolder');
+
+        // search only if match term is at least 3 chars long
+        if (!Ember.isEmpty(destinationFolder) && destinationFolder.length >= 3) {
+            var self = this;
+
+            // cancel pending fetching of matching folders
+            if (!Ember.isEmpty(this.fetchFoldersRun)) {
+                Ember.run.cancel(this.fetchFoldersRun);
+            }
+
+            // schedule new search
+            this.fetchFoldersRun = Ember.run.later(
+                function () {
+                    var destinationFolderSearch = destinationFolder.replace(new RegExp('/', 'g'), '|');
+                    self.store.find('subdirectory', {path_like: destinationFolderSearch}).then(
+                        function (result) {
+                            var results = result.mapBy('path');
+                            self.set('matchingFolders', results.slice(0, 25));
+                        })
+                },
+                300);
+        }
+    }.observes('destinationFolder'),
+
     actions: {
+        selectOption: function (option) {
+            this.set('destinationFolder', option);
+        },
+
+        clearSelection: function () {
+            this.clearSelection();
+        },
+
         showPreview: function (image) {
             lazyloader.unbindEvents();
             this.transitionToRoute('gallery.directory.image', image.get('name'), {queryParams: {scrollTo: null}});
         },
+
         toggleShared: function (directory) {
             var oldShared = directory.get('shared');
             directory.set('shared', !oldShared);

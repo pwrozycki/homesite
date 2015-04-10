@@ -28,18 +28,27 @@
 
     <div id="images" {{bind-attr class="isRedundantImagesMode:hidden"}}>
         {{#each image in model.images}}
-            <div class="thumbnail-container">
-                <img class="lazy" {{bind-attr data-original=image.thumbnail data-name=image.name}} {{action 'showPreview' image}}/>
-
-                <div class="image-overlay">
-                    {{ partial 'partials/image-modification-buttons' }}
-
-                    <a class="download button" {{bind-attr href=image.original}} {{bind-attr download=image.name}}></a>
-                </div>
-                <span>{{ image.name }}</span>
-            </div>
-
+            {{view "image-thumbnail" image=image }}
         {{/each}}
+    </div>
+
+
+    <div id="selectionBar" {{bind-attr class="isSelectionMode::hidden"}}>
+        <button {{action "clearSelection"}}>Clear selection</button>
+
+        selected: {{numSelectedImages}}
+
+        <!-- TODO: create component -->
+        <div class="autocomplete">
+            {{view "my-input" value=destinationFolder hasFocus=selectedFolderFocus}}
+            <div class="autocomplete-list" {{bind-attr class="selectedFolderFocus::hidden"}}>
+                {{#each option in matchingFolders}}
+                    <div class="autocomplete-option" {{action "selectOption" option}}>{{option}}</div>
+                {{/each}}
+            </div>
+        </div>
+
+        <button {{action "moveSelection"}}>Move</button>
     </div>
 </div>
 

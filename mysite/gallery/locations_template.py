@@ -10,6 +10,7 @@ IMAGES_URL = '/static/images'
 COLLECTION_PHYS_ROOT = '%COLLECTION_PHYS_ROOT%'
 
 TRASH_DIR_NAME = 'Trash'
+TRASH_DIRECTORY_REGEXP = r'^/?{}/'.format(TRASH_DIR_NAME)
 THUMBNAILS_DIR_NAME = '.thumbnails/x200'
 PREVIEW_DIR_NAME = '.thumbnails/x1280'
 
@@ -51,6 +52,10 @@ def thumbnail_phys_path(web_path):
 
 def preview_phys_path(web_path):
     return normpath_join(PREVIEW_PHYS_ROOT, web_path)
+
+
+def web_path_in_trash(web_path):
+    return re.search(TRASH_DIRECTORY_REGEXP, web_path)
 
 
 def collection_walk():
