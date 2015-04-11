@@ -107,7 +107,7 @@ class Renamer:
         return differing_or_missing_dates
 
     @classmethod
-    def walk(cls):
+    def rename_jpgs_in_collection(cls):
         for (root, dirs, files) in collection_walk():
             cls._process_directory(root, dirs, files)
 

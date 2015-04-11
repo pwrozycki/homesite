@@ -42,11 +42,11 @@ class Runner:
         # create pidfile, exit if creation fails
         handle_pidfile(os.path.join(COLLECTION_PHYS_ROOT, '.meta', 'gallery_runner.pid'))
 
-        Renamer.walk()
-        Rotator.go()
-        Thumbnailer.walk()
-        TrashCleaner.go()
-        Indexer.walk()
+        Renamer.rename_jpgs_in_collection()
+        Rotator.perform_requested_rotations()
+        Thumbnailer.synchronize_thumbnails_with_collection()
+        TrashCleaner.remove_old_trash_files()
+        Indexer.synchronize_db_with_collection()
 
         Thumbnailer.remove_obsolete()
 
