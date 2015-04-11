@@ -50,7 +50,7 @@ class Rotator:
         rotated_image.save()
 
     @classmethod
-    def go(cls):
+    def perform_requested_rotations(cls):
         for rotated_image in Image.objects.filter(~Q(orientation='up')):
             image_phys_path = locations.collection_phys_path(rotated_image.path)
 

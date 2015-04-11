@@ -121,7 +121,7 @@ class Thumbnailer:
         return False
 
     @classmethod
-    def walk(cls):
+    def synchronize_thumbnails_with_collection(cls):
         for (root, dirs, files) in collection_walk():
             cls._process_directory(root, dirs, files)
 

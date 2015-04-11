@@ -14,7 +14,7 @@ class TrashCleaner(object):
     Remove images moved to trash month ago or earlier.
     """
     @staticmethod
-    def go():
+    def remove_old_trash_files():
         month_before = localized_time(datetime.now() - timedelta(days=30))
 
         # select images from trash that were moved month before or earlier
@@ -28,3 +28,17 @@ class TrashCleaner(object):
             image_phys_path = locations.collection_phys_path(image.path)
             logging.info("Removing outdated file in trash: " + image_phys_path)
             os.unlink(image_phys_path)
+
+        # remove directory in trash if empty
+        trash_dir_phys_path = locations.collection_phys_path(locations.TRASH_DIR_NAME)
+        for (root, dirs, files) in os.walk(trash_dir_phys_path, topdown=False):
+            for directory in dirs:
+                try:
+                    dir_path = os.path.join(root, directory)
+                    os.rmdir(dir_path)
+                    logging.info("Removing empty directory in trash: " + dir_path)
+                except IOError as e:
+                    # directory isn't empty - skipping
+                    pass
+
+

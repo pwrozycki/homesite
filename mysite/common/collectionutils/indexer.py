@@ -25,7 +25,7 @@ class Indexer():
     JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
 
     @classmethod
-    def walk(cls):
+    def synchronize_db_with_collection(cls):
         for (root, dirs, files) in collection_walk():
             cls._process_directory(root, dirs, files)
 
