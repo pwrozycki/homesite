@@ -100,8 +100,8 @@ export default Ember.ObjectController.extend({
 
         var destinationFolder = this.get('destinationFolder');
 
-        // search only if match term is at least 3 chars long
-        if (!Ember.isEmpty(destinationFolder) && destinationFolder.length >= 3) {
+        // search for the term specified by user
+        if (!Ember.isEmpty(destinationFolder)) {
             var self = this;
 
             // cancel pending fetching of matching folders
@@ -115,9 +115,8 @@ export default Ember.ObjectController.extend({
                     var destinationFolderSearch = destinationFolder.replace(new RegExp('/', 'g'), '|');
                     self.store.find('subdirectory', {path_like: destinationFolderSearch}).then(
                         function (result) {
-                            var results = result.mapBy('path');
-                            self.set('matchingFolders', results.slice(0, 25));
-                        })
+                            self.set('matchingFolders', result.mapBy('path'));
+                        });
                 },
                 300);
         }

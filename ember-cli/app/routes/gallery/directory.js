@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import pathlib from '../../lib/path';
-import Directory from '../../models/directory';
 import storelib from '../../lib/store';
 import lazyloader from '../../utils/lazy-loader';
 
@@ -223,7 +222,6 @@ export default Ember.Route.extend({
          * Move selected images.
          */
         moveSelection: function () {
-            var self = this;
             var dstDir = this.controller.get('destinationFolder');
             var images = this.controller.get('model.images').filterBy('selected', true);
 

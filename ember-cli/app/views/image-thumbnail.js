@@ -6,7 +6,7 @@ export default Ember.View.extend({
     classNameBindings: ['image.selected:selected'],
 
     click: function(event) {
-        if ($(event.target).is('img')) {
+        if (Ember.$(event.target).is('img')) {
             if (event['ctrlKey']) {
                 this.toggleProperty('image.selected');
             } else {

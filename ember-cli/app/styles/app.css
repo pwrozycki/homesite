@@ -223,7 +223,11 @@ div#selectionBar {
 /* Autocomplete */
 
 #selectionBar .autocomplete {
-    width: 200px;
+    width: 20em;
+}
+
+#selectionBar .autocomplete input {
+    width: 100%;
 }
 
 #selectionBar .autocomplete-option {
@@ -232,6 +236,7 @@ div#selectionBar {
 
 #selectionBar .autocomplete-list {
     max-height: 500px;
+    width: 50em;
     bottom: 25px;
     top: initial;
     display: block;
