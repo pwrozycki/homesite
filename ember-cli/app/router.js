@@ -5,14 +5,12 @@ var Router = Ember.Router.extend({
   location: config.locationType
 });
 
-Router.map(function() {
-    this.resource('gallery', function() {
-        this.route('index', {path: '/directory'});
-        this.resource('gallery.directory', {path: '/directory/:directory'}, function() {
-            this.resource('gallery.directory.image', {path: '/image/:image'});
-            this.route('redundant');
-        });
+export default Router.map(function() {
+  this.resource('gallery', function() {
+    this.route('index', {path: '/directory'});
+    this.resource('gallery.directory', {path: '/directory/:directory'}, function() {
+      this.resource('gallery.directory.image', {path: '/image/:image'});
+      this.route('redundant');
     });
+  });
 });
-
-export default Router;

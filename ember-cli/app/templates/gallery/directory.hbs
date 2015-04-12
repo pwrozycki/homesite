@@ -41,7 +41,7 @@
         <!-- TODO: create component -->
         <div class="autocomplete">
             {{view "my-input" value=destinationFolder hasFocus=selectedFolderFocus}}
-            <div class="autocomplete-list" {{bind-attr class="selectedFolderFocus::hidden"}}>
+            <div {{bind-attr class=":autocomplete-list selectedFolderFocus::hidden"}}>
                 {{#each option in matchingFolders}}
                     <div class="autocomplete-option" {{action "selectOption" option}}>{{option}}</div>
                 {{/each}}
