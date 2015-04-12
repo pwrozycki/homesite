@@ -4,7 +4,7 @@ var REST_SESSION_URL = '/gallery/api/session';
 
 var $ = Ember.$;
 
-export default Ember.ObjectController.extend({
+export default Ember.Controller.extend({
     username: null,
     password: null,
     error: null,

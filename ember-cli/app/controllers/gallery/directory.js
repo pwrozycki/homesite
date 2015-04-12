@@ -4,7 +4,7 @@ var $ = Ember.$;
 
 import lazyloader from '../../utils/lazy-loader';
 
-export default Ember.ObjectController.extend({
+export default Ember.Controller.extend({
     needs: ['application'],
     currentRouteName: Ember.computed.alias('controllers.application.currentRouteName'),
 
@@ -13,6 +13,7 @@ export default Ember.ObjectController.extend({
 
     // Selection view parameters
     destinationFolder: null,
+    matchingFolders: null,
     selectedFolderFocus: null,
     fetchFoldersRun: null,
 

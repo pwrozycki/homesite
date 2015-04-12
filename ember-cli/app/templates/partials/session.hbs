@@ -1,14 +1,14 @@
 <div id="authbox">
-    {{#if isAuthenticated}}
-        User: {{model.username}}
+    {{#if session.isAuthenticated}}
+        User: {{session.model.username}}
         <button {{action 'logout'}}>Logout</button>
     {{else}}
 
-        {{input value=username type="text" placeholder="Username"}}
-        {{input value=password type="password" placeholder="Password"}}
+        {{input value=session.username type="text" placeholder="Username"}}
+        {{input value=session.password type="password" placeholder="Password"}}
         <button {{action 'login'}}>Login</button>
 
-        {{#if error}}
+        {{#if session.error}}
             <span>Invalid attempt</span>
         {{/if}}
     {{/if}}

@@ -2,9 +2,9 @@ import Ember from 'ember';
 import preloader from '../../../utils/preloader';
 import lazyloader from '../../../utils/lazy-loader';
 
-export default Ember.ObjectController.extend({
+export default Ember.Controller.extend({
     needs: ['gallery/directory'],
-    images: Ember.computed.alias('controllers.gallery/directory.images'),
+    images: Ember.computed.alias('controllers.gallery/directory.model.images'),
 
     /**
      * Switch to image specified by sign argument.
