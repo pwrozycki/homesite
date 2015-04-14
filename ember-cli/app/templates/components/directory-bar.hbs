@@ -1,0 +1,9 @@
+{{#each directory in model.parentDirectories}}
+
+    {{#link-to 'gallery.directory' directory.path (query-params scrollTo='null')}}
+        {{ directory.name }}
+    {{/link-to}}
+
+    <span class="separator">&gt;</span>
+
+{{/each}}

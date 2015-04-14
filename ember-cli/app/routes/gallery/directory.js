@@ -218,21 +218,18 @@ export default Ember.Route.extend({
     },
 
     actions: {
-        /**
-         * Move selected images.
-         */
-        moveSelection: function () {
-            var dstDir = this.controller.get('destinationFolder');
-            var images = this.controller.get('model.images').filterBy('selected', true);
-
-            this.moveImages(images, dstDir);
+        moveSelection: function (selectedImages, dstDir) {
+            this.moveImages(selectedImages, dstDir);
         },
+
         removeImage: function (image) {
             this.moveImage(image, pathlib.dirname(pathlib.insideTrash(image.get('path'))));
         },
+
         revertImage: function (image) {
             this.moveImage(image, pathlib.dirname(pathlib.outsideTrash(image.get('path'))));
         },
+
         rotateImage: function (image) {
             this.rotateImage(image, 1);
         }

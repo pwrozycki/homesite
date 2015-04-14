@@ -12,6 +12,7 @@ export default {
         var sessionController = container.lookup('controller:session');
         container.register('session:main', sessionController, {instantiate: false});
         application.inject('controller', 'session', 'session:main');
+        application.inject('component', 'session', 'session:main');
 
         // get active session
         application.deferReadiness();

@@ -1,0 +1,15 @@
+<ul>
+    {{#each directory in model.subdirectories}}
+        <li>
+            <img src="assets/images/directory.png"/>
+
+            {{#link-to 'gallery.directory' directory.pathWithoutSlashes (query-params scrollTo='null')}}
+                {{directory.name}}
+            {{/link-to}}
+
+            {{#if session.isAuthenticated}}
+                <span {{bind-attr class=":directory-access-icon directory.shared:shared" }} {{action "toggleShared" directory}}></span>
+            {{/if}}
+        </li>
+    {{/each}}
+</ul>

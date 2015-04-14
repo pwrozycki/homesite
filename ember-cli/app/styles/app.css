@@ -26,25 +26,25 @@ div#authbox {
 
 /* Directory listing */
 
-#dirlisting img {
+.dirlisting img {
     display: inline;
     vertical-align: middle;
     width: 25px;
 }
 
-#dirlisting li {
+.dirlisting li {
     font-size: 13px;
     list-style-type: none;
     margin: 0 -20px;
     width: 300px;
 }
 
-#dirlisting a {
+.dirlisting a {
     color: #333;
     text-decoration: none;
 }
 
-#dirlisting .directory-access-icon {
+.dirlisting .directory-access-icon {
     display: inline-block;
     background-image: url("images/eye.png");
     background-size: 100% 100%;
@@ -54,7 +54,7 @@ div#authbox {
     opacity: 0.2;
 }
 
-#dirlisting .directory-access-icon.shared {
+.dirlisting .directory-access-icon.shared {
     opacity: 1;
 }
 
@@ -125,7 +125,7 @@ div.thumbnail-container.selected {
     background-color: slategray;
 }
 
-div#directorybar {
+div.directorybar {
     position: fixed;
     background-color: #ffffff;
     padding: 7px;
@@ -134,12 +134,12 @@ div#directorybar {
     z-index: 1;
 }
 
-div#directorybar a {
+div.directorybar a {
     text-decoration: none;
     color: #333;
 }
 
-div#directorybar .separator {
+div.directorybar .separator {
     color: #888;
 }
 
@@ -147,7 +147,7 @@ div#directorybar .separator {
     width: 120px;
 }
 
-div#selectionBar {
+div.selectionbar {
     position: fixed;
     bottom: 0;
     background-color: white;
@@ -222,19 +222,19 @@ div#selectionBar {
 
 /* Autocomplete */
 
-#selectionBar .autocomplete {
+.selectionbar .autocomplete {
     width: 20em;
 }
 
-#selectionBar .autocomplete input {
+.selectionbar .autocomplete input {
     width: 100%;
 }
 
-#selectionBar .autocomplete-option {
+.selectionbar .autocomplete-option {
     font-size: 14px;
 }
 
-#selectionBar .autocomplete-list {
+.selectionbar .autocomplete-list {
     max-height: 500px;
     width: 50em;
     bottom: 25px;
@@ -242,7 +242,7 @@ div#selectionBar {
     display: block;
 }
 
-#selectionBar .autocomplete-toggle {
+.selectionbar .autocomplete-toggle {
     display: none;
 }
 
