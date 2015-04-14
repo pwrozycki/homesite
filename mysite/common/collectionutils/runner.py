@@ -3,6 +3,7 @@ from logging import Formatter
 from logging.handlers import RotatingFileHandler
 import os
 import traceback
+import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
@@ -36,6 +37,7 @@ class Runner:
 
     @classmethod
     def go(cls):
+        django.setup()
         # configure logging
         cls._configure_logging()
 

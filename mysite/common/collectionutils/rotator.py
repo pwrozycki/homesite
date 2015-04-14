@@ -9,11 +9,6 @@ from gallery import locations
 from gallery.models import Image
 
 
-try:
-    from gi.repository.GExiv2 import Metadata
-except ImportError:
-    from gi.repository.GExiv2 import Metadata
-
 logger = logging.getLogger(__name__)
 
 
