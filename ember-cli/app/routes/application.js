@@ -2,11 +2,11 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
     actions: {
-        openModal: function (modalName, content) {
-            this.controller.set('modalContent', content);
-            this.render(modalName, {
+        openModal: function (templateName, model) {
+            this.render(templateName, {
                 into: 'application',
-                outlet: 'modal'
+                outlet: 'modal',
+                model: model
             });
         },
 

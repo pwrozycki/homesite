@@ -9,11 +9,14 @@
                 <li>
                     {{#each image in imageGroup.images}}
                         <div class="image-container">
+
                             <div class="image-overlay">
                                 <a {{action 'removeImage' image}}
-                                    {{bind-attr disabled="image.modificationPending" class=":thrash :button image.modificationPending:inactive"}}></a>
+                                    class="thrash button {{if image.modificationPending 'inactive' ''}}"
+                                    disabled={{image.modificationPending}} ></a>
                             </div>
-                            <img {{bind-attr src=image.thumbnail}}>
+
+                            <img src="{{image.thumbnail}}">
 
                             <p>{{image.path}}</p>
                         </div>

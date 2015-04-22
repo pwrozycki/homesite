@@ -1,16 +1,23 @@
 <div id="preview-image">
-    <img {{bind-attr src=model.preview}}>
+    <img src="{{model.preview}}">
     <span></span>
 </div>
 
 <div class="image-overlay">
-    <button {{action 'prevImage'}}
-        {{bind-attr disabled="model.isFirst" class=":leftArrow :button model.isFirst:inactive"}}></button>
 
-    <button {{action 'exitPreview' model}} class="upArrow button"></button>
+    <button {{action 'prevImage'}}
+            class="leftArrow button {{if model.isFirst 'inactive' ''}}"
+            disabled={{model.isFirst}}>
+    </button>
+
+    <button {{action 'exitPreview' model}}
+            class="upArrow button">
+    </button>
 
     <button {{action 'nextImage'}}
-        {{bind-attr disabled="model.isLast" class=":rightArrow :button model.isLast:inactive"}}></button>
+            class="rightArrow button {{if model.isLast 'inactive' ''}}"
+            disabled={{model.isLast}}>
+    </button>
 
     {{#with model as image}}
         {{ partial 'partials/image-modification-buttons' }}

@@ -8,7 +8,9 @@
             {{/link-to}}
 
             {{#if session.isAuthenticated}}
-                <span {{bind-attr class=":directory-access-icon directory.shared:shared" }} {{action "toggleShared" directory}}></span>
+                <span {{action "toggleShared" directory}}
+                        class="directory-access-icon {{if directory.shared 'shared' ''}}">
+                </span>
             {{/if}}
         </li>
     {{/each}}

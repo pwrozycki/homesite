@@ -4,11 +4,13 @@ selected: {{numSelectedImages}}
 
 <!-- TODO: create component -->
 <div class="autocomplete">
+
     {{view "my-input" value=destinationFolder hasFocus=selectedFolderFocus}}
-    <div {{bind-attr class=":autocomplete-list selectedFolderFocus::hidden"}}>
+    <div class="autocomplete-list {{if autocompleteListShown '' 'hidden'}}">
         {{#each option in matchingFolders}}
             <div class="autocomplete-option" {{action "selectOption" option}}>{{option}}</div>
         {{/each}}
+
     </div>
 </div>
 

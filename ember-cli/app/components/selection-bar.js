@@ -7,7 +7,7 @@ export default Ember.Component.extend({
     // Selection view parameters
     destinationFolder: null,
     matchingFolders: null,
-    selectedFolderFocus: null,
+    selectedFolderFocus: false,
     fetchFoldersRun: null,
 
     /**
@@ -57,6 +57,10 @@ export default Ember.Component.extend({
                 300);
         }
     }.observes('destinationFolder'),
+
+    autocompleteListShown: function() {
+        return !Ember.isEmpty(this.get('matchingFolders')) && this.get('selectedFolderFocus');
+    }.property('matchingFolders', 'selectedFolderFocus'),
 
     actions: {
         selectOption: function (option) {

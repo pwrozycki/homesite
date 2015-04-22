@@ -1,10 +1,11 @@
-<div id="browser" {{bind-attr class="isBrowserVisible::hidden"}}>
+<div id="browser"
+     class="{{if isBrowserVisible '' 'hidden'}}">
 
     {{directory-bar model=model}}
 
     {{directory-listing model=model}}
 
-    <div id="images" {{bind-attr class="isRedundantImagesMode:hidden"}}>
+    <div id="images" class="{{if isRedundantImagesMode 'hidden' ''}}">
         {{#each image in model.images}}
             {{view "image-thumbnail" image=image }}
         {{/each}}
