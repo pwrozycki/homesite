@@ -2,16 +2,14 @@ from datetime import datetime
 import logging
 import os
 import re
-import fnmatch
 
 from django.db.models import Q, Count
 
-from common.collectionutils.misc import localized_time
+from common.collectionutils.misc import localized_time, is_jpeg, is_video
 from common.collectionutils.renamer import Renamer
-from gallery.locations import collection_walk
 from common.collectionutils.renameutils import find_or_create_directory, get_mtime_datetime
 from gallery import locations
-from gallery.models import Image, ImageGroup
+from gallery.models import Image, ImageGroup, Video
 
 
 logger = logging.getLogger(__name__)
@@ -22,16 +20,15 @@ class Indexer():
     Keeps database objects in sync with collection of images.
     Traverses image collection and removes outdated objects or creates missing ones.
     """
-    JPG_MATCH = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
 
     @classmethod
-    def synchronize_db_with_collection(cls):
-        for (root, dirs, files) in collection_walk():
-            cls._process_directory(root, dirs, files)
-
+    def post_indexing_fixes(cls):
         cls._fix_image_properties()
-
         cls._delete_empty_image_groups()
+
+    @classmethod
+    def synchronize_db_with_collection(cls, root, dirs, files):
+        cls._process_directory(root, dirs, files)
 
     @classmethod
     def _process_directories(cls, dirs, root_object, root_web_path):
@@ -51,20 +48,26 @@ class Indexer():
             logger.info("adding directory: " + dir_web_path)
 
     @classmethod
-    def _process_images(cls, images, root_object, root_phys_path):
+    def _process_files(cls, files, root_object, root_phys_path):
         # if any of images under root doesn't exist -> remove it from db
-        for image_object in root_object.images.all():
-            if image_object.name not in images:
-                logger.info("removing image: " + image_object.path)
-                image_object.delete()
+        for file_object in root_object.files.all():
+            if file_object.name not in files:
+                logger.info("removing file: " + file_object.path)
+                file_object.delete()
 
-        # add image objects if not found on db
-        images_on_db = {x.name for x in (root_object.images.all())}
-        for image in set(images) - images_on_db:
-            image_mtime = get_mtime_datetime(os.path.join(root_phys_path, image))
-            image_object = Image(name=image, directory=root_object, modification_time=image_mtime)
-            image_object.save()
-            logger.info("adding file " + image_object.path)
+        # add file objects if not found on db
+        files_on_db = {x.name for x in (root_object.files.all())}
+        for missing_file in set(files) - files_on_db:
+            file_mtime = get_mtime_datetime(os.path.join(root_phys_path, missing_file))
+
+            if is_jpeg(missing_file):
+                file_class = Image
+            elif is_video(missing_file):
+                file_class = Video
+
+            file_object = file_class(name=missing_file, directory=root_object, modification_time=file_mtime)
+            file_object.save()
+            logger.info("adding file " + file_object.path)
 
     @classmethod
     def assign_image_to_image_group(cls, image):
@@ -105,7 +108,7 @@ class Indexer():
     @classmethod
     def _process_directory(cls, root_phys_path, dirs, files):
         # only index files that have correct name - it will be changed anyway during next Runner loop
-        images = sorted([f for f in files if cls.JPG_MATCH.match(f) and Renamer.CORRECT_FILENAME_RE.match(f)])
+        files = sorted([f for f in files if is_jpeg(f) and Renamer.CORRECT_FILENAME_RE.match(f) or is_video(f)])
 
         # find directory object corresponding to root -> create if needed
         root_web_path = locations.collection_web_path(root_phys_path)
@@ -122,4 +125,4 @@ class Indexer():
 
             cls._process_directories(dirs, root_object, root_web_path)
 
-            cls._process_images(images, root_object, root_phys_path)
+            cls._process_files(files, root_object, root_phys_path)

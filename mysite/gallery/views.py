@@ -24,9 +24,9 @@ from common.collectionutils.misc import localized_time
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory
 from gallery.locations import normpath_join
-from gallery.models import Directory, Image, ImageGroup
+from gallery.models import Directory, Image, ImageGroup, Video
 from gallery.serializers import DirectorySerializer, ImageSerializer, SubdirectorySerializer, UserSerializer, \
-    ImageGroupSerializer
+    ImageGroupSerializer, VideoSerializer
 
 
 class BadRequestException(Exception):
@@ -269,6 +269,12 @@ class ImageViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
     filter_fields = ('name', 'directory')
 
 
+class VideoViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
+    queryset = Video.objects.all()
+    serializer_class = VideoSerializer
+    filter_fields = ('name', 'directory')
+
+
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -280,6 +286,7 @@ class CollectionInfoView(APIView):
     def get(self, request):
         return Response({
             'id': 1,
+            'videosRoot': locations.videos_web_path(''),
             'thumbnailsRoot': locations.thumbnail_web_path(''),
             'previewsRoot': locations.preview_web_path(''),
             'originalsRoot': locations.original_web_path('')

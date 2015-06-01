@@ -61,10 +61,11 @@ div#authbox {
 /* Listing of redundant images */
 
 #redundantImages div.image-container {
-    float:left;
+    float: left;
     margin: 0 10px;
     position: relative;
 }
+
 #redundantImages div.image-container img {
     display: block;
     margin: auto;
@@ -85,7 +86,7 @@ div#authbox {
     list-style-type: none;
 }
 
-/* Image browser */
+/* Image and video browser */
 
 /* fix required due to box-sizing: border-box (from bootstrap)  */
 #browser {
@@ -97,6 +98,11 @@ div#images {
     display: flex;
     flex-flow: row wrap;
     margin: 0 20px;
+}
+
+div#videos video {
+    max-width: 320px;
+    max-height: 240px;
 }
 
 div.thumbnail-container {
@@ -278,11 +284,11 @@ div#preview {
 #preview .image-overlay {
     width: 250px;
 }
+
 #preview .image-overlay button {
     width: 30px;
     height: 30px;
 }
-
 
 .image-overlay {
     /* fix required due to box-sizing: border-box (from bootstrap)  */
@@ -367,5 +373,10 @@ div#preview {
 }
 
 /* Disable strange outline on buttons */
-:focus {outline:none;}
-::-moz-focus-inner {border:0;}
+:focus {
+    outline: none;
+}
+
+::-moz-focus-inner {
+    border: 0;
+}

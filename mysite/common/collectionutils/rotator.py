@@ -38,7 +38,7 @@ class Rotator:
         os.utime(image_phys_path, (-1, old_mtime))
 
         # invoke thumbnail recreation
-        Thumbnailer.create_thumbnails(image_phys_path, force_recreate=True)
+        Thumbnailer.create_miniatures(image_phys_path, force_recreate=True)
 
         # write "normal" image orientation to database
         rotated_image.orientation = 'up'

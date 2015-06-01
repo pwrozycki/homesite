@@ -1,6 +1,7 @@
 import os
 
 from django.db import models
+from typedmodels.models import TypedModel
 
 
 class ImageGroup(models.Model):
@@ -20,18 +21,26 @@ class Directory(models.Model):
         ordering = ('path',)
 
 
-class Image(models.Model):
+class File(TypedModel):
     name = models.CharField(max_length=100, db_index=True)
-    orientation = models.CharField(max_length=10, blank=True, default="up")
-    directory = models.ForeignKey(Directory, related_name='images', db_index=True)
-    image_group = models.ForeignKey(ImageGroup, related_name='images', null=True, db_index=True)
+    directory = models.ForeignKey(Directory, related_name='%(class)ss', db_index=True)
     modification_time = models.DateTimeField(null=True)
     trash_time = models.DateTimeField(null=True)
-
-    class Meta:
-        unique_together = ('name', 'directory')
-        ordering = ('name',)
 
     @property
     def path(self):
         return os.path.join(self.directory.path, self.name)
+
+    class Meta:
+        unique_together = ('name', 'directory')
+        ordering = ('name',)
+        # abstract = True
+
+
+class Image(File):
+    orientation = models.CharField(max_length=10, blank=True, default="up")
+    image_group = models.ForeignKey(ImageGroup, related_name='images', null=True, db_index=True)
+
+
+class Video(File):
+    pass

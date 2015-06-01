@@ -14,6 +14,7 @@ export default {
         store.find('collection-info', 1).then(function(collectionInfo) {
             container.register('collectionInfo:main', collectionInfo, {instantiate: false});
             application.inject('model:image', 'collectionInfo', 'collectionInfo:main');
+            application.inject('model:video', 'collectionInfo', 'collectionInfo:main');
 
             application.advanceReadiness();
         });

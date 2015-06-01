@@ -1,5 +1,6 @@
-Django==1.8
+Django==1.7
 djangorestframework
+django-typed-models
 django-filter
 rest_framework_ember
 pytz

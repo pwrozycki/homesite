@@ -11,6 +11,14 @@
         {{/each}}
     </div>
 
+    <div id="videos">
+        {{#each video in model.videos}}
+            <video controls>
+                <source src="{{video.ripped}}" type="video/mp4" width="320" height="240"/>
+            </video>
+        {{/each}}
+    </div>
+
     {{selection-bar model=model visible=isSelectionMode moveSelection='moveSelection'}}
 </div>
 

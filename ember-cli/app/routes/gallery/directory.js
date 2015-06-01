@@ -223,11 +223,13 @@ export default Ember.Route.extend({
         },
 
         removeImage: function (image) {
-            this.moveImage(image, pathlib.dirname(pathlib.insideTrash(image.get('path'))));
+            var pathInsideTrash = pathlib.dirname(pathlib.insideTrash(image.get('path')));
+            this.moveImage(image, pathInsideTrash);
         },
 
         revertImage: function (image) {
-            this.moveImage(image, pathlib.dirname(pathlib.outsideTrash(image.get('path'))));
+            var pathOutsideTrash = pathlib.dirname(pathlib.outsideTrash(image.get('path')));
+            this.moveImage(image, pathOutsideTrash);
         },
 
         rotateImage: function (image) {

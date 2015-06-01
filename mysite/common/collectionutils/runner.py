@@ -10,7 +10,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 from common.collectionutils.rotator import Rotator
 
 from common.collectionutils.trash_cleaner import TrashCleaner
-from gallery.locations import COLLECTION_PHYS_ROOT
+from gallery.locations import COLLECTION_PHYS_ROOT, collection_walk
 from common.collectionutils.indexer import Indexer
 from common.collectionutils.renamer import Renamer
 from common.collectionutils.thumbnailer import Thumbnailer
@@ -44,11 +44,15 @@ class Runner:
         # create pidfile, exit if creation fails
         handle_pidfile(os.path.join(COLLECTION_PHYS_ROOT, '.meta', 'gallery_runner.pid'))
 
-        Renamer.rename_jpgs_in_collection()
         Rotator.perform_requested_rotations()
-        Thumbnailer.synchronize_thumbnails_with_collection()
         TrashCleaner.remove_old_trash_files()
-        Indexer.synchronize_db_with_collection()
+
+        for (root, dirs, files) in collection_walk():
+            renamed = Renamer.rename_jpgs_in_collection(root, dirs, files)
+            Thumbnailer.synchronize_miniatures_with_collection(root, dirs, renamed)
+            Indexer.synchronize_db_with_collection(root, dirs, renamed)
+
+        Indexer.post_indexing_fixes()
 
         Thumbnailer.remove_obsolete()
 

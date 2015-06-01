@@ -36,9 +36,12 @@ class Renamer:
 
     @classmethod
     def _rename_groups(cls, image_groups, files_in_directory):
+        files = list(files_in_directory)
         for key in sorted(image_groups.keys()):
             paths_in_group = image_groups[key]
-            cls._try_rename_group(paths_in_group, files_in_directory)
+            cls._try_rename_group(paths_in_group, files)
+
+        return files
 
     @classmethod
     def _rename_group(cls, image_infos, good_suffix, files_in_directory):
@@ -107,9 +110,8 @@ class Renamer:
         return differing_or_missing_dates
 
     @classmethod
-    def rename_jpgs_in_collection(cls):
-        for (root, dirs, files) in collection_walk():
-            cls._process_directory(root, dirs, files)
+    def rename_jpgs_in_collection(cls, root, dirs, files):
+        return cls._process_directory(root, dirs, files)
 
     @classmethod
     def _process_directory(cls, root, dirs, files):
@@ -123,7 +125,7 @@ class Renamer:
                 images.append(name)
 
         if not images:
-            return
+            return files
 
         groups = cls._collect_groups(root, images)
-        cls._rename_groups(groups, files)
+        return cls._rename_groups(groups, files)

@@ -1,12 +1,10 @@
 import DS from "ember-data";
-import pathlib from "../lib/path";
+import File from "./file";
 
 var ROTATIONS = ['up', 'right', 'down', 'left'];
 
-export default DS.Model.extend({
+export default File.extend({
     orientation: DS.attr(),
-    path: DS.attr(),
-    directory: DS.belongsTo('directory'),
 
     /**
      * signifies if some modification to image state is beeing synced to backend.
@@ -14,14 +12,12 @@ export default DS.Model.extend({
      */
     modificationPending: false,
 
+    fileType: 'image',
+
     /**
      * is image selected in browser?
      */
     selected: false,
-
-    name: function() {
-        return pathlib.basename(this.get('path'));
-    }.property('path'),
 
     thumbnail: function () {
         return [this.get('collectionInfo.thumbnailsRoot'), this.get('path')].join('/');

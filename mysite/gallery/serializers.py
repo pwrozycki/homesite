@@ -1,8 +1,11 @@
+from contextlib import suppress
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from rest_framework.fields import ReadOnlyField 
+from rest_framework.fields import ReadOnlyField
+from common import debugtool
 
-from gallery.models import Image, Directory, ImageGroup
+from gallery.models import Image, Directory, ImageGroup, Video
 
 
 class SubdirectorySerializer(serializers.ModelSerializer):
@@ -13,15 +16,47 @@ class SubdirectorySerializer(serializers.ModelSerializer):
         fields = ['id', 'path', 'shared', 'parent']
 
 
-class ImageSerializer(serializers.ModelSerializer):
-    path = serializers.SerializerMethodField()
+class PolymorphicSerializer(serializers.BaseSerializer):
+    def __init__(self, *args, **kwargs):
+        base_serializer = kwargs.pop('base_serializer')
 
-    class Meta:
-        model = Image
-        fields = ['id', 'path', 'orientation']
+        self._serializer_map = {}
+        for serializer in base_serializer.__subclasses__():
+            with suppress(AttributeError):
+                self._serializer_map[serializer.Meta.model] = serializer
+
+        super().__init__(*args, **kwargs)
+
+    def to_representation(self, instance):
+        serializer = self._serializer_map[type(instance)]
+        data = serializer(instance).data
+        return data
+
+
+class FileSerializer(serializers.ModelSerializer):
+    path = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
 
     def get_path(self, obj):
         return getattr(obj, 'path')
+
+    def get_type(self, obj):
+        return obj.type.split('.')[-1]
+
+    class Meta:
+        fields = ['id', 'path', 'type']
+
+
+class ImageSerializer(FileSerializer):
+    class Meta:
+        model = Image
+        fields = FileSerializer.Meta.fields + ['orientation']
+
+
+class VideoSerializer(FileSerializer):
+    class Meta:
+        model = Video
+        fields = FileSerializer.Meta.fields
 
 
 class ImageGroupSerializer(serializers.ModelSerializer):
@@ -38,12 +73,15 @@ class ImageGroupSerializer(serializers.ModelSerializer):
 
 
 class DirectorySerializer(SubdirectorySerializer):
-    images = ImageSerializer(many=True)
     subdirectories = SubdirectorySerializer(many=True)
+    files = serializers.SerializerMethodField()
 
     class Meta:
         model = Directory
-        fields = SubdirectorySerializer.Meta.fields + ['images', 'subdirectories']
+        fields = SubdirectorySerializer.Meta.fields + ['files', 'subdirectories']
+
+    def get_files(self, obj):
+        return PolymorphicSerializer(obj.files.all(), base_serializer=FileSerializer, many=True).data
 
 
 class UserSerializer(serializers.ModelSerializer):
