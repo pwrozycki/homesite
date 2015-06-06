@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+import glob
 
 import os
 import re
@@ -182,7 +183,8 @@ class Thumbnailer:
     @classmethod
     def _remove_file_not_in_collection(cls, miniature_phys_path, miniatures_root):
         collection_phys_path = cls._collection_phys_path(miniature_phys_path, miniatures_root)
-        if not os.path.exists(collection_phys_path):
+        files_in_collection_with_matching_basename = glob.glob(os.path.splitext(collection_phys_path)[0] + ".*")
+        if not files_in_collection_with_matching_basename:
             logger.info("removing file: {}".format(miniature_phys_path))
             os.unlink(miniature_phys_path)
 
