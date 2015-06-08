@@ -13,7 +13,7 @@
 
     <div id="videos">
         {{#each video in model.videos}}
-            <video controls>
+            <video controls preload="none" poster="{{video.firstFrameJpeg}}">
                 <source src="{{video.ripped}}" type="video/mp4" width="320" height="240"/>
             </video>
         {{/each}}

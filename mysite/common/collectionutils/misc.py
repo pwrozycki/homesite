@@ -1,13 +1,12 @@
 from datetime import timedelta
 import re
-import fnmatch
 
 from django.utils import timezone
 from pytz.exceptions import AmbiguousTimeError
 
 
-JPG_EXTENSION_RE = re.compile(fnmatch.translate('*.JPG'), re.IGNORECASE)
-VIDEO_EXTENSION_RE = re.compile(fnmatch.translate('*.mp4'), re.IGNORECASE)
+JPG_EXTENSION_RE = re.compile(r'^.*\.(?:jpg)$', re.IGNORECASE)
+VIDEO_EXTENSION_RE = re.compile(r'^.*\.(?:mp4|m4v|3gp|m4a|mov)$', re.IGNORECASE)
 
 
 def localized_time(time):
