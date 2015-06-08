@@ -6,7 +6,6 @@ import re
 import shutil
 import subprocess
 import sys
-from common import debugtool
 
 from common.collectionutils.misc import is_jpeg, is_video
 from common.collectionutils.renamer import Renamer
@@ -56,8 +55,9 @@ class FirstFrameGenerator(VideoGenerator):
     def generate_miniature(self, input_path, output_path):
         with open(os.devnull, 'w') as null:
             logger.info("creating video shot: {}".format(output_path))
-            subprocess.call(['ffmpeg', '-i', input_path, '-vf', 'scale=320x240', '-vframes', '1', '-f', 'image2', '-y',
-                             output_path], stdout=null, stderr=null)
+            # scale to 320x240 but keep aspect ratio (fit in box)
+            subprocess.call(['ffmpeg', '-i', input_path, '-vf', 'scale=iw*min(320/iw\,240/ih):ih*min(320/iw\,240/ih)',
+                             '-vframes', '1', '-f', 'image2', '-y', output_path], stdout=null, stderr=null)
 
 
 class ThumbnailGenerator(SuffixNamingMixin):
@@ -145,7 +145,6 @@ class Thumbnailer:
         Possibly move miniatures if original file has been moved.
         Recreate ones that are outdated.
         """
-        debugtool.settrace()
         for generator in MINIATURE_GENERATORS:
             # check if generator will output file for this input
             if not generator.will_output_file(os.path.basename(original_phys_path)):
@@ -219,12 +218,8 @@ class Thumbnailer:
 
         # create miniatures
         for name in sorted(files):
-            # process:
-            # images with correct names - it will be changed anyway during next Runner loop if it's incorrect
-            # video files
-            if is_jpeg(name) and Renamer.CORRECT_FILENAME_RE.match(name) or is_video(name):
-                original_phys_path = os.path.abspath(os.path.join(root, name))
-                cls.create_miniatures(original_phys_path)
+            original_phys_path = os.path.abspath(os.path.join(root, name))
+            cls.create_miniatures(original_phys_path)
 
     @classmethod
     def _remove_file_not_in_collection(cls, miniature_phys_path, generator):
