@@ -18,6 +18,7 @@ from rest_framework import viewsets, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+
 from rest_framework.views import APIView
 
 from common.collectionutils.misc import localized_time
@@ -44,11 +45,13 @@ class ImageMoveAPIView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         image = self.get_object()
         destination = self.request.data.get('destination', None)
-        if not destination:
+        if destination is None:
             return Response({'reason': 'Required "destination" param is missing'}, status=status.HTTP_400_BAD_REQUEST)
 
         dst_folder_phys_path = locations.collection_phys_path(destination)
-        if not os.path.isdir(dst_folder_phys_path):
+        move_to_trash = locations.web_path_in_trash(destination)
+        # destination directory should exists unless image is moved to trash (directory tree should be created then)
+        if not move_to_trash and not os.path.isdir(dst_folder_phys_path):
             return Response({'reason': 'Invalid destination directory'}, status=status.HTTP_404_NOT_FOUND)
 
         dst_image_web_path = normpath_join(destination, image.name)
@@ -90,27 +93,13 @@ class ImageMoveAPIView(GenericAPIView):
                                      # allow creating destination folders only in trash
                                      create_destination_dir=locations.web_path_in_trash(dst_web_path))
 
-
-    def _move_image_groups(self, src_web_path, dst_web_path, empty_orphaned_directories=False):
+    def _move_image_groups(self, src_web_path, dst_web_path):
         src_phys_path = locations.collection_phys_path(src_web_path)
 
         if not os.path.isfile(src_phys_path):
             raise BadRequestException("Source file doesn't exist: " + src_phys_path)
 
         self._move_image_groups_safe(src_web_path, dst_web_path)
-
-        if empty_orphaned_directories:
-            thrash_root_phys_path = locations.collection_phys_path(locations.TRASH_DIR_NAME)
-            self._remove_empty_directories(thrash_root_phys_path)
-
-
-    def _remove_empty_directories(self, root):
-        for (root, directories, files) in os.walk(root, topdown=False):
-            for directory in directories:
-                joined_path = os.path.join(root, directory)
-                if not os.listdir(joined_path):
-                    os.rmdir(joined_path)
-
 
     def _create_directories_in_chain(self, directory):
         parent_paths = [directory]
@@ -122,7 +111,6 @@ class ImageMoveAPIView(GenericAPIView):
         previous_parent = None
         for path in reversed(parent_paths):
             previous_parent = find_or_create_directory(path, previous_parent)
-
 
     def _update_database_after_move(self, src_image_web_path, dst_image_web_path):
         try:
@@ -152,12 +140,10 @@ class ImageMoveAPIView(GenericAPIView):
         except (Image.DoesNotExist, Directory.DoesNotExist):
             raise BadRequestException("Database object doesn't exist: (name={0})".format(src_image_web_path))
 
-
     @transaction.atomic
-    def _move_image(self, src_image_web_path, dst_image_web_path, empty_orphaned_directories=False):
-        self._move_image_groups(src_image_web_path, dst_image_web_path, empty_orphaned_directories)
+    def _move_image(self, src_image_web_path, dst_image_web_path):
+        self._move_image_groups(src_image_web_path, dst_image_web_path)
         self._update_database_after_move(src_image_web_path, dst_image_web_path)
-
 
     def _handle_move_request(self, src_web_path, dst_web_path):
         try:
