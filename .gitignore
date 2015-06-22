@@ -11,5 +11,7 @@ homesite_uwsgi.ini
 mysite/gallery/locations.py
 mysite/tasks.sh
 
+virtualenvs/
+
 .hg/
 mysite/sqlite.db

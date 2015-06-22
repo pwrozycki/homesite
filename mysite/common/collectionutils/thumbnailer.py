@@ -43,8 +43,8 @@ class VideoGenerator(SuffixNamingMixin):
             logger.info("creating video: {}".format(output_path))
             splitext = os.path.splitext(output_path)
             tmp_output_path = splitext[0] + "_tmp" + splitext[1]
-            subprocess.call(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-crf', '22', '-y', tmp_output_path],
-                            stdout=null, stderr=null)
+            subprocess.call(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-crf', '22', '-pix_fmt', 
+                            'yuv420p', '-y', tmp_output_path], stdout=null, stderr=null)
             os.rename(tmp_output_path, output_path)
 
 
