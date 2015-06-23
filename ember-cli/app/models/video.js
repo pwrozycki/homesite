@@ -2,6 +2,7 @@ import File from "./file";
 
 export default File.extend({
     fileType: 'video',
+    isVideo: true,
 
     rippedSuffix: function() {
         return [this.get('collectionInfo.videosRoot'), this.get('path')].join('/');
