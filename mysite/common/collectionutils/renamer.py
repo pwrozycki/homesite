@@ -21,7 +21,7 @@ class Renamer:
     Renamer processes groups of images differing only by their extension - NEF, CR2, JPG, XMP files will be renamed too.
     """
     IMG_RE = re.compile(r'^(?i).*\.(cr2|nef|jpg|xmp)$')
-    CORRECT_FILENAME_RE = re.compile(r'^\d{8}_\d{6}(_\d+)?\.\w{3}$')
+    CORRECT_FILENAME_RE = re.compile(r'^(.*/)?\d{8}_\d{6}(_\d+)?\.\w{3}$')
 
     @staticmethod
     def _collect_groups(root, images):

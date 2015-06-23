@@ -1,0 +1,17 @@
+{{#if session.isAuthenticated}}
+    {{#if file.directory.inTrash}}
+        <button {{action 'revertFile' file}}
+                class="revert button {{if file.modificationPending 'inactive' ''}}"
+                disabled={{file.modificationPending}}></button>
+    {{else}}
+        <button {{action 'removeFile' file}}
+                class="thrash button {{if file.modificationPending 'inactive' ''}}"
+                disabled={{file.modificationPending}}></button>
+    {{/if}}
+
+    {{#if file.isImage}}
+        <button {{action 'rotateImage' file}}
+                class="{{file.orientation}} button {{if file.modificationPending 'inactive' ''}}"
+                disabled={{file.modificationPending}}></button>
+    {{/if}}
+{{/if}}

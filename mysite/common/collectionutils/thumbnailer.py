@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+from abc import abstractmethod, ABCMeta
 import os
 import logging
 import re
@@ -11,11 +12,12 @@ from common.collectionutils.misc import is_jpeg, is_video
 from common.collectionutils.renamer import Renamer
 from common.collectionutils.renameutils import get_mtime_datetime
 from gallery import locations
-from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT, VIDEOS_PHYS_ROOT
+from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT, VIDEOS_PHYS_ROOT, \
+    normpath_join
 from gallery.models import File
 
 
-class SuffixNamingMixin:
+class GeneratorBase(metaclass=ABCMeta):
     def get_suffix(self):
         return ''
 
@@ -25,17 +27,21 @@ class SuffixNamingMixin:
     def name_original_to_miniature(self, f):
         return f + self.get_suffix()
 
+    @abstractmethod
+    def miniatures_root(self): pass
 
-class VideoGenerator(SuffixNamingMixin):
-    @staticmethod
-    def will_output_file(f):
+    def miniature_phys_path(self, f):
+        return normpath_join(self.miniatures_root(), self.name_original_to_miniature(f))
+
+
+class VideoGenerator(GeneratorBase):
+    def will_output_file(self, f):
         return is_video(f)
 
     def get_suffix(self):
         return '.mp4'
 
-    @staticmethod
-    def miniatures_root():
+    def miniatures_root(self):
         return VIDEOS_PHYS_ROOT
 
     def generate_miniature(self, input_path, output_path):
@@ -43,8 +49,8 @@ class VideoGenerator(SuffixNamingMixin):
             logger.info("creating video: {}".format(output_path))
             splitext = os.path.splitext(output_path)
             tmp_output_path = splitext[0] + "_tmp" + splitext[1]
-            subprocess.call(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-crf', '22', '-pix_fmt', 
-                            'yuv420p', '-y', tmp_output_path], stdout=null, stderr=null)
+            subprocess.call(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-crf', '22', '-pix_fmt',
+                             'yuv420p', '-y', tmp_output_path], stdout=null, stderr=null)
             os.rename(tmp_output_path, output_path)
 
 
@@ -60,15 +66,14 @@ class FirstFrameGenerator(VideoGenerator):
                              '-vframes', '1', '-f', 'image2', '-y', output_path], stdout=null, stderr=null)
 
 
-class ThumbnailGenerator(SuffixNamingMixin):
+class ThumbnailGenerator(GeneratorBase):
     def __init__(self, mode, geometry, miniatures_root):
         self._mode = mode
         self._geometry = geometry
         self._miniatures_root = miniatures_root
 
-    @staticmethod
-    def will_output_file(f):
-        return is_jpeg(f) and Renamer.CORRECT_FILENAME_RE.match(f)
+    def will_output_file(self, f):
+        return bool(is_jpeg(f) and Renamer.CORRECT_FILENAME_RE.match(f))
 
     def miniatures_root(self):
         return self._miniatures_root

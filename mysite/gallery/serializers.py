@@ -3,7 +3,6 @@ from contextlib import suppress
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.fields import ReadOnlyField
-from common import debugtool
 
 from gallery.models import Image, Directory, ImageGroup, Video
 
@@ -16,21 +15,19 @@ class SubdirectorySerializer(serializers.ModelSerializer):
         fields = ['id', 'path', 'shared', 'parent']
 
 
-class PolymorphicSerializer(serializers.BaseSerializer):
-    def __init__(self, *args, **kwargs):
-        base_serializer = kwargs.pop('base_serializer')
+def get_polymorphic_serializer(base_serializer):
+    serializer_map = {}
+    for serializer in base_serializer.__subclasses__():
+        with suppress(AttributeError):
+            serializer_map[serializer.Meta.model] = serializer
 
-        self._serializer_map = {}
-        for serializer in base_serializer.__subclasses__():
-            with suppress(AttributeError):
-                self._serializer_map[serializer.Meta.model] = serializer
+    class PolymorphicSerializer(serializers.BaseSerializer):
+        def to_representation(self, instance):
+            instance_serializer = serializer_map[type(instance)]
+            data = instance_serializer(instance).data
+            return data
 
-        super().__init__(*args, **kwargs)
-
-    def to_representation(self, instance):
-        serializer = self._serializer_map[type(instance)]
-        data = serializer(instance).data
-        return data
+    return PolymorphicSerializer
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -81,7 +78,7 @@ class DirectorySerializer(SubdirectorySerializer):
         fields = SubdirectorySerializer.Meta.fields + ['files', 'subdirectories']
 
     def get_files(self, obj):
-        return PolymorphicSerializer(obj.files.all(), base_serializer=FileSerializer, many=True).data
+        return get_polymorphic_serializer(FileSerializer)(obj.files.all(), many=True).data
 
 
 class UserSerializer(serializers.ModelSerializer):

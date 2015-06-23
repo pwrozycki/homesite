@@ -6,16 +6,30 @@
     {{directory-listing model=model}}
 
     <div id="images" class="{{if isRedundantImagesMode 'hidden' ''}}">
-        {{#each image in model.images}}
-            {{view "image-thumbnail" image=image }}
+        {{#each file in model.files}}
+            {{#if file.isImage}}
+                {{#with file as image}}
+                    {{view "image-thumbnail" image=image }}
+                {{/with}}
+            {{/if}}
         {{/each}}
     </div>
 
     <div id="videos">
-        {{#each video in model.videos}}
-            <video controls preload="none" poster="{{video.firstFrameJpeg}}">
-                <source src="{{video.ripped}}" type="video/mp4" width="320" height="240"/>
-            </video>
+        {{#each file in model.files}}
+            {{#if file.isVideo}}
+                <div class="thumbnail-container">
+                    <video controls preload="none" poster="{{file.firstFrameJpeg}}">
+                        <source src="{{file.ripped}}" type="video/mp4" width="320" height="240"/>
+                    </video>
+
+                    <div class="image-overlay">
+                        {{ partial 'partials/file-modification-buttons' }}
+                    </div>
+
+                    <span>{{file.name}}</span>
+                </div>
+            {{/if}}
         {{/each}}
     </div>
 

@@ -137,20 +137,23 @@ export default Ember.Route.extend({
     /**
      * Move image.
      */
-    moveImage: function (image, dirDstPath, batchMode) {
+    moveImage: function (media_file, dirDstPath, batchMode) {
         var self = this;
 
-        image.set('modificationPending', true);
-        var imageSrcPath = image.get('path');
+        media_file.set('modificationPending', true);
+        var imageSrcPath = media_file.get('path');
 
         var dirSrcPath = pathlib.dirname(imageSrcPath);
 
-        var url = '/gallery/api/images/%@/move'.fmt(image.get('id'));
+        var url = '/gallery/api/files/%@/move'.fmt(media_file.get('id'));
         var data = {destination: dirDstPath};
 
         return Ember.RSVP.resolve($.post(url, data)).then(
             function () {
-                self.changeImageAfterRemoval(image);
+                var fileIsImage = media_file.get('fileType') === 'image';
+                if (fileIsImage) {
+                    self.changeImageAfterRemoval(media_file);
+                }
 
                 // update lazyloader in case new images appeared in viewport
                 // it will be done later when in batch mode
@@ -161,14 +164,16 @@ export default Ember.Route.extend({
                 // remove image from directory
                 var directory = self.store.all('directory').findBy('path', dirSrcPath);
                 if (!Ember.isEmpty(directory)) {
-                    directory.get('images').removeObject(image);
+                    directory.get('files').removeObject(media_file);
                 }
 
-                // remove image from image groups
-                self.store.all('image-group').forEach(function (imageGroup) {
-                    var images = imageGroup.get('images');
-                    images.removeObject(images.findBy('path', imageSrcPath));
-                });
+                if (fileIsImage) {
+                    // remove image from image groups
+                    self.store.all('image-group').forEach(function (imageGroup) {
+                        var images = imageGroup.get('images');
+                        images.removeObject(images.findBy('path', imageSrcPath));
+                    });
+                }
 
                 // mark opposite directory as outdated
                 self.markDirectoriesAsOutdated(dirDstPath);
@@ -180,7 +185,7 @@ export default Ember.Route.extend({
         ).finally(
             // disable modification pending flag (controls whether modification buttons are inactive)
             function () {
-                image.set('modificationPending', false);
+                media_file.set('modificationPending', false);
             }
         );
     },
@@ -222,12 +227,12 @@ export default Ember.Route.extend({
             this.moveImages(selectedImages, dstDir);
         },
 
-        removeImage: function (image) {
+        removeFile: function (image) {
             var pathInsideTrash = pathlib.dirname(pathlib.insideTrash(image.get('path')));
             this.moveImage(image, pathInsideTrash);
         },
 
-        revertImage: function (image) {
+        revertFile: function (image) {
             var pathOutsideTrash = pathlib.dirname(pathlib.outsideTrash(image.get('path')));
             this.moveImage(image, pathOutsideTrash);
         },

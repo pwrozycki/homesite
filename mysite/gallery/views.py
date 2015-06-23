@@ -18,16 +18,16 @@ from rest_framework import viewsets, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-
 from rest_framework.views import APIView
 
 from common.collectionutils.misc import localized_time
+from common.collectionutils.thumbnailer import MINIATURE_GENERATORS
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory
 from gallery.locations import normpath_join
-from gallery.models import Directory, Image, ImageGroup, Video
+from gallery.models import Directory, Image, ImageGroup, Video, File
 from gallery.serializers import DirectorySerializer, ImageSerializer, SubdirectorySerializer, UserSerializer, \
-    ImageGroupSerializer, VideoSerializer
+    ImageGroupSerializer, VideoSerializer, FileSerializer, get_polymorphic_serializer
 
 
 class BadRequestException(Exception):
@@ -38,24 +38,24 @@ class BadRequestException(Exception):
         return repr(self.value)
 
 
-class ImageMoveAPIView(GenericAPIView):
-    serializer_class = ImageSerializer
-    queryset = Image.objects.all()
+class FileMoveAPIView(GenericAPIView):
+    serializer_class = get_polymorphic_serializer(FileSerializer)
+    queryset = File.objects.all()
 
     def post(self, request, *args, **kwargs):
-        image = self.get_object()
+        media_file = self.get_object()
         destination = self.request.data.get('destination', None)
         if destination is None:
             return Response({'reason': 'Required "destination" param is missing'}, status=status.HTTP_400_BAD_REQUEST)
 
         dst_folder_phys_path = locations.collection_phys_path(destination)
         move_to_trash = locations.web_path_in_trash(destination)
-        # destination directory should exists unless image is moved to trash (directory tree should be created then)
+        # destination directory should exists unless media_file is moved to trash (directory tree should be created then)
         if not move_to_trash and not os.path.isdir(dst_folder_phys_path):
             return Response({'reason': 'Invalid destination directory'}, status=status.HTTP_404_NOT_FOUND)
 
-        dst_image_web_path = normpath_join(destination, image.name)
-        return self._handle_move_request(image.path, dst_image_web_path)
+        dst_file_web_path = normpath_join(destination, media_file.name)
+        return self._handle_move_request(media_file.path, dst_file_web_path)
 
     def _add_similar_files_modifications(self, src_file_phys_path, dst_file_phys_path, renames):
         files_with_same_prefix = set(glob(os.path.splitext(src_file_phys_path)[0] + ".*")) - {src_file_phys_path}
@@ -66,22 +66,22 @@ class ImageMoveAPIView(GenericAPIView):
             dst = os.path.join(dst_dir_phys_path, os.path.basename(name))
             renames.append((src, dst))
 
-    def _move_image_groups_safe(self, src_web_path, dst_web_path):
+    def _move_files_safe(self, src_web_path, dst_web_path):
         """
         Move file in collection from path1 to path2. Also move associated thumbnail and preview file, and any files
         with same prefix in collection folder (mainly RAWS)
         """
-
-        # create list of modifications files will be moved in loop at the end of method
-        renames = []
-
         src_file_phys_path = locations.collection_phys_path(src_web_path)
         dst_file_phys_path = locations.collection_phys_path(dst_web_path)
 
-        # add move of JPG file in collection, previews, and thumbnails
-        renames.append((src_file_phys_path, dst_file_phys_path))
-        renames.append((locations.preview_phys_path(src_web_path), locations.preview_phys_path(dst_web_path)))
-        renames.append((locations.thumbnail_phys_path(src_web_path), locations.thumbnail_phys_path(dst_web_path)))
+        # create list of modifications files will be moved in loop at the end of method
+        renames = [(src_file_phys_path, dst_file_phys_path)]
+
+        # query generators and add all generated miniatures to renames
+        for generator in MINIATURE_GENERATORS:
+            if generator.will_output_file(src_web_path):
+                renames.append((generator.miniature_phys_path(src_web_path),
+                                generator.miniature_phys_path(dst_web_path)))
 
         # add move of "other files in group" in collection folder
         self._add_similar_files_modifications(src_file_phys_path, dst_file_phys_path, renames)
@@ -93,13 +93,13 @@ class ImageMoveAPIView(GenericAPIView):
                                      # allow creating destination folders only in trash
                                      create_destination_dir=locations.web_path_in_trash(dst_web_path))
 
-    def _move_image_groups(self, src_web_path, dst_web_path):
+    def _move_files(self, src_web_path, dst_web_path):
         src_phys_path = locations.collection_phys_path(src_web_path)
 
         if not os.path.isfile(src_phys_path):
             raise BadRequestException("Source file doesn't exist: " + src_phys_path)
 
-        self._move_image_groups_safe(src_web_path, dst_web_path)
+        self._move_files_safe(src_web_path, dst_web_path)
 
     def _create_directories_in_chain(self, directory):
         parent_paths = [directory]
@@ -112,19 +112,19 @@ class ImageMoveAPIView(GenericAPIView):
         for path in reversed(parent_paths):
             previous_parent = find_or_create_directory(path, previous_parent)
 
-    def _update_database_after_move(self, src_image_web_path, dst_image_web_path):
+    def _update_database_after_move(self, src_file_web_path, dst_file_web_path):
         try:
-            image = Image.objects.get(
-                name=(os.path.basename(src_image_web_path)),
-                directory__path=os.path.dirname(src_image_web_path))
+            media_file = File.objects.get(
+                name=(os.path.basename(src_file_web_path)),
+                directory__path=os.path.dirname(src_file_web_path))
 
             # create parent directory objects
-            dst_dir_web_path = os.path.dirname(dst_image_web_path)
+            dst_dir_web_path = os.path.dirname(dst_file_web_path)
             self._create_directories_in_chain(dst_dir_web_path)
 
-            # if image is moved to trash save current timestamp as trash_time
+            # if media_file is moved to trash save current timestamp as trash_time
             # otherwise unset trash_time
-            move_to_trash = locations.web_path_in_trash(dst_image_web_path)
+            move_to_trash = locations.web_path_in_trash(dst_file_web_path)
             if move_to_trash:
                 now = localized_time(datetime.now())
                 trash_time = now
@@ -133,23 +133,23 @@ class ImageMoveAPIView(GenericAPIView):
 
             # parent directory should exist
             new_directory = Directory.objects.get(path=dst_dir_web_path)
-            image.directory = new_directory
-            image.trash_time = trash_time
-            image.save()
+            media_file.directory = new_directory
+            media_file.trash_time = trash_time
+            media_file.save()
 
-        except (Image.DoesNotExist, Directory.DoesNotExist):
-            raise BadRequestException("Database object doesn't exist: (name={0})".format(src_image_web_path))
+        except (File.DoesNotExist, Directory.DoesNotExist):
+            raise BadRequestException("Database object doesn't exist: (name={0})".format(src_file_web_path))
 
     @transaction.atomic
-    def _move_image(self, src_image_web_path, dst_image_web_path):
-        self._move_image_groups(src_image_web_path, dst_image_web_path)
-        self._update_database_after_move(src_image_web_path, dst_image_web_path)
+    def _move_file(self, src_file_web_path, dst_file_web_path):
+        self._move_files(src_file_web_path, dst_file_web_path)
+        self._update_database_after_move(src_file_web_path, dst_file_web_path)
 
     def _handle_move_request(self, src_web_path, dst_web_path):
         try:
             src_web_path = os.path.normpath(src_web_path)
 
-            self._move_image(src_web_path, dst_web_path)
+            self._move_file(src_web_path, dst_web_path)
             return Response()
         except BadRequestException:
             return Response({'traceback': self.get_traceback_string()}, status=status.HTTP_400_BAD_REQUEST)

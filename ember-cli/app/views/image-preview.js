@@ -21,7 +21,7 @@ export default Ember.View.extend({
             // delete key
             } else if (event.which === 46) {
                 var previewImage = self.get('controller.model');
-                self.get('controller').send('removeImage', previewImage);
+                self.get('controller').send('removeFile', previewImage);
             }
         });
     }.on('didInsertElement'),

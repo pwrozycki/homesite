@@ -6,13 +6,8 @@ var ROTATIONS = ['up', 'right', 'down', 'left'];
 export default File.extend({
     orientation: DS.attr(),
 
-    /**
-     * signifies if some modification to image state is beeing synced to backend.
-     * if so no image modification buttons should be active.
-     */
-    modificationPending: false,
-
     fileType: 'image',
+    isImage: true,
 
     /**
      * is image selected in browser?

@@ -6,7 +6,7 @@ html, body {
     margin: 0 auto;
 }
 
-body > div.ember-view {
+body > .ember-view {
     height: 100%;
 }
 
@@ -16,7 +16,7 @@ body {
 
 /* Auth box */
 
-div#authbox {
+#authbox {
     position: fixed;
     right: 0;
     padding: 5px;
@@ -60,13 +60,13 @@ div#authbox {
 
 /* Listing of redundant images */
 
-#redundantImages div.image-container {
+#redundantImages .image-container {
     float: left;
     margin: 0 10px;
     position: relative;
 }
 
-#redundantImages div.image-container img {
+#redundantImages .image-container img {
     display: block;
     margin: auto;
 
@@ -94,44 +94,33 @@ div#authbox {
     top: 36px;
 }
 
-div#images {
-    display: flex;
-    flex-flow: row wrap;
-    margin: 0 20px;
-}
-
-div#videos video {
+#videos video {
+    display: block;
     max-width: 320px;
     max-height: 240px;
 }
 
-div.thumbnail-container {
-    flex-basis: 270px;
-    height: 230px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    justify-content: flex-end;
-    margin: 1px auto;
-
+.thumbnail-container {
+    display: inline-block;
     position: relative;
+    text-align: center;
+    margin: 10px;
 }
 
-div.thumbnail-container img {
+.thumbnail-container img {
     max-width: 100%;
+    display: block;
 }
 
-div.thumbnail-container img.selected {
+.thumbnail-container img.selected {
     opacity: 0.5;
 }
 
-div.thumbnail-container.selected {
+.thumbnail-container.selected {
     background-color: slategray;
 }
 
-div.directorybar {
+.directorybar {
     position: fixed;
     background-color: #ffffff;
     padding: 7px;
@@ -140,12 +129,12 @@ div.directorybar {
     z-index: 1;
 }
 
-div.directorybar a {
+.directorybar a {
     text-decoration: none;
     color: #333;
 }
 
-div.directorybar .separator {
+.directorybar .separator {
     color: #888;
 }
 
@@ -153,7 +142,7 @@ div.directorybar .separator {
     width: 120px;
 }
 
-div.selectionbar {
+.selectionbar {
     position: fixed;
     bottom: 0;
     background-color: white;
@@ -254,7 +243,7 @@ div.selectionbar {
 
 /* Image preview */
 
-div#preview-image {
+#preview-image {
     height: 100%;
     width: 100%;
     text-align: center;
@@ -263,19 +252,19 @@ div#preview-image {
     background-color: #f1f1f1;
 }
 
-div#preview-image img {
+#preview-image img {
     max-height: 100%;
     max-width: 100%;
     vertical-align: middle;
 }
 
-div#preview-image span {
+#preview-image span {
     vertical-align: middle;
     display: inline-block;
     height: 100%;
 }
 
-div#preview {
+#preview {
     height: 100%;
     position: relative;
     font-size: 0;
@@ -289,6 +278,8 @@ div#preview {
     width: 30px;
     height: 30px;
 }
+
+/* Image overlay */
 
 .image-overlay {
     /* fix required due to box-sizing: border-box (from bootstrap)  */
