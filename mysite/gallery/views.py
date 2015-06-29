@@ -272,10 +272,10 @@ class CollectionInfoView(APIView):
     def get(self, request):
         return Response({
             'id': 1,
-            'videosRoot': locations.videos_web_path(''),
-            'thumbnailsRoot': locations.thumbnail_web_path(''),
-            'previewsRoot': locations.preview_web_path(''),
-            'originalsRoot': locations.original_web_path('')
+            'videos_root': locations.videos_web_path(''),
+            'thumbnails_root': locations.thumbnail_web_path(''),
+            'previews_root': locations.preview_web_path(''),
+            'originals_root': locations.original_web_path('')
         })
 
 

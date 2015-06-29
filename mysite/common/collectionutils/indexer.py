@@ -5,12 +5,12 @@ import re
 
 from django.db.models import Q, Count
 
+from gi.repository.GExiv2 import Metadata
 from common.collectionutils.misc import localized_time, is_jpeg, is_video
 from common.collectionutils.renamer import Renamer
 from common.collectionutils.renameutils import find_or_create_directory, get_mtime_datetime
 from gallery import locations
 from gallery.models import Image, ImageGroup, Video
-
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +25,6 @@ class Indexer():
     def post_indexing_fixes(cls):
         cls._fix_image_properties()
         cls._delete_empty_image_groups()
-
-    @classmethod
-    def synchronize_db_with_collection(cls, root, dirs, files):
-        cls._process_directory(root, dirs, files)
 
     @classmethod
     def _process_directories(cls, dirs, root_object, root_web_path):
@@ -58,16 +54,27 @@ class Indexer():
         # add file objects if not found on db
         files_on_db = {x.name for x in (root_object.files.all())}
         for missing_file in set(files) - files_on_db:
-            file_mtime = get_mtime_datetime(os.path.join(root_phys_path, missing_file))
+            file_phys_path = os.path.join(root_phys_path, missing_file)
+            file_mtime = get_mtime_datetime(file_phys_path)
 
             if is_jpeg(missing_file):
-                file_class = Image
+                aspect_ratio = cls.get_image_aspect_ratio(file_phys_path)
+                file_object = Image(name=missing_file, directory=root_object, modification_time=file_mtime,
+                                    aspect_ratio=aspect_ratio)
             elif is_video(missing_file):
-                file_class = Video
+                file_object = Video(name=missing_file, directory=root_object, modification_time=file_mtime)
+            else:
+                raise Exception("File should be either Image or Video" + missing_file)
 
-            file_object = file_class(name=missing_file, directory=root_object, modification_time=file_mtime)
             file_object.save()
             logger.info("adding file " + file_object.path)
+
+    @classmethod
+    def get_image_aspect_ratio(cls, file_phys_path):
+        metadata = Metadata()
+        metadata.open_path(file_phys_path)
+        aspect_ratio = metadata.get_pixel_width() / metadata.get_pixel_height()
+        return aspect_ratio
 
     @classmethod
     def assign_image_to_image_group(cls, image):
@@ -106,7 +113,7 @@ class Indexer():
             logging.info("removed {} unneeded image groups".format(count))
 
     @classmethod
-    def _process_directory(cls, root_phys_path, dirs, files):
+    def synchronize_db_with_collection(cls, root_phys_path, dirs, files):
         # only index files that have correct name - it will be changed anyway during next Runner loop
         files = sorted([f for f in files if is_jpeg(f) and Renamer.CORRECT_FILENAME_RE.match(f) or is_video(f)])
 

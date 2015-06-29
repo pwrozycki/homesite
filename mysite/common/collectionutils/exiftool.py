@@ -14,19 +14,23 @@ FILE_DATE_FORMAT = "%Y%m%d_%H%M%S"
 
 
 class ImageInfo:
-    def __init__(self, path, date):
-        self.path = path
-        self.extension = os.path.splitext(self.filename)[1].lower()
-        self.date = date
+    def __init__(self, path):
+        self._path = path
+        metadata = self._get_exif_metadata(path)
+        self.date = self._read_date_info(metadata, path)
         self.suffix = None
 
     @property
+    def extension(self):
+        return os.path.splitext(self.filename)[1].lower()
+
+    @property
     def filename(self):
-        return os.path.basename(self.path)
+        return os.path.basename(self._path)
 
     @property
     def new_path(self):
-        return os.path.join(os.path.dirname(self.path), self.new_filename)
+        return os.path.join(os.path.dirname(self._path), self.new_filename)
 
     @property
     def new_filename(self):
@@ -34,13 +38,8 @@ class ImageInfo:
                 (("_{}".format(self.suffix)) if self.suffix is not None else "") +
                 self.extension)
 
-    @classmethod
-    def for_path(cls, path):
-        date = cls.read_date_info(path)
-        return ImageInfo(path, date)
-
     @staticmethod
-    def get_exif_metadata(path):
+    def _get_exif_metadata(path):
         try:
             metadata = Metadata()
             metadata.open_path(path)
@@ -50,11 +49,9 @@ class ImageInfo:
 
         return None
 
-    @classmethod
-    def read_date_info(cls, path):
-        # try to read metadata
-        metadata = cls.get_exif_metadata(path)
 
+    @staticmethod
+    def _read_date_info(metadata, path):
         # Try to read date information from exif tags
         # (if metadata was read correctly)
         if metadata:

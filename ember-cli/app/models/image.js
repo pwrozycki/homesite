@@ -5,6 +5,8 @@ var ROTATIONS = ['up', 'right', 'down', 'left'];
 
 export default File.extend({
     orientation: DS.attr(),
+    aspectRatio: DS.attr(),
+    thumbnailHeight: 200,
 
     fileType: 'image',
     isImage: true,
@@ -17,6 +19,10 @@ export default File.extend({
     thumbnail: function () {
         return [this.get('collectionInfo.thumbnailsRoot'), this.get('path')].join('/');
     }.property('collectionInfo.thumbnailsRoot', 'path'),
+
+    thumbnailWidth: function () {
+        return this.get('aspectRatio') * this.get('thumbnailHeight');
+    }.property('aspectRatio', 'thumbnailHeight'),
 
     preview: function () {
         return [this.get('collectionInfo.previewsRoot'), this.get('path')].join('/');

@@ -47,7 +47,7 @@ class FileSerializer(serializers.ModelSerializer):
 class ImageSerializer(FileSerializer):
     class Meta:
         model = Image
-        fields = FileSerializer.Meta.fields + ['orientation']
+        fields = FileSerializer.Meta.fields + ['orientation', 'aspect_ratio']
 
 
 class VideoSerializer(FileSerializer):
@@ -82,9 +82,6 @@ class DirectorySerializer(SubdirectorySerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    firstName = ReadOnlyField(source="first_name")
-    lastName = ReadOnlyField(source="last_name")
-
     class Meta:
         model = User
-        fields = ('id', 'username', 'firstName', 'lastName')
+        fields = ('id', 'username', 'first_name', 'last_name')

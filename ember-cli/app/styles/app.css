@@ -94,6 +94,10 @@ body {
     top: 36px;
 }
 
+#images,#videos {
+    font-size: 0;
+}
+
 #videos video {
     display: block;
     max-width: 320px;
@@ -104,12 +108,19 @@ body {
     display: inline-block;
     position: relative;
     text-align: center;
-    margin: 10px;
+    margin: 5px 10px;
+    font-size: 0;
 }
 
 .thumbnail-container img {
     max-width: 100%;
     display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.thumbnail-container span {
+    font-size: 12px;
 }
 
 .thumbnail-container img.selected {

@@ -1,6 +1,7 @@
 import DS from 'ember-data';
+import RESTSerializer from './default-serializer';
 
-export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+export default RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
         images: { serialize: 'ids', deserialize: 'records' }
     }

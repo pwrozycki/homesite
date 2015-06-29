@@ -207,10 +207,6 @@ class Thumbnailer:
 
     @classmethod
     def synchronize_miniatures_with_collection(cls, root, dirs, files):
-        cls._process_directory(root, dirs, files)
-
-    @classmethod
-    def _process_directory(cls, root, dirs, files):
         """
         Process directory.
         Go through collection directories and create corresponding thumbnails directories.

@@ -1,9 +1,11 @@
 <img class="lazy {{if image.selected 'selected' ''}}"
      data-original="{{image.thumbnail}}"
-     data-name="{{image.name}}"/>
+     data-name="{{image.name}}"
+     width="{{image.thumbnailWidth}}"
+     height="{{image.thumbnailHeight}}"/>
 
 <div class="image-overlay">
-    {{#with image as file}}
+    {{#with image as |file|}}
         {{ partial 'partials/file-modification-buttons' }}
     {{/with}}
 

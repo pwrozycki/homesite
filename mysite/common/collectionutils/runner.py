@@ -48,7 +48,7 @@ class Runner:
         TrashCleaner.remove_old_trash_files()
 
         for (root, dirs, files) in collection_walk():
-            renamed = Renamer.rename_jpgs_in_collection(root, dirs, files)
+            renamed = Renamer(root, files).rename_jpgs_in_collection()
             Thumbnailer.synchronize_miniatures_with_collection(root, dirs, renamed)
             Indexer.synchronize_db_with_collection(root, dirs, renamed)
 

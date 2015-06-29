@@ -6,10 +6,8 @@ import re
 import logging
 from collections import defaultdict
 
-from gallery.locations import collection_walk
 from common.collectionutils.renameutils import move_without_overwriting
 from common.collectionutils.exiftool import ImageInfo
-
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +21,10 @@ class Renamer:
     IMG_RE = re.compile(r'^(?i).*\.(cr2|nef|jpg|xmp)$')
     CORRECT_FILENAME_RE = re.compile(r'^(.*/)?\d{8}_\d{6}(_\d+)?\.\w{3}$')
 
+    def __init__(self, root, files):
+        self._root = root
+        self._files = list(files)
+
     @staticmethod
     def _collect_groups(root, images):
         """
@@ -34,17 +36,12 @@ class Renamer:
 
         return image_groups
 
-    @classmethod
-    def _rename_groups(cls, image_groups, files_in_directory):
-        files = list(files_in_directory)
+    def _rename_groups(self, image_groups):
         for key in sorted(image_groups.keys()):
             paths_in_group = image_groups[key]
-            cls._try_rename_group(paths_in_group, files)
+            self._try_rename_group(paths_in_group)
 
-        return files
-
-    @classmethod
-    def _rename_group(cls, image_infos, good_suffix, files_in_directory):
+    def _rename_group(self, image_infos, good_suffix):
         """
         Change file names in image_infos list, by concatenating new suffix.
         """
@@ -57,19 +54,18 @@ class Renamer:
             move_without_overwriting(image_info.path, image_info.new_path)
 
             # remove old name, add now name to list of files
-            files_in_directory.remove(os.path.basename(image_info.path))
-            files_in_directory.append(os.path.basename(image_info.new_path))
+            self._files.remove(os.path.basename(image_info.path))
+            self._files.append(os.path.basename(image_info.new_path))
 
-    @classmethod
-    def _try_rename_group(cls, group_paths, files_in_directory):
+    def _try_rename_group(self, group_paths):
         """
         Find new non colliding name and rename files in group.
         """
-        image_infos = [ImageInfo.for_path(path) for path in group_paths]
+        image_infos = [ImageInfo(path) for path in group_paths]
         any_info = image_infos[0]
 
         # check if files in group have same dates
-        if cls._check_invalid_dates(group_paths, image_infos):
+        if self._check_invalid_dates(group_paths, image_infos):
             return
 
         # try new names for group (by concatenating consecutive numbers)
@@ -78,14 +74,14 @@ class Renamer:
 
 
             # skip this loop if collision detected
-            collision_detected = bool([x for x in files_in_directory if x.startswith(new_prefix)])
+            collision_detected = bool([x for x in (self._files) if x.startswith(new_prefix)])
             if collision_detected:
                 any_info.suffix = str(nextSuffix)
                 continue
 
             # rename if no collision detected
             non_colliding_suffix = any_info.suffix
-            cls._rename_group(image_infos, non_colliding_suffix, files_in_directory)
+            self._rename_group(image_infos, non_colliding_suffix)
             return
 
         logger.error("too many copies, skipping rolling suffixes: {}".format(','.join(group_paths)))
@@ -109,23 +105,19 @@ class Renamer:
 
         return differing_or_missing_dates
 
-    @classmethod
-    def rename_jpgs_in_collection(cls, root, dirs, files):
-        return cls._process_directory(root, dirs, files)
-
-    @classmethod
-    def _process_directory(cls, root, dirs, files):
+    def rename_jpgs_in_collection(self):
         images = []
-        for name in sorted(files):
-            if cls.CORRECT_FILENAME_RE.match(name):
-                logger.debug("correct filename, skipping: {}".format(os.path.abspath(os.path.join(root, name))))
+        for name in sorted(self._files):
+            if self.CORRECT_FILENAME_RE.match(name):
+                logger.debug("correct filename, skipping: {}".format(os.path.abspath(os.path.join(self._root, name))))
                 continue
 
-            if cls.IMG_RE.match(name):
+            if self.IMG_RE.match(name):
                 images.append(name)
 
         if not images:
-            return files
+            return self._files
 
-        groups = cls._collect_groups(root, images)
-        return cls._rename_groups(groups, files)
+        groups = self._collect_groups(self._root, images)
+        self._rename_groups(groups)
+        return self._files
