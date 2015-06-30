@@ -15,7 +15,7 @@ FILE_DATE_FORMAT = "%Y%m%d_%H%M%S"
 
 class ImageInfo:
     def __init__(self, path):
-        self._path = path
+        self.path = path
         metadata = self._get_exif_metadata(path)
         self.date = self._read_date_info(metadata, path)
         self.suffix = None
@@ -26,11 +26,11 @@ class ImageInfo:
 
     @property
     def filename(self):
-        return os.path.basename(self._path)
+        return os.path.basename(self.path)
 
     @property
     def new_path(self):
-        return os.path.join(os.path.dirname(self._path), self.new_filename)
+        return os.path.join(os.path.dirname(self.path), self.new_filename)
 
     @property
     def new_filename(self):

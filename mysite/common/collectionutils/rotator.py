@@ -40,6 +40,8 @@ class Rotator:
         # invoke thumbnail recreation
         Thumbnailer.create_miniatures(image_phys_path, force_recreate=True)
 
+        #TODO: update aspect ratio when rotating 90 or 270 degrees
+
         # write "normal" image orientation to database
         rotated_image.orientation = 'up'
         rotated_image.save()
