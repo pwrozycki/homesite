@@ -8,7 +8,7 @@
     <div id="images" class="{{if isRedundantImagesMode 'hidden' ''}}">
         {{#each file in model.files}}
             {{#if file.isImage}}
-                {{#with file as image}}
+                {{#with file as |image|}}
                     {{view "image-thumbnail" image=image }}
                 {{/with}}
             {{/if}}

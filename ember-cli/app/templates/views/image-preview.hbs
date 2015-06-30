@@ -19,7 +19,7 @@
             disabled={{model.isLast}}>
     </button>
 
-    {{#with model as file}}
+    {{#with model as |file|}}
         {{ partial 'partials/file-modification-buttons' }}
     {{/with}}
 
