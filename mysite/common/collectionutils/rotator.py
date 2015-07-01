@@ -3,6 +3,8 @@ import os
 import subprocess
 
 from django.db.models.query_utils import Q
+from common.collectionutils.indexer import Indexer
+from common.collectionutils.renameutils import get_mtime_datetime
 
 from common.collectionutils.thumbnailer import Thumbnailer
 from gallery import locations
@@ -32,18 +34,17 @@ class Rotator:
         subprocess.call(
             ['jpegtran', '-rotate', rotation_angle, '-outfile', image_phys_path_rotated, image_phys_path])
 
-        # overwrite original, preserve timestamp
-        old_mtime = os.path.getmtime(image_phys_path)
         os.rename(image_phys_path_rotated, image_phys_path)
-        os.utime(image_phys_path, (-1, old_mtime))
 
         # invoke thumbnail recreation
         Thumbnailer.create_miniatures(image_phys_path, force_recreate=True)
 
-        #TODO: update aspect ratio when rotating 90 or 270 degrees
-
-        # write "normal" image orientation to database
+        # reset image orientation
         rotated_image.orientation = 'up'
+        # recalculate aspect radio, modification_time
+        rotated_image.aspect_ratio = Indexer.get_image_aspect_ratio(image_phys_path)
+        rotated_image.modification_time = get_mtime_datetime(image_phys_path)
+
         rotated_image.save()
 
     @classmethod

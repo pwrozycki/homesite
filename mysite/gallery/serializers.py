@@ -1,8 +1,11 @@
+import base64
 from contextlib import suppress
+import pickle
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
+from django.db.models.aggregates import Max
 from rest_framework import serializers
-from rest_framework.fields import ReadOnlyField
 
 from gallery.models import Image, Directory, ImageGroup, Video
 
@@ -43,6 +46,12 @@ class FileSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'path', 'type']
 
+    def update(self, instance, validated_data):
+        update_result = super().update(instance, validated_data)
+        # when file data is modified, directory's cache has to be purged
+        DirectoryJSONCachingStrategy.invalidate_cache(instance.directory)
+        return update_result
+
 
 class ImageSerializer(FileSerializer):
     class Meta:
@@ -54,6 +63,59 @@ class VideoSerializer(FileSerializer):
     class Meta:
         model = Video
         fields = FileSerializer.Meta.fields
+
+
+class DirectoryJSONCachingStrategy:
+    """
+    Returns cached version of directory if neither directory nor file has been modified
+    since relevant cache entry has been added.
+    Otherwise new value is calculated and inserted to cache.
+    """
+    CREATION_TIME_KEY = 'cache_creation_time'
+    REPRESENTATION_KEY = 'representation'
+    CACHE_ENTRY_KEY = 'directory_{}'
+
+    @classmethod
+    def invalidate_cache(cls, directory):
+        cache.delete(cls.CACHE_ENTRY_KEY.format(directory.path))
+
+    @classmethod
+    def encode_representation(cls, instance, representation, mtime):
+        cache_entry = {cls.CREATION_TIME_KEY: mtime,
+                       cls.REPRESENTATION_KEY: representation}
+        return base64.b64encode(pickle.dumps(cache_entry))
+
+    @staticmethod
+    def decode_representation(cached_data):
+        return pickle.loads(base64.b64decode(cached_data))
+
+    @classmethod
+    def wrap(cls, to_representation):
+        def cached_to_representation(self, instance):
+            # calculate mtime for directory (take files and directory itself into account)
+            if instance.files.count() > 0:
+                files_max_mtime = instance.files.aggregate(mtime=Max('modification_time'))['mtime']
+                mtime = max(files_max_mtime, instance.modification_time)
+            else:
+                mtime = instance.modification_time
+
+            instance_key = cls.CACHE_ENTRY_KEY.format(instance.path)
+
+            # try to fetch cached representation
+            cached_data = cache.get(instance_key, None)
+            if cached_data:
+                cached_object = cls.decode_representation(cached_data)
+                if cached_object[cls.CREATION_TIME_KEY] >= mtime:
+                    # cache hit - return result from cache
+                    return cached_object[cls.REPRESENTATION_KEY]
+
+            # cache miss: calculate new representation, store it in cache
+            representation = to_representation(self, instance)
+            cache.set(instance_key, cls.encode_representation(instance, representation, mtime))
+
+            return representation
+
+        return cached_to_representation
 
 
 class ImageGroupSerializer(serializers.ModelSerializer):
@@ -72,6 +134,11 @@ class ImageGroupSerializer(serializers.ModelSerializer):
 class DirectorySerializer(SubdirectorySerializer):
     subdirectories = SubdirectorySerializer(many=True)
     files = serializers.SerializerMethodField()
+
+    # return entries from cache if no change to directory or files within occurred
+    @DirectoryJSONCachingStrategy.wrap
+    def to_representation(self, instance):
+        return super().to_representation(instance)
 
     class Meta:
         model = Directory

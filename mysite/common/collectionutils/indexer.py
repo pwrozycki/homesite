@@ -10,6 +10,7 @@ from common.collectionutils.misc import localized_time, is_jpeg, is_video
 from common.collectionutils.renamer import Renamer
 from common.collectionutils.renameutils import find_or_create_directory, get_mtime_datetime
 from gallery import locations
+from gallery.locations import collection_phys_path
 from gallery.models import Image, ImageGroup, Video
 
 logger = logging.getLogger(__name__)
@@ -27,16 +28,17 @@ class Indexer():
         cls._delete_empty_image_groups()
 
     @classmethod
-    def _process_directories(cls, dirs, root_object, root_web_path):
+    def _process_directories(cls, fs_dirnames, root_object, root_web_path):
         # if any of directories under root doesn't exist -> remove it from db
-        for directory_object in root_object.subdirectories.all():
-            if os.path.basename(directory_object.path) not in dirs:
+        db_dirs = root_object.subdirectories.all()
+        for directory_object in db_dirs:
+            if os.path.basename(directory_object.path) not in fs_dirnames:
                 logger.info("removing directory: " + directory_object.path)
                 directory_object.delete()
 
         # add directory objects if not found on db
-        directories_on_db = {os.path.basename(x.path) for x in (root_object.subdirectories.all())}
-        for directory in set(dirs) - directories_on_db:
+        db_dirnames = {os.path.basename(x.path) for x in db_dirs}
+        for directory in set(fs_dirnames) - db_dirnames:
             dir_web_path = os.path.join(root_web_path, directory)
 
             # don't save modification time - defer until processing that directory
@@ -44,16 +46,26 @@ class Indexer():
             logger.info("adding directory: " + dir_web_path)
 
     @classmethod
-    def _process_files(cls, files, root_object, root_phys_path):
+    def _process_files(cls, fs_filenames, root_object, root_phys_path):
         # if any of images under root doesn't exist -> remove it from db
-        for file_object in root_object.files.all():
-            if file_object.name not in files:
+        db_files = root_object.files.all()
+        for file_object in db_files:
+            if file_object.name not in fs_filenames:
                 logger.info("removing file: " + file_object.path)
                 file_object.delete()
 
+        # update mtime if neeeded
+        for file_object in db_files:
+            file_phys_path = collection_phys_path(file_object.path)
+            mtime = get_mtime_datetime(file_phys_path)
+            if file_object.modification_time != mtime:
+                logger.info("updating mtime: " + file_object.path)
+                file_object.modification_time = mtime
+                file_object.save()
+
         # add file objects if not found on db
-        files_on_db = {x.name for x in (root_object.files.all())}
-        for missing_file in set(files) - files_on_db:
+        db_filenames = {x.name for x in db_files}
+        for missing_file in set(fs_filenames) - db_filenames:
             file_phys_path = os.path.join(root_phys_path, missing_file)
             file_mtime = get_mtime_datetime(file_phys_path)
 
@@ -120,16 +132,13 @@ class Indexer():
         # find directory object corresponding to root -> create if needed
         root_web_path = locations.collection_web_path(root_phys_path)
         root_object = find_or_create_directory(root_web_path, save_modification_time=False)
-        root_modification_time = get_mtime_datetime(root_phys_path)
 
-        # update underlying objects only if:
-        # a) root is new directory (modification_time is None)
-        # b) modification time has changed
-        if (root_object.modification_time is None or
-                    root_object.modification_time < root_modification_time):
+        # update underlying objects
+        root_modification_time = get_mtime_datetime(root_phys_path)
+        if root_object.modification_time != root_modification_time:
             root_object.modification_time = root_modification_time
             root_object.save()
 
-            cls._process_directories(dirs, root_object, root_web_path)
+        cls._process_directories(dirs, root_object, root_web_path)
 
-            cls._process_files(files, root_object, root_phys_path)
+        cls._process_files(files, root_object, root_phys_path)

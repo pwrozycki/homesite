@@ -18,13 +18,14 @@ from rest_framework import viewsets, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+
 from rest_framework.views import APIView
 
 from common.collectionutils.misc import localized_time
 from common.collectionutils.thumbnailer import MINIATURE_GENERATORS
 from gallery import locations
-from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory
-from gallery.locations import normpath_join
+from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory, get_mtime_datetime
+from gallery.locations import normpath_join, collection_phys_path
 from gallery.models import Directory, Image, ImageGroup, Video, File
 from gallery.serializers import DirectorySerializer, ImageSerializer, SubdirectorySerializer, UserSerializer, \
     ImageGroupSerializer, VideoSerializer, FileSerializer, get_polymorphic_serializer
@@ -101,7 +102,8 @@ class FileMoveAPIView(GenericAPIView):
 
         self._move_files_safe(src_web_path, dst_web_path)
 
-    def _create_directories_in_chain(self, directory):
+    @staticmethod
+    def _create_directories_in_chain(directory):
         parent_paths = [directory]
         parent = os.path.dirname(directory)
         while len(parent) > 0:
@@ -133,12 +135,22 @@ class FileMoveAPIView(GenericAPIView):
 
             # parent directory should exist
             new_directory = Directory.objects.get(path=dst_dir_web_path)
+
+            # update directory modification times
+            self._update_directory_mtime(new_directory)
+            self._update_directory_mtime(media_file.directory)
+
             media_file.directory = new_directory
             media_file.trash_time = trash_time
             media_file.save()
 
         except (File.DoesNotExist, Directory.DoesNotExist):
             raise BadRequestException("Database object doesn't exist: (name={0})".format(src_file_web_path))
+
+    @staticmethod
+    def _update_directory_mtime(new_directory):
+        new_directory.modification_time = get_mtime_datetime(collection_phys_path(new_directory.path))
+        new_directory.save()
 
     @transaction.atomic
     def _move_file(self, src_file_web_path, dst_file_web_path):
@@ -156,7 +168,8 @@ class FileMoveAPIView(GenericAPIView):
         except Exception:
             return HttpResponseServerError(self.get_traceback_string())
 
-    def get_traceback_string(self):
+    @staticmethod
+    def get_traceback_string():
         exc_info = sys.exc_info()
         return cgitb.html(exc_info)
 
@@ -165,7 +178,7 @@ class FilterByIdsMixin(object):
     IDS_PARAM = 'ids[]'
 
     def get_queryset(self):
-        queryset = super(FilterByIdsMixin, self).get_queryset()
+        queryset = super().get_queryset()
 
         ids_param_list = self.request.query_params.getlist(FilterByIdsMixin.IDS_PARAM, None)
         if ids_param_list:
@@ -186,7 +199,7 @@ class SubdirectoryViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
                                  (r'\|', r'.*?/')]
 
     def get_queryset(self):
-        queryset = super(SubdirectoryViewSet, self).get_queryset()
+        queryset = super().get_queryset()
 
         queryset = self._filter_out_unauthorized(queryset)
         queryset = self._filter_by_path_param(queryset)
