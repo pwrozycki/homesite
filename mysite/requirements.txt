@@ -4,3 +4,4 @@ django-typed-models
 django-filter
 rest_framework_ember
 pytz
+django-redis

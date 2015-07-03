@@ -83,11 +83,11 @@ class DirectoryJSONCachingStrategy:
     def encode_representation(cls, instance, representation, mtime):
         cache_entry = {cls.CREATION_TIME_KEY: mtime,
                        cls.REPRESENTATION_KEY: representation}
-        return base64.b64encode(pickle.dumps(cache_entry))
+        return cache_entry
 
     @staticmethod
     def decode_representation(cached_data):
-        return pickle.loads(base64.b64decode(cached_data))
+        return cached_data
 
     @classmethod
     def wrap(cls, to_representation):
@@ -111,7 +111,7 @@ class DirectoryJSONCachingStrategy:
 
             # cache miss: calculate new representation, store it in cache
             representation = to_representation(self, instance)
-            cache.set(instance_key, cls.encode_representation(instance, representation, mtime))
+            cache.set(instance_key, cls.encode_representation(instance, representation, mtime), None)
 
             return representation
 
