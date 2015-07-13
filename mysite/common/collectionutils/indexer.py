@@ -47,21 +47,15 @@ class Indexer():
 
     @classmethod
     def _process_files(cls, fs_filenames, root_object, root_phys_path):
-        # if any of images under root doesn't exist -> remove it from db
         db_files = root_object.files.all()
         for file_object in db_files:
             if file_object.name not in fs_filenames:
+                # if any of images under root doesn't exist -> remove it from db
                 logger.info("removing file: " + file_object.path)
                 file_object.delete()
-
-        # update mtime if neeeded
-        for file_object in db_files:
-            file_phys_path = collection_phys_path(file_object.path)
-            mtime = get_mtime_datetime(file_phys_path)
-            if file_object.modification_time != mtime:
-                logger.info("updating mtime: " + file_object.path)
-                file_object.modification_time = mtime
-                file_object.save()
+            else:
+                # update mtime if neeeded
+                cls._update_mtime_if_needed(file_object)
 
         # add file objects if not found on db
         db_filenames = {x.name for x in db_files}
@@ -82,6 +76,15 @@ class Indexer():
             logger.info("adding file " + file_object.path)
 
     @classmethod
+    def _update_mtime_if_needed(cls, file_object):
+        file_phys_path = collection_phys_path(file_object.path)
+        mtime = get_mtime_datetime(file_phys_path)
+        if file_object.modification_time != mtime:
+            logger.info("updating mtime: " + file_object.path)
+            file_object.modification_time = mtime
+            file_object.save()
+
+    @classmethod
     def get_image_aspect_ratio(cls, file_phys_path):
         metadata = Metadata()
         metadata.open_path(file_phys_path)
@@ -89,7 +92,7 @@ class Indexer():
         return aspect_ratio
 
     @classmethod
-    def assign_image_to_image_group(cls, image):
+    def _assign_image_to_image_group(cls, image):
         # create or find image group based on date in image name => assign it to image
         date_time_match = re.match(r'\d{8}_\d{6}', image.name)
         if date_time_match:
@@ -103,7 +106,7 @@ class Indexer():
     def _fix_image_properties(cls):
         # assign any non assigned images to image group
         for image in Image.objects.filter(image_group__isnull=True):
-            cls.assign_image_to_image_group(image)
+            cls._assign_image_to_image_group(image)
 
         # for all images in Trash with empty trash_time, set it to current timestamp
         count = Image.objects \
