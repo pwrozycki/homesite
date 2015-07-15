@@ -110,31 +110,31 @@ class Thumbnailer:
         return re.sub('^' + prev_root, new_root, path)
 
     @staticmethod
-    def _modify_basename(path, func):
+    def _modify_filename(path, func):
         dir_name, file_name = os.path.split(path)
         new_name = func(file_name)
         return os.path.join(dir_name, new_name)
 
     @classmethod
-    def _miniature_phys_path(cls, collection_phys_path, generator, modify_basename=True):
+    def _miniature_phys_path(cls, collection_phys_path, generator, is_file=True):
         new_path = collection_phys_path
-        if modify_basename:
-            new_path = cls._modify_basename(new_path, generator.name_original_to_miniature)
+        if is_file:
+            new_path = cls._modify_filename(new_path, generator.name_original_to_miniature)
 
         return cls._change_path_root(COLLECTION_PHYS_ROOT, generator.miniatures_root(), new_path)
 
     @classmethod
-    def _collection_phys_path(cls, miniature_phys_path, generator, modify_basename=True):
+    def _collection_phys_path(cls, miniature_phys_path, generator, is_file=True):
         new_path = miniature_phys_path
-        if modify_basename:
-            new_path = cls._modify_basename(new_path, generator.name_miniature_to_original)
+        if is_file:
+            new_path = cls._modify_filename(new_path, generator.name_miniature_to_original)
 
         return cls._change_path_root(generator.miniatures_root(), COLLECTION_PHYS_ROOT, new_path)
 
     @classmethod
     def _create_missing_dst_dir(cls, dir_phys_path):
         for generator in MINIATURE_GENERATORS:
-            dst_dir = cls._miniature_phys_path(dir_phys_path, generator, modify_basename=False)
+            dst_dir = cls._miniature_phys_path(dir_phys_path, generator, is_file=False)
             if not os.path.exists(dst_dir):
                 logger.info("creating directory: {}".format(dst_dir))
                 os.makedirs(dst_dir)
@@ -236,7 +236,7 @@ class Thumbnailer:
 
     @classmethod
     def _remove_dir_not_in_collection(cls, miniatures_dir_phys_path, generator):
-        collection_phys_path = cls._collection_phys_path(miniatures_dir_phys_path, generator, modify_basename=False)
+        collection_phys_path = cls._collection_phys_path(miniatures_dir_phys_path, generator, is_file=False)
         if not os.path.exists(collection_phys_path):
             logger.info("removing directory: {}".format(miniatures_dir_phys_path))
             try:
