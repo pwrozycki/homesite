@@ -5,8 +5,8 @@ export default File.extend({
     isVideo: true,
 
     rippedSuffix: function() {
-        return [this.get('collectionInfo.videosRoot'), this.get('path')].join('/');
-    }.property('collectionInfo.videosRoot', 'path'),
+        return [this.get('collectionInfo.videosRoot'), this.get('path_with_timestamp')].join('/');
+    }.property('collectionInfo.videosRoot', 'path_with_timestamp'),
 
     ripped: function () {
          return this.get('rippedSuffix') + '.mp4';

@@ -17,16 +17,16 @@ export default File.extend({
     selected: false,
 
     thumbnail: function () {
-        return [this.get('collectionInfo.thumbnailsRoot'), this.get('path')].join('/');
-    }.property('collectionInfo.thumbnailsRoot', 'path'),
+        return [this.get('collectionInfo.thumbnailsRoot'), this.get('path_with_timestamp')].join('/') + ".jpg";
+    }.property('collectionInfo.thumbnailsRoot', 'path_with_timestamp'),
 
     thumbnailWidth: function () {
         return this.get('aspectRatio') * this.get('thumbnailHeight');
     }.property('aspectRatio', 'thumbnailHeight'),
 
     preview: function () {
-        return [this.get('collectionInfo.previewsRoot'), this.get('path')].join('/');
-    }.property('collectionInfo.previewsRoot', 'path'),
+        return [this.get('collectionInfo.previewsRoot'), this.get('path_with_timestamp')].join('/') + ".jpg";
+    }.property('collectionInfo.previewsRoot', 'path_with_timestamp'),
 
     original: function () {
         return [this.get('collectionInfo.originalsRoot'), this.get('path')].join('/');

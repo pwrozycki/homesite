@@ -17,6 +17,7 @@ from django.http.response import HttpResponseServerError
 from rest_framework import viewsets, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
+
 from rest_framework.response import Response
 
 from rest_framework.views import APIView
@@ -25,7 +26,8 @@ from common.collectionutils.misc import localized_time
 from common.collectionutils.thumbnailer import MINIATURE_GENERATORS
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory, get_mtime_datetime
-from gallery.locations import normpath_join, collection_phys_path
+from gallery.locations import normpath_join, collection_phys_path, COLLECTION_WEB_ROOT, VIDEOS_WEB_ROOT, \
+    THUMBNAILS_WEB_ROOT, PREVIEWS_WEB_ROOT
 from gallery.models import Directory, Image, ImageGroup, Video, File
 from gallery.serializers import DirectorySerializer, ImageSerializer, SubdirectorySerializer, UserSerializer, \
     ImageGroupSerializer, VideoSerializer, FileSerializer, get_polymorphic_serializer
@@ -81,8 +83,10 @@ class FileMoveAPIView(GenericAPIView):
         # query generators and add all generated miniatures to renames
         for generator in MINIATURE_GENERATORS:
             if generator.will_output_file(src_web_path):
-                renames.append((generator.miniature_phys_path(src_web_path),
-                                generator.miniature_phys_path(dst_web_path)))
+                src_miniature_phys_path = generator.miniature_phys_path(src_file_phys_path)
+                dst_miniature_phys_path = self._calculate_dst_path_after_move(src_web_path, dst_web_path,
+                                                                              src_miniature_phys_path)
+                renames.append((src_miniature_phys_path, dst_miniature_phys_path))
 
         # add move of "other files in group" in collection folder
         self._add_similar_files_modifications(src_file_phys_path, dst_file_phys_path, renames)
@@ -93,6 +97,15 @@ class FileMoveAPIView(GenericAPIView):
             move_without_overwriting(src, dst,
                                      # allow creating destination folders only in trash
                                      create_destination_dir=locations.web_path_in_trash(dst_web_path))
+
+    def _calculate_dst_path_after_move(self, src_web_path, dst_web_path, src_miniature_phys_path):
+        src_dir_web_path = os.path.dirname(src_web_path)
+        dst_dir_web_path = os.path.dirname(dst_web_path)
+        src_dir_pattern = re.escape(src_dir_web_path) + '$'
+        src_miniature_dir_phys_path, src_miniature_filename = os.path.split(src_miniature_phys_path)
+        dst_miniature_dir_phys_path = os.path.join(re.sub(src_dir_pattern, "", src_miniature_dir_phys_path),
+                                                   dst_dir_web_path)
+        return os.path.join(dst_miniature_dir_phys_path, src_miniature_filename)
 
     def _move_files(self, src_web_path, dst_web_path):
         src_phys_path = locations.collection_phys_path(src_web_path)
@@ -285,10 +298,10 @@ class CollectionInfoView(APIView):
     def get(self, request):
         return Response({
             'id': 1,
-            'videos_root': locations.videos_web_path(''),
-            'thumbnails_root': locations.thumbnail_web_path(''),
-            'previews_root': locations.preview_web_path(''),
-            'originals_root': locations.original_web_path('')
+            'videos_root': VIDEOS_WEB_ROOT,
+            'thumbnails_root': THUMBNAILS_WEB_ROOT,
+            'previews_root': PREVIEWS_WEB_ROOT,
+            'originals_root': COLLECTION_WEB_ROOT
         })
 
 

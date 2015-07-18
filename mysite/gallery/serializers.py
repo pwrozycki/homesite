@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db.models.aggregates import Max
 from rest_framework import serializers
+import tzlocal
+from common.collectionutils.thumbnailer import TIMESTAMP_FORMAT
 
 from gallery.models import Image, Directory, ImageGroup, Video
 
@@ -36,6 +38,7 @@ def get_polymorphic_serializer(base_serializer):
 class FileSerializer(serializers.ModelSerializer):
     path = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
+    timestamp = serializers.SerializerMethodField()
 
     def get_path(self, obj):
         return getattr(obj, 'path')
@@ -43,8 +46,11 @@ class FileSerializer(serializers.ModelSerializer):
     def get_type(self, obj):
         return obj.type.split('.')[-1]
 
+    def get_timestamp(self, obj):
+        return obj.modification_time.astimezone(tzlocal.get_localzone()).strftime(TIMESTAMP_FORMAT)
+
     class Meta:
-        fields = ['id', 'path', 'type']
+        fields = ['id', 'path', 'type', 'timestamp']
 
     def update(self, instance, validated_data):
         update_result = super().update(instance, validated_data)

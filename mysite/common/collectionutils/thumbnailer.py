@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 from abc import abstractmethod, ABCMeta
+from datetime import datetime
 import os
 import logging
 import re
@@ -8,37 +9,68 @@ import shutil
 import subprocess
 import sys
 
-from common.collectionutils.misc import is_jpeg, is_video
+from common.collectionutils.misc import is_jpeg, is_video, localized_time
 from common.collectionutils.renamer import Renamer
 from common.collectionutils.renameutils import get_mtime_datetime
 from gallery import locations
-from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT, VIDEOS_PHYS_ROOT, \
-    normpath_join
+from gallery.locations import COLLECTION_PHYS_ROOT, PREVIEW_PHYS_ROOT, THUMBNAILS_PHYS_ROOT, VIDEOS_PHYS_ROOT
 from gallery.models import File
+
+TIMESTAMP_FORMAT = "%y%m%d:%H%M%S"
+TIMESTAMP_PATTERN = r'_\d{6}:\d{6}'
 
 
 class GeneratorBase(metaclass=ABCMeta):
-    def get_suffix(self):
+    def extension(self):
         return ''
 
-    def name_miniature_to_original(self, f):
-        return re.sub(r'{}$'.format(re.escape(self.get_suffix())), '', f, flags=re.IGNORECASE)
+    def _name_miniature_to_original(self, f):
+        pattern = TIMESTAMP_PATTERN + re.escape(self.extension()) + r'$'
+        return re.sub(pattern, '', f, flags=re.IGNORECASE)
 
-    def name_original_to_miniature(self, f):
-        return f + self.get_suffix()
+    def _name_original_to_miniature(self, f):
+        timestamp = get_mtime_datetime(f).strftime(TIMESTAMP_FORMAT)
+        return f + "_" + timestamp + self.extension()
 
     @abstractmethod
-    def miniatures_root(self): pass
+    def miniatures_root(self):
+        pass
 
-    def miniature_phys_path(self, f):
-        return normpath_join(self.miniatures_root(), self.name_original_to_miniature(f))
+    @staticmethod
+    def _change_path_root(prev_root, new_root, path):
+        path = os.path.normpath(path)
+        prev_root = os.path.normpath(prev_root)
+        new_root = os.path.normpath(new_root)
+        if not path.startswith(prev_root):
+            logger.critical("terminating: path should be rooted in: {}".format(prev_root))
+            sys.exit(-1)
+        return re.sub('^' + prev_root, new_root, path)
+
+    @staticmethod
+    def _modify_filename(path, func):
+        # Return result of function if path points to file
+        if os.path.isfile(path):
+            return func(path)
+        # Return unchanged if path points to directory
+        elif os.path.isdir(path):
+            return path
+        else:
+            raise Exception("Path {} should point to either file or directory: ".format(path))
+
+    def miniature_phys_path(self, collection_phys_path):
+        tmp_path = self._modify_filename(collection_phys_path, self._name_original_to_miniature)
+        return self._change_path_root(COLLECTION_PHYS_ROOT, self.miniatures_root(), tmp_path)
+
+    def collection_phys_path(self, miniature_phys_path):
+        tmp_path = self._modify_filename(miniature_phys_path, self._name_miniature_to_original)
+        return self._change_path_root(self.miniatures_root(), COLLECTION_PHYS_ROOT, tmp_path)
 
 
 class VideoGenerator(GeneratorBase):
     def will_output_file(self, f):
         return is_video(f)
 
-    def get_suffix(self):
+    def extension(self):
         return '.mp4'
 
     def miniatures_root(self):
@@ -55,7 +87,7 @@ class VideoGenerator(GeneratorBase):
 
 
 class FirstFrameGenerator(VideoGenerator):
-    def get_suffix(self):
+    def extension(self):
         return '.jpg'
 
     def generate_miniature(self, input_path, output_path):
@@ -71,6 +103,9 @@ class ThumbnailGenerator(GeneratorBase):
         self._mode = mode
         self._geometry = geometry
         self._miniatures_root = miniatures_root
+
+    def extension(self):
+        return '.jpg'
 
     def will_output_file(self, f):
         return bool(is_jpeg(f) and Renamer.CORRECT_FILENAME_RE.match(f))
@@ -99,42 +134,10 @@ class Thumbnailer:
     Keeps them in sync when new files are added or old ones are removed.
     """
 
-    @staticmethod
-    def _change_path_root(prev_root, new_root, path):
-        path = os.path.normpath(path)
-        prev_root = os.path.normpath(prev_root)
-        new_root = os.path.normpath(new_root)
-        if not path.startswith(prev_root):
-            logger.critical("terminating: path should be rooted in: {}".format(prev_root))
-            sys.exit(-1)
-        return re.sub('^' + prev_root, new_root, path)
-
-    @staticmethod
-    def _modify_filename(path, func):
-        dir_name, file_name = os.path.split(path)
-        new_name = func(file_name)
-        return os.path.join(dir_name, new_name)
-
-    @classmethod
-    def _miniature_phys_path(cls, collection_phys_path, generator, is_file=True):
-        new_path = collection_phys_path
-        if is_file:
-            new_path = cls._modify_filename(new_path, generator.name_original_to_miniature)
-
-        return cls._change_path_root(COLLECTION_PHYS_ROOT, generator.miniatures_root(), new_path)
-
-    @classmethod
-    def _collection_phys_path(cls, miniature_phys_path, generator, is_file=True):
-        new_path = miniature_phys_path
-        if is_file:
-            new_path = cls._modify_filename(new_path, generator.name_miniature_to_original)
-
-        return cls._change_path_root(generator.miniatures_root(), COLLECTION_PHYS_ROOT, new_path)
-
     @classmethod
     def _create_missing_dst_dir(cls, dir_phys_path):
         for generator in MINIATURE_GENERATORS:
-            dst_dir = cls._miniature_phys_path(dir_phys_path, generator, is_file=False)
+            dst_dir = generator.miniature_phys_path(dir_phys_path)
             if not os.path.exists(dst_dir):
                 logger.info("creating directory: {}".format(dst_dir))
                 os.makedirs(dst_dir)
@@ -155,7 +158,7 @@ class Thumbnailer:
             if not generator.will_output_file(os.path.basename(original_phys_path)):
                 continue
 
-            miniature_phys_path = cls._miniature_phys_path(original_phys_path, generator)
+            miniature_phys_path = generator.miniature_phys_path(original_phys_path)
 
             # recreate requested
             if force_recreate:
@@ -191,7 +194,12 @@ class Thumbnailer:
 
         for same_original in same_original_query.all():
             same_original_phys_path = locations.collection_phys_path(same_original.path)
-            same_original_miniature_phys_path = cls._miniature_phys_path(same_original_phys_path, generator)
+
+            # without original file we cannot determine the path of miniature (originals' mtime is needed)
+            if not os.path.exists(same_original_phys_path):
+                continue
+
+            same_original_miniature_phys_path = generator.miniature_phys_path(same_original_phys_path)
             copy_args = (same_original_miniature_phys_path, miniature_phys_path)
 
             # underlying thumbnail exists - thumbnails can be copied
@@ -223,25 +231,44 @@ class Thumbnailer:
             cls.create_miniatures(original_phys_path)
 
     @classmethod
-    def _remove_file_not_in_collection(cls, miniature_phys_path, generator):
+    def _remove_outdated_miniatures(cls, miniature_phys_path, generator):
         # if file doesn't end in specified suffix it wasn't generated by specific generator
-        # and shouldn't be deleted now
-        if not re.search('{}$'.format(generator.get_suffix()), miniature_phys_path):
+        # and shouldn't be deleted in context of different generator
+        if not miniature_phys_path.endswith(generator.extension()):
             return
 
-        collection_phys_path = cls._collection_phys_path(miniature_phys_path, generator)
-        if not os.path.exists(collection_phys_path):
+        # if image has been removed or modified existing miniatures are outdated and should be removed
+        collection_phys_path = generator.collection_phys_path(miniature_phys_path)
+        if not os.path.exists(collection_phys_path) or cls._timestamps_differ(collection_phys_path,
+                                                                              miniature_phys_path):
             logger.info("removing file: {}".format(miniature_phys_path))
             os.unlink(miniature_phys_path)
 
     @classmethod
+    def _timestamps_differ(cls, collection_phys_path, miniature_phys_path):
+        originals_mtime = get_mtime_datetime(collection_phys_path).replace(microsecond=0)
+        miniature_mtime = cls._get_miniature_timestamp(miniature_phys_path)
+        timestamps_differ = miniature_mtime != originals_mtime
+        return timestamps_differ
+
+    @classmethod
+    def _get_miniature_timestamp(cls, miniature_phys_path):
+        timestamp_match = re.search(TIMESTAMP_PATTERN, miniature_phys_path)
+        if timestamp_match:
+            timestamp_strig = timestamp_match.group(0)[1:]
+            miniature_mtime = datetime.strptime(timestamp_strig, TIMESTAMP_FORMAT)
+            return localized_time(miniature_mtime)
+
+        return None
+
+    @classmethod
     def _remove_dir_not_in_collection(cls, miniatures_dir_phys_path, generator):
-        collection_phys_path = cls._collection_phys_path(miniatures_dir_phys_path, generator, is_file=False)
+        collection_phys_path = generator.collection_phys_path(miniatures_dir_phys_path)
         if not os.path.exists(collection_phys_path):
             logger.info("removing directory: {}".format(miniatures_dir_phys_path))
             try:
                 os.rmdir(miniatures_dir_phys_path)
-            except OSError as e:
+            except OSError:
                 logger.error("couldn't remove directory (not empty): " + miniatures_dir_phys_path)
 
     @classmethod
@@ -259,7 +286,7 @@ class Thumbnailer:
                 # remove files if no corresponding file was found
                 for name in sorted(files):
                     miniature_phys_path = os.path.abspath(os.path.join(root, name))
-                    cls._remove_file_not_in_collection(miniature_phys_path, generator)
+                    cls._remove_outdated_miniatures(miniature_phys_path, generator)
 
                 # remove directories if no corresponding dir was found
                 for directory in dirs:
