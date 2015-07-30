@@ -81,8 +81,9 @@ class Indexer:
         file_phys_path = collection_phys_path(file_object.path)
         mtime = get_mtime_datetime(file_phys_path)
         if file_object.modification_time != mtime:
-            logger.info("updating file mtime: " + file_object.path)
+            logger.info("updating file mtime (and possibly: aspect_ratio): " + file_object.path)
             file_object.modification_time = mtime
+            file_object.aspect_ratio = cls.get_image_aspect_ratio(file_phys_path)
             file_object.save()
 
     @classmethod
@@ -90,6 +91,11 @@ class Indexer:
         metadata = Metadata()
         metadata.open_path(file_phys_path)
         aspect_ratio = metadata.get_pixel_width() / metadata.get_pixel_height()
+
+        # sideways rotation -> 90 or 270 degrees aspect ratio should be inverted
+        if metadata.get_tag_long('Exif.Thumbnail.Orientation') in (6, 8):
+            aspect_ratio = 1 / aspect_ratio
+
         return aspect_ratio
 
     @classmethod

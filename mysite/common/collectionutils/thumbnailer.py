@@ -137,7 +137,8 @@ class ThumbnailGenerator(GeneratorBase):
 
     def generate_miniature(self, input_path, output_path):
         logger.info("creating image: {}".format(output_path))
-        subprocess.call(['convert', input_path, self._mode, self._geometry, '-quality', '80', output_path])
+        subprocess.call(['convert', input_path, '-auto-orient',
+                         self._mode, self._geometry, '-quality', '80', output_path])
 
 
 MINIATURE_GENERATORS = [
