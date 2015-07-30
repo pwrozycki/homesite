@@ -3,6 +3,7 @@ from logging import Formatter
 from logging.handlers import RotatingFileHandler
 import os
 import traceback
+
 import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
@@ -47,14 +48,15 @@ class Runner:
         Rotator.perform_requested_rotations()
         TrashCleaner.remove_old_trash_files()
 
+        indexer = Indexer()
         for (root, dirs, files) in collection_walk():
             renamed = Renamer(root, files).rename_jpgs_in_collection()
             Thumbnailer.synchronize_miniatures_with_collection(root, dirs, renamed)
-            Indexer.synchronize_db_with_collection(root, dirs, renamed)
-
-        Indexer.post_indexing_fixes()
+            indexer.synchronize_db_with_collection(root, dirs, renamed)
 
         Thumbnailer.remove_obsolete()
+        indexer.post_indexing_fixes()
+        indexer.process_pending_removals()
 
 
 if __name__ == '__main__':

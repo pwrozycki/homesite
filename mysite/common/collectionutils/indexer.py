@@ -16,25 +16,27 @@ from gallery.models import Image, ImageGroup, Video
 logger = logging.getLogger(__name__)
 
 
-class Indexer():
+class Indexer:
     """
     Keeps database objects in sync with collection of images.
     Traverses image collection and removes outdated objects or creates missing ones.
     """
+
+    def __init__(self):
+        self._removals = []
 
     @classmethod
     def post_indexing_fixes(cls):
         cls._fix_image_properties()
         cls._delete_empty_image_groups()
 
-    @classmethod
-    def _process_directories(cls, fs_dirnames, root_object, root_web_path):
+    def _process_directories(self, fs_dirnames, root_object, root_web_path):
         # if any of directories under root doesn't exist -> remove it from db
         db_dirs = root_object.subdirectories.all()
         for directory_object in db_dirs:
             if os.path.basename(directory_object.path) not in fs_dirnames:
-                logger.info("removing directory: " + directory_object.path)
-                directory_object.delete()
+                logger.info("scheduling directory removal: " + directory_object.path)
+                self._removals.append(directory_object)
 
         # add directory objects if not found on db
         db_dirnames = {os.path.basename(x.path) for x in db_dirs}
@@ -42,20 +44,19 @@ class Indexer():
             dir_web_path = os.path.join(root_web_path, directory)
 
             # don't save modification time - defer until processing that directory
-            find_or_create_directory(dir_web_path, parent=root_object, save_modification_time=False)
+            find_or_create_directory(dir_web_path, parent=root_object, update_modification_time=True)
             logger.info("adding directory: " + dir_web_path)
 
-    @classmethod
-    def _process_files(cls, fs_filenames, root_object, root_phys_path):
+    def _process_files(self, fs_filenames, root_object, root_phys_path):
         db_files = root_object.files.all()
         for file_object in db_files:
             if file_object.name not in fs_filenames:
                 # if any of images under root doesn't exist -> remove it from db
-                logger.info("removing file: " + file_object.path)
-                file_object.delete()
+                logger.info("scheduling file removal: " + file_object.path)
+                self._removals.append(file_object)
             else:
                 # update mtime if neeeded
-                cls._update_mtime_if_needed(file_object)
+                self._update_mtime_if_needed(file_object)
 
         # add file objects if not found on db
         db_filenames = {x.name for x in db_files}
@@ -64,7 +65,7 @@ class Indexer():
             file_mtime = get_mtime_datetime(file_phys_path)
 
             if is_jpeg(missing_file):
-                aspect_ratio = cls.get_image_aspect_ratio(file_phys_path)
+                aspect_ratio = self.get_image_aspect_ratio(file_phys_path)
                 file_object = Image(name=missing_file, directory=root_object, modification_time=file_mtime,
                                     aspect_ratio=aspect_ratio)
             elif is_video(missing_file):
@@ -80,7 +81,7 @@ class Indexer():
         file_phys_path = collection_phys_path(file_object.path)
         mtime = get_mtime_datetime(file_phys_path)
         if file_object.modification_time != mtime:
-            logger.info("updating mtime: " + file_object.path)
+            logger.info("updating file mtime: " + file_object.path)
             file_object.modification_time = mtime
             file_object.save()
 
@@ -127,21 +128,18 @@ class Indexer():
             empty_image_groups.delete()
             logging.info("removed {} unneeded image groups".format(count))
 
-    @classmethod
-    def synchronize_db_with_collection(cls, root_phys_path, dirs, files):
+    def synchronize_db_with_collection(self, root_phys_path, dirs, files):
         # only index files that have correct name - it will be changed anyway during next Runner loop
         files = sorted([f for f in files if is_jpeg(f) and Renamer.CORRECT_FILENAME_RE.match(f) or is_video(f)])
 
         # find directory object corresponding to root -> create if needed
         root_web_path = locations.collection_web_path(root_phys_path)
-        root_object = find_or_create_directory(root_web_path, save_modification_time=False)
+        root_object = find_or_create_directory(root_web_path, update_modification_time=True)
 
-        # update underlying objects
-        root_modification_time = get_mtime_datetime(root_phys_path)
-        if root_object.modification_time != root_modification_time:
-            root_object.modification_time = root_modification_time
-            root_object.save()
+        self._process_directories(dirs, root_object, root_web_path)
 
-        cls._process_directories(dirs, root_object, root_web_path)
+        self._process_files(files, root_object, root_phys_path)
 
-        cls._process_files(files, root_object, root_phys_path)
+    def process_pending_removals(self):
+        for removal in self._removals:
+            removal.delete()

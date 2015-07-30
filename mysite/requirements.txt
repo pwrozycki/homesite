@@ -1,3 +1,6 @@
+pymediainfo
+lxml
+beautifulsoup4
 Django==1.7
 djangorestframework
 django-typed-models

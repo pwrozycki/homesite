@@ -9,6 +9,9 @@ import shutil
 import subprocess
 import sys
 
+from pymediainfo import MediaInfo
+import tzlocal
+
 from common.collectionutils.misc import is_jpeg, is_video, localized_time
 from common.collectionutils.renamer import Renamer
 from common.collectionutils.renameutils import get_mtime_datetime
@@ -29,8 +32,16 @@ class GeneratorBase(metaclass=ABCMeta):
         return re.sub(pattern, '', f, flags=re.IGNORECASE)
 
     def _name_original_to_miniature(self, f):
-        timestamp = get_mtime_datetime(f).strftime(TIMESTAMP_FORMAT)
-        return f + "_" + timestamp + self.extension()
+        if os.path.exists(f):
+            timestamp = get_mtime_datetime(f)
+        else:
+            try:
+                directory, filename = os.path.split(locations.collection_web_path(f))
+                timestamp = File.objects.all().get(name=filename, directory__path=directory).modification_time
+                timestamp = timestamp.astimezone(tzlocal.get_localzone())
+            except File.DoesNotExist:
+                raise Exception("File should either exist or be present on database " + f)
+        return f + "_" + timestamp.strftime(TIMESTAMP_FORMAT) + self.extension()
 
     @abstractmethod
     def miniatures_root(self):
@@ -46,23 +57,12 @@ class GeneratorBase(metaclass=ABCMeta):
             sys.exit(-1)
         return re.sub('^' + prev_root, new_root, path)
 
-    @staticmethod
-    def _modify_filename(path, func):
-        # Return result of function if path points to file
-        if os.path.isfile(path):
-            return func(path)
-        # Return unchanged if path points to directory
-        elif os.path.isdir(path):
-            return path
-        else:
-            raise Exception("Path {} should point to either file or directory: ".format(path))
-
-    def miniature_phys_path(self, collection_phys_path):
-        tmp_path = self._modify_filename(collection_phys_path, self._name_original_to_miniature)
+    def miniature_phys_path(self, collection_phys_path, is_directory=False):
+        tmp_path = collection_phys_path if is_directory else self._name_original_to_miniature(collection_phys_path)
         return self._change_path_root(COLLECTION_PHYS_ROOT, self.miniatures_root(), tmp_path)
 
-    def collection_phys_path(self, miniature_phys_path):
-        tmp_path = self._modify_filename(miniature_phys_path, self._name_miniature_to_original)
+    def collection_phys_path(self, miniature_phys_path, is_directory=False):
+        tmp_path = miniature_phys_path if is_directory else self._name_miniature_to_original(miniature_phys_path)
         return self._change_path_root(self.miniatures_root(), COLLECTION_PHYS_ROOT, tmp_path)
 
 
@@ -76,13 +76,33 @@ class VideoGenerator(GeneratorBase):
     def miniatures_root(self):
         return VIDEOS_PHYS_ROOT
 
+    def _get_rotation(self, input_file):
+        video_track_infos = [t for t in MediaInfo.parse(input_file).tracks if t.track_type == 'Video']
+        if not video_track_infos:
+            return 0
+
+        rotation = video_track_infos[0].rotation
+        if not rotation:
+            return 0
+
+        return int(float(rotation))
+
+    def _rotation_arg(self, input_path):
+        rotation = self._get_rotation(input_path)
+        rotation_arg = "rotate={}/180*PI".format(rotation)
+        if rotation % 180 == 90:
+            rotation_arg += ":ow=ih:oh=iw"
+        return rotation_arg
+
     def generate_miniature(self, input_path, output_path):
         with open(os.devnull, 'w') as null:
             logger.info("creating video: {}".format(output_path))
             splitext = os.path.splitext(output_path)
             tmp_output_path = splitext[0] + "_tmp" + splitext[1]
-            subprocess.call(['ffmpeg', '-i', input_path, '-c:v', 'libx264', '-crf', '22', '-pix_fmt',
-                             'yuv420p', '-y', '-threads', '4', tmp_output_path], stdout=null, stderr=null)
+            rotation_arg = "rotate={}/180*PI".format(self._get_rotation(input_path))
+            subprocess.call(['ffmpeg', '-i', input_path, "-vf", self._rotation_arg(input_path),
+                             '-c:v', 'libx264', '-crf', '22', '-pix_fmt', 'yuv420p', '-y', '-threads', '4',
+                             '-metadata:s:v:0', 'rotate=0', tmp_output_path], stdout=null, stderr=null)
             os.rename(tmp_output_path, output_path)
 
 
@@ -91,10 +111,12 @@ class FirstFrameGenerator(VideoGenerator):
         return '.jpg'
 
     def generate_miniature(self, input_path, output_path):
+        rotation = self._get_rotation(input_path)
         with open(os.devnull, 'w') as null:
             logger.info("creating video shot: {}".format(output_path))
             # scale to 320x240 but keep aspect ratio (fit in box)
-            subprocess.call(['ffmpeg', '-i', input_path, '-vf', 'scale=iw*min(320/iw\,240/ih):ih*min(320/iw\,240/ih)',
+            subprocess.call(['ffmpeg', '-i', input_path, '-vf', self._rotation_arg(input_path) +
+                             ',scale=iw*min(320/iw\,240/ih):ih*min(320/iw\,240/ih)',
                              '-vframes', '1', '-f', 'image2', '-y', output_path], stdout=null, stderr=null)
 
 
@@ -137,7 +159,7 @@ class Thumbnailer:
     @classmethod
     def _create_missing_dst_dir(cls, dir_phys_path):
         for generator in MINIATURE_GENERATORS:
-            dst_dir = generator.miniature_phys_path(dir_phys_path)
+            dst_dir = generator.miniature_phys_path(dir_phys_path, is_directory=True)
             if not os.path.exists(dst_dir):
                 logger.info("creating directory: {}".format(dst_dir))
                 os.makedirs(dst_dir)
@@ -195,16 +217,12 @@ class Thumbnailer:
         for same_original in same_original_query.all():
             same_original_phys_path = locations.collection_phys_path(same_original.path)
 
-            # without original file we cannot determine the path of miniature (originals' mtime is needed)
-            if not os.path.exists(same_original_phys_path):
-                continue
-
             same_original_miniature_phys_path = generator.miniature_phys_path(same_original_phys_path)
             copy_args = (same_original_miniature_phys_path, miniature_phys_path)
 
             # underlying thumbnail exists - thumbnails can be copied
             if os.path.exists(same_original_miniature_phys_path):
-                logger.warning(
+                logger.info(
                     "there exists already original with same name and mtime: copying {} -> {}".format(*copy_args))
                 shutil.copy(*copy_args)
                 return True
@@ -263,7 +281,7 @@ class Thumbnailer:
 
     @classmethod
     def _remove_dir_not_in_collection(cls, miniatures_dir_phys_path, generator):
-        collection_phys_path = generator.collection_phys_path(miniatures_dir_phys_path)
+        collection_phys_path = generator.collection_phys_path(miniatures_dir_phys_path, is_directory=True)
         if not os.path.exists(collection_phys_path):
             logger.info("removing directory: {}".format(miniatures_dir_phys_path))
             try:
