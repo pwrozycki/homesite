@@ -5,7 +5,7 @@ const SWIPE_ANGLE_THRESHOLD = 10;
 
 export default Ember.View.extend({
     templateName: 'views/image-preview',
-    mouseDownCoords: null,
+    touchStartCoords: null,
 
     setKeyEventHandlers: function () {
         var self = this;
@@ -30,24 +30,25 @@ export default Ember.View.extend({
         });
     }.on('didInsertElement'),
 
-    mouseDown: function (event) {
-        event.preventDefault();
-        this.set('mouseDownCoords', [event.clientX, event.clientY]);
+    touchStart: function (event) {
+        var touchEvent = event.originalEvent.touches[0];
+        //event.preventDefault();
+        this.set('touchStartCoords', [touchEvent.clientX, touchEvent.clientY]);
     },
 
-    mouseUp: function (event) {
-        console.log('mouseUp');
-        var mouseDownCoords = this.get('mouseDownCoords');
+    touchEnd: function (event) {
+        var touchStartCoords = this.get('touchStartCoords');
+        var touchEvent = event.originalEvent.changedTouches[0];
 
-        if (!Ember.isEmpty(mouseDownCoords)) {
-            var xDelta = event.clientX - mouseDownCoords[0];
+        if (!Ember.isEmpty(touchStartCoords)) {
+            var xDelta = touchEvent.clientX - touchStartCoords[0];
             var xDeltaAbs = Math.abs(xDelta);
-            var yDelta = event.clientY - mouseDownCoords[1];
+            var yDelta = touchEvent.clientY - touchStartCoords[1];
             var yDeltaAbs = Math.abs(yDelta);
 
             if ((xDeltaAbs > SWIPE_MOVE_THRESHOLD || yDeltaAbs > SWIPE_MOVE_THRESHOLD)) {
                 // horizontal movement -> switch to either previous or next image
-                if (xDeltaAbs != 0 && yDeltaAbs / xDeltaAbs < Math.tan(Math.PI * SWIPE_ANGLE_THRESHOLD / 180)) {
+                if (xDeltaAbs !== 0 && yDeltaAbs / xDeltaAbs < Math.tan(Math.PI * SWIPE_ANGLE_THRESHOLD / 180)) {
                     if (xDelta > 0) {
                         this.get('controller').send('nextImage');
                     } else {
@@ -56,14 +57,14 @@ export default Ember.View.extend({
                 }
 
                 // vertical movement -> when up, leave preview
-                if (xDeltaAbs == 0 || yDeltaAbs / xDeltaAbs > Math.tan(Math.PI * (90 - SWIPE_ANGLE_THRESHOLD) / 180)) {
+                if (xDeltaAbs === 0 || yDeltaAbs / xDeltaAbs > Math.tan(Math.PI * (90 - SWIPE_ANGLE_THRESHOLD) / 180)) {
                     if (yDelta < 0) {
                         this.get('controller').send('exitPreview', this.get('controller.model'));
                     }
                 }
             }
 
-            this.set('mouseDownCoords', null);
+            this.set('touchStartCoords', null);
         }
     },
 
