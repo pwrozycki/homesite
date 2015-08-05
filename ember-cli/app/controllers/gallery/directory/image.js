@@ -11,8 +11,10 @@ export default Ember.Controller.extend({
      * 1 - next image, -1 - previous image
      */
     switchToImage: function (newImage) {
-        this.transitionToRoute('gallery.directory.image', newImage.get('name'));
-        preloader.setupImagePreloading(this.get('images'), newImage.get('index'));
+        if (newImage) {
+            this.transitionToRoute('gallery.directory.image', newImage.get('name'));
+            preloader.setupImagePreloading(this.get('images'), newImage.get('index'));
+        }
     },
 
     actions: {

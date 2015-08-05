@@ -19,9 +19,7 @@
         {{#each file in model.files}}
             {{#if file.isVideo}}
                 <div class="thumbnail-container">
-                    <video controls preload="none" poster="{{file.firstFrameJpeg}}">
-                        <source src="{{file.ripped}}" type="video/mp4" width="320" height="240"/>
-                    </video>
+                    {{video-control file=file}}
 
                     <div class="image-overlay">
                         {{ partial 'partials/file-modification-buttons' }}
