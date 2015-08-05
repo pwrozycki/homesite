@@ -50,9 +50,9 @@ export default Ember.View.extend({
                 // horizontal movement -> switch to either previous or next image
                 if (xDeltaAbs !== 0 && yDeltaAbs / xDeltaAbs < Math.tan(Math.PI * SWIPE_ANGLE_THRESHOLD / 180)) {
                     if (xDelta > 0) {
-                        this.get('controller').send('nextImage');
-                    } else {
                         this.get('controller').send('prevImage');
+                    } else {
+                        this.get('controller').send('nextImage');
                     }
                 }
 
