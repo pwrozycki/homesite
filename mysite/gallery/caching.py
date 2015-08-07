@@ -28,7 +28,6 @@ class DirectoryJSONCachingStrategy:
 
     @classmethod
     def invalidate_cache(cls, directory):
-        print("invalidating cache " + directory.path)
         cache.delete_pattern(cls.CACHE_ENTRY_KEY.format(directory.id, '*'))
 
     @classmethod
@@ -41,11 +40,9 @@ class DirectoryJSONCachingStrategy:
             cached_representation = cache.get(instance_key, None)
             if cached_representation:
                 # cache hit - return result from cache
-                print("returning cached " + instance.path)
                 return cached_representation
 
             # cache miss: calculate new representation, store it in cache
-            print("generating representation " + instance.path)
             representation = to_representation(self, instance)
             cache.set(instance_key, representation, None)
 
