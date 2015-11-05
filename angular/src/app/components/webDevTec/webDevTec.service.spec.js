@@ -4,7 +4,7 @@
   describe('service webDevTec', function() {
     var webDevTec;
 
-    beforeEach(module('angular'));
+    beforeEach(module('homeGallery'));
     beforeEach(inject(function(_webDevTec_) {
       webDevTec = _webDevTec_;
     }));

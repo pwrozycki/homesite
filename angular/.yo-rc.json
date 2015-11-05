@@ -33,8 +33,8 @@
         "key": "jquery2"
       },
       "resource": {
-        "key": "angular-resource",
-        "module": "ngResource"
+        "key": "restangular",
+        "module": "restangular"
       },
       "router": {
         "key": "ui-router",

@@ -2,7 +2,7 @@
   'use strict';
 
   angular
-    .module('angular')
+    .module('homeGallery')
     .directive('acmeMalarkey', acmeMalarkey);
 
   /** @ngInject */

@@ -3,7 +3,7 @@
   'use strict';
 
   angular
-    .module('angular')
+    .module('homeGallery')
     .constant('malarkey', malarkey)
     .constant('moment', moment);
 
