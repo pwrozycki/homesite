@@ -1,14 +1,13 @@
-(function() {
-  'use strict';
+(function () {
+    'use strict';
 
-  angular
-    .module('homeGallery')
-    .run(runBlock);
+    angular
+        .module('homeGallery')
+        .run(runBlock);
 
-  /** @ngInject */
-  function runBlock($log) {
-
-    $log.debug('runBlock end');
-  }
+    /** @ngInject */
+    function runBlock($log) {
+        $log.debug('runBlock end');
+    }
 
 })();

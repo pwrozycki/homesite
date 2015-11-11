@@ -1,0 +1,3 @@
+span(ng-repeat="path in parentPaths")
+    directory-link(name="path ? null : 'ROOT'" path="path" show-icon="false")
+    span(ng-if="!$last").glyphicon.glyphicon-chevron-right

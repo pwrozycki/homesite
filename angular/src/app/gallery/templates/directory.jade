@@ -1,0 +1,10 @@
+directory-path(path="dir.directory.path")
+
+div(ng-repeat="subdir in dir.directory.subdirectories")
+    ul.list-unstyled
+        li: directory-link(path="subdir.path")
+
+div(ng-repeat="file in dir.directory.files")
+    ul: li {{file}}
+
+ui-view

@@ -1,10 +1,9 @@
-/* global malarkey:false, moment:false */
+/* global _:false */
 (function() {
   'use strict';
 
   angular
     .module('homeGallery')
-    .constant('malarkey', malarkey)
-    .constant('moment', moment);
+    .constant('_', _)
 
 })();

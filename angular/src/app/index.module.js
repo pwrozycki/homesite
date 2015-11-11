@@ -1,7 +1,8 @@
-(function() {
-  'use strict';
+(function () {
+    'use strict';
 
-  angular
-    .module('homeGallery', ['ngAnimate', 'ngCookies', 'ngTouch', 'ngSanitize', 'ngMessages', 'ngAria', 'restangular', 'ui.router', 'ui.bootstrap', 'toastr']);
+    var externalDeps = ['ngAnimate', 'ngCookies', 'ngTouch', 'ngSanitize', 'ngMessages', 'ngAria', 'restangular', 'restmod', 'ui.router', 'ui.bootstrap'];
+    var myDeps = [];
+    angular.module('homeGallery', externalDeps.concat(myDeps));
 
 })();

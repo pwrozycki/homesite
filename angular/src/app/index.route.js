@@ -1,21 +1,35 @@
-(function() {
-  'use strict';
+(function () {
+    'use strict';
 
-  angular
-    .module('homeGallery')
-    .config(routerConfig);
+    angular
+        .module('homeGallery')
+        .config(routerConfig);
 
-  /** @ngInject */
-  function routerConfig($stateProvider, $urlRouterProvider) {
-    $stateProvider
-      .state('home', {
-        url: '/',
-        templateUrl: 'app/main/main.html',
-        controller: 'MainController',
-        controllerAs: 'main'
-      });
+    /* @ngInject */
+    function routerConfig($stateProvider, $urlRouterProvider) {
+        $stateProvider
+            .state('gallery', {
+                url: '/',
+                templateUrl: 'app/gallery/templates/gallery.html',
+                controller: 'GalleryController',
+                controllerAs: 'gal'
+            })
+            .state('gallery.directory', {
+                url: 'directory/:directoryPath',
+                templateUrl: 'app/gallery/templates/directory.html',
+                resolve: {
+                    directoryObj: directoryObj
+                },
+                controller: "DirectoryController as dir"
+            });
 
-    $urlRouterProvider.otherwise('/');
-  }
+        $urlRouterProvider.otherwise('/');
+
+    }
+
+    /* @ngInject */
+    function directoryObj($stateParams, directoryService) {
+        return directoryService.resolveDirectory(decodeURIComponent($stateParams.directoryPath));
+    }
 
 })();
