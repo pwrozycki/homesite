@@ -17,9 +17,7 @@ from django.http.response import HttpResponseServerError
 from rest_framework import viewsets, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
-
 from rest_framework.response import Response
-
 from rest_framework.views import APIView
 
 from common.collectionutils.misc import localized_time
@@ -333,6 +331,7 @@ class ImageGroupView(APIView):
 
 class SessionView(APIView):
     permission_classes = [AllowAny]
+    resource_name = 'session'
 
     def get(self, request, *args, **kwargs):
         # Get the current user
@@ -342,8 +341,8 @@ class SessionView(APIView):
 
     def post(self, request, *args, **kwargs):
         # Login
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.data.get('username')
+        password = request.data.get('password')
         user = authenticate(username=username, password=password)
         if user is not None and user.is_active:
             login(request, user)
