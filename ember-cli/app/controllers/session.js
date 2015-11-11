@@ -29,7 +29,7 @@ export default Ember.Controller.extend({
         // embed jquery promise in RSVP promise
         // otherwise promise is resolved before user is fetched
         return Ember.RSVP.resolve(ajaxJsonPromise).then(function (response) {
-            return self.fetchCurrentUser(response.sessionView.user_id);
+            return self.fetchCurrentUser(response.session.user_id);
         });
     },
 
@@ -49,11 +49,11 @@ export default Ember.Controller.extend({
         var self = this, data = this.getProperties('username', 'password');
         $.post(REST_SESSION_URL, data).then(
             function (response) {
-                var success = response.sessionView.success;
+                var success = response.session.success;
                 if (!success) {
                     self.set('error', !success);
                 } else {
-                    self.fetchCurrentUser(response.sessionView.user_id);
+                    self.fetchCurrentUser(response.session.user_id);
                 }
             }
         );
