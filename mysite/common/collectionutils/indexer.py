@@ -93,7 +93,7 @@ class Indexer:
         aspect_ratio = metadata.get_pixel_width() / metadata.get_pixel_height()
 
         # sideways rotation -> 90 or 270 degrees aspect ratio should be inverted
-        if metadata.get_tag_long('Exif.Thumbnail.Orientation') in (6, 8):
+        if metadata.get_tag_long('Exif.Image.Orientation') in (6, 8):
             aspect_ratio = 1 / aspect_ratio
 
         return aspect_ratio
