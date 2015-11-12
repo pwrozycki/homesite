@@ -3,10 +3,10 @@
 
     angular
         .module('angular')
-        .factory('authService', authService);
+        .factory('sessionService', sessionService);
 
     /* @ngInject */
-    function authService(Restangular, $q) {
+    function sessionService(Restangular, $q) {
         var Session = Restangular.all('session');
         var User = Restangular.all('users');
 

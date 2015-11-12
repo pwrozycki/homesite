@@ -1,0 +1,11 @@
+directory-path(path="browser.directory.path")
+
+div(ng-repeat="subdir in browser.directory.subdirectories")
+    ul.list-unstyled
+        li: directory-link(path="subdir.path")
+
+div(ng-repeat="file in browser.directory.files")
+    ul: li
+        a(ui-sref=".preview({imageName:file.path})") {{file}}
+
+ui-view

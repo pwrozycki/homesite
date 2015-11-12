@@ -8,7 +8,7 @@
     /* @ngInject */
     function directoryLink(pathsService, _) {
         var directive = {
-            templateUrl: "app/gallery/directives/directoryLink.directive.html",
+            templateUrl: "app/gallery/browser/directoryLink.directive.html",
             scope: {
                 path: '=',
                 showIcon: '=',

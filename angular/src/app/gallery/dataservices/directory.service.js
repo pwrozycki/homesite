@@ -20,7 +20,7 @@
             var pathParam = directoryPath;
             var params = !pathParam ? {root: 'true'} : {path: pathParam};
             return Restangular.one('directories', '').get(params).then(function (directory) {
-                return directory;
+                return directory.results[0];
             });
         }
 

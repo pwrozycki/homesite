@@ -6,9 +6,9 @@
         .directive('authBox', authBox);
 
     /* @ngInject */
-    function authBox(authService) {
+    function authBox(sessionService) {
         var directive = {
-            templateUrl: 'app/gallery/directives/authBox.directive.html',
+            templateUrl: 'app/components/auth/authBox.directive.html',
             scope: {},
             link: link
         };
@@ -18,16 +18,16 @@
         //////////
 
         function link(scope) {
-            authService.checkSession().then(setLoggedUser);
+            sessionService.checkSession().then(setLoggedUser);
 
             scope.user = {};
 
             scope.login = function () {
-                authService.login(scope.user).then(setLoggedUser);
+                sessionService.login(scope.user).then(setLoggedUser);
             };
 
             scope.logout = function () {
-                authService.logout().then(function () {
+                sessionService.logout().then(function () {
                     delete scope.loggedUser;
                     delete scope.user.login;
                     delete scope.user.password;

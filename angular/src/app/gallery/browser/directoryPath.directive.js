@@ -8,7 +8,7 @@
     /* @ngInject */
     function directoryPath(pathsService) {
         var directive = {
-            templateUrl: "app/gallery/directives/directoryPath.directive.html",
+            templateUrl: "app/gallery/browser/directoryPath.directive.html",
             scope: {
                 path: '='
             },
