@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 const SWIPE_MOVE_THRESHOLD = 50;
-const SWIPE_ANGLE_THRESHOLD = 10;
+const SWIPE_ANGLE_THRESHOLD = 20;
 
 export default Ember.View.extend({
     templateName: 'views/image-preview',
