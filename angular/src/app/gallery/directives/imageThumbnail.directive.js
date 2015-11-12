@@ -2,7 +2,7 @@
     'use strict';
 
     angular
-        .module('homeGallery')
+        .module('angular')
         .directive('imageThumbnail', imageThumbnail);
 
     function imageThumbnail(galleryService, pathsService) {

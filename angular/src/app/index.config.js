@@ -2,13 +2,13 @@
     'use strict';
 
     angular
-        .module('homeGallery')
+        .module('angular')
         .config(config);
 
     /** @ngInject */
     function config($logProvider, RestangularProvider, _) {
 
-        RestangularProvider.setBaseUrl('gallery/api');
+        RestangularProvider.setBaseUrl('/gallery/api');
         RestangularProvider.setDefaultHttpFields({
             withCredentials: true
         });

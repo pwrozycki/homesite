@@ -7,7 +7,7 @@
     var collectionInfo = null;
 
     angular
-        .module('homeGallery').
+        .module('angular').
         factory('collectionService', collectionService).
 
         run(function (Restangular, $log) {

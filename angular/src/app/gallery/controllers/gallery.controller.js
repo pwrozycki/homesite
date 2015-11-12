@@ -2,7 +2,7 @@
     'use strict';
 
     angular
-        .module('homeGallery')
+        .module('angular')
         .controller('GalleryController', GalleryController);
 
     /* @ngInject */

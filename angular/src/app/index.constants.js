@@ -3,7 +3,7 @@
   'use strict';
 
   angular
-    .module('homeGallery')
+    .module('angular')
     .constant('_', _)
 
 })();
