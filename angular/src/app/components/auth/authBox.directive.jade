@@ -1,10 +1,6 @@
-form.form-group(novalidate name='form')
-    label(for='login') Login
-    input(id='login' ng-model='vm.user.login' ng-disabled="vm.isAuthenticated()" required)
+form(novalidate name='form')
+    input(placeholder="user" id='login' ng-model='vm.user.login' ng-disabled="vm.isAuthenticated()" required)
+    input(placeholder="password" id='password' ng-model='vm.user.password' ng-disabled="vm.isAuthenticated()" type='password' required)
 
-    label(for='password') Password
-    input(id='password' ng-model='vm.user.password' ng-disabled="vm.isAuthenticated()" type='password' required)
-
-    input.btn.btn-xs.btn-danger(ng-click='logout()' ng-disabled='!vm.isAuthenticated()' value="Logout")
-
-    input.btn.btn-default(type='submit' ng-click='login()' ng-disabled='form.$invalid' ng-hide='true')
+    input.btn.btn-xs.btn-danger(type="button" ng-click='vm.logout()' ng-disabled='!vm.isAuthenticated()' value="x")
+    input(type='submit' ng-click='vm.login()' ng-disabled='form.$invalid' ng-hide='true')
