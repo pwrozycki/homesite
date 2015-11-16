@@ -10,10 +10,17 @@
         var Session = Restangular.all('session');
         var User = Restangular.all('users');
 
+        var session = {
+            username: null
+        };
+
         var service = {
             login: login,
             logout: logout,
-            checkSession: checkSession
+            getUsername: getUsername,
+            isAuthenticated: isAuthenticated,
+
+            _checkSession: checkSession
         };
 
         return service;
@@ -29,7 +36,18 @@
         }
 
         function logout() {
-            return Session.remove(1);
+            return Session.remove(1).then(function() {
+                session.username = null;
+                return session;
+            });
+        }
+
+        function isAuthenticated() {
+            return !!session.username;
+        }
+
+        function getUsername() {
+            return session.username;
         }
 
         function checkSession() {
@@ -48,6 +66,11 @@
                 });
             }).then(function (userId) {
                 return User.get(userId);
+            }).then(function (user) {
+                session.username = user.username;
+                return session;
+            }).catch(function() {
+                session.username = null;
             });
         }
     }

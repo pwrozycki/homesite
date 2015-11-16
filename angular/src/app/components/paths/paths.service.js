@@ -43,8 +43,9 @@
             return pathSegments.slice(0, pathSegments.length - 1).join(SEP);
         }
 
-        function join(elements) {
-            return elements.join(SEP);
+        function join() {
+            var args = Array.prototype.slice.call(arguments);
+            return args.join(SEP);
         }
     }
 })();

@@ -18,9 +18,10 @@
         //////////
 
         function link(scope) {
-            sessionService.checkSession().then(setLoggedUser);
-
             scope.user = {};
+            scope.isAuthenticated = sessionService.isAuthenticated;
+
+            setLoggedUser();
 
             scope.login = function () {
                 sessionService.login(scope.user).then(setLoggedUser);
@@ -28,19 +29,17 @@
 
             scope.logout = function () {
                 sessionService.logout().then(function () {
-                    delete scope.loggedUser;
                     delete scope.user.login;
                     delete scope.user.password;
                 });
             };
 
-            scope.isAuthenticated = function () {
-                return !!scope.loggedUser;
-            };
-
-            function setLoggedUser(user) {
-                scope.loggedUser = user;
-                scope.user.login = user.username;
+            function setLoggedUser() {
+                if (sessionService.isAuthenticated()) {
+                    scope.user.login = sessionService.getUsername();
+                } else {
+                    delete scope.user.login;
+                }
                 delete scope.user.password;
             }
         }

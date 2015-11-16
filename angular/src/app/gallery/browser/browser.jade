@@ -4,8 +4,9 @@ div(ng-repeat="subdir in browser.directory.subdirectories")
     ul.list-unstyled
         li: directory-link(path="subdir.path")
 
-div(ng-repeat="file in browser.directory.files")
-    ul: li
-        a(ui-sref=".preview({imageName:file.path})") {{file}}
+lazy-loader-container
+    div(ng-repeat="file in browser.directory.files")
+        ul.list-unstyled: li.pull-left
+            image-thumbnail(image="file" height=200).img-responsive
 
 ui-view

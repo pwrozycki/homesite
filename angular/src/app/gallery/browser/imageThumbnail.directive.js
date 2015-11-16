@@ -5,23 +5,37 @@
         .module('angular')
         .directive('imageThumbnail', imageThumbnail);
 
-    function imageThumbnail(galleryService, pathsService) {
+    /* @ngInject */
+    function imageThumbnail() {
         var directive = {
-            scope: {image: ""},
-            templateUrl: "",
-            link: link
+            bindToController: true,
+            controllerAs: 'vm',
+            controller: ImageThumbnailController,
+            templateUrl: 'app/gallery/browser/imageThumbnail.directive.html',
+            scope: {
+                image: '=',
+                height: '='
+            }
         };
 
         return directive;
+    }
 
-        /////////
+    /* @ngInject */
+    function ImageThumbnailController(pathsService, collectionPathsService, $scope) {
+        var vm = this;
 
-        function link(scope) {
-            var collectionInfo = galleryService.getCollectionInfo();
+        var image = vm.image;
 
-            scope.pathWithTimestamp = scope.image.path + "_" + scope.image.timestamp + "_"
+        image._name = pathsService.basename(image.path);
+        image._height = vm.height;
+        image._width = image.aspect_ratio * vm.height;
 
-            scope.thumbnailPath = pathsService.join([collectionInfo.thumbnails_root, scope.image.path])
-        }
+        vm.onShow = function () {
+            if (!image._thumbnailPath) {
+                image._thumbnailPath = collectionPathsService.thumbnailPath(image.path, image.timestamp);
+            }
+        };
     }
 })();
+

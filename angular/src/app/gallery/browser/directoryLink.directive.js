@@ -22,7 +22,7 @@
         //////////
 
         function link(scope) {
-            scope.displyName = scope.name ? scope.name : pathsService.basename(scope.path);
+            scope.displayName = scope.name ? scope.name : pathsService.basename(scope.path);
 
             if (_.isUndefined(scope.showIcon)) {
                 scope.showIcon = true;
