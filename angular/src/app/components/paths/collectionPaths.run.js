@@ -2,12 +2,12 @@
     'use strict';
     angular
         .module('angular')
-        .run(getCollectionPaths);
+        .run(runCollectionPaths);
 
     /* @ngInject */
-    function getCollectionPaths(Restangular, collectionPathsService) {
+    function runCollectionPaths(Restangular, collectionPathsService) {
         Restangular.one('collectionInfos', 1).get().then(function(collectionInfo) {
-            collectionPathsService._setCollectionInfo(collectionInfo);
+            collectionPathsService.init(collectionInfo);
         });
     }
 

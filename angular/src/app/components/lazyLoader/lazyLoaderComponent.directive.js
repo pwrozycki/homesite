@@ -6,7 +6,7 @@
         .directive('lazyLoaderComponent', lazyLoaderComponent);
 
     /* @ngInject */
-    function lazyLoaderComponent($log) {
+    function lazyLoaderComponent() {
         var directive = {
             require: '^lazyLoaderContainer',
             link: link,
@@ -14,6 +14,7 @@
                 show: '&onShow'
             }
         };
+
         return directive;
 
         function link(scope, element, attrs, containerCtrl) {

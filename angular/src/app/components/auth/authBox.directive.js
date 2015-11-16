@@ -6,42 +6,47 @@
         .directive('authBox', authBox);
 
     /* @ngInject */
-    function authBox(sessionService) {
+    function authBox() {
         var directive = {
+            bindToController: true,
+            controller: AuthBoxController,
+            controllerAs: 'vm',
             templateUrl: 'app/components/auth/authBox.directive.html',
-            scope: {},
-            link: link
+            scope: {}
         };
 
         return directive;
+    }
 
-        //////////
+    /* @ngInject */
+    function AuthBoxController(sessionService) {
+        var vm = this;
 
-        function link(scope) {
-            scope.user = {};
-            scope.isAuthenticated = sessionService.isAuthenticated;
+        vm.user = {};
+        vm.isAuthenticated = sessionService.isAuthenticated;
+        vm.login = login;
+        vm.logout = logout;
 
-            setLoggedUser();
+        setLoggedUser();
 
-            scope.login = function () {
-                sessionService.login(scope.user).then(setLoggedUser);
-            };
+        function login() {
+            sessionService.login(vm.user).then(setLoggedUser);
+        }
 
-            scope.logout = function () {
-                sessionService.logout().then(function () {
-                    delete scope.user.login;
-                    delete scope.user.password;
-                });
-            };
+        function logout() {
+            sessionService.logout().then(function () {
+                delete vm.user.login;
+                delete vm.user.password;
+            });
+        }
 
-            function setLoggedUser() {
-                if (sessionService.isAuthenticated()) {
-                    scope.user.login = sessionService.getUsername();
-                } else {
-                    delete scope.user.login;
-                }
-                delete scope.user.password;
+        function setLoggedUser() {
+            if (sessionService.isAuthenticated()) {
+                vm.user.login = sessionService.getUsername();
+            } else {
+                delete vm.user.login;
             }
+            delete vm.user.password;
         }
     }
 })();

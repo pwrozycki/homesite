@@ -22,7 +22,7 @@
     }
 
     /* @ngInject */
-    function ImageThumbnailController(pathsService, collectionPathsService, $scope) {
+    function ImageThumbnailController(pathsService, collectionPathsService) {
         var vm = this;
 
         var image = vm.image;

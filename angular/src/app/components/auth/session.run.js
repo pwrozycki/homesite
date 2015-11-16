@@ -7,7 +7,7 @@
 
     /* @ngInject */
     function runSession(sessionService) {
-        sessionService._checkSession();
+        sessionService.init();
     }
 
 })();

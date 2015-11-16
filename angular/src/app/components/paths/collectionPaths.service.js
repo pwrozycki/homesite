@@ -6,12 +6,16 @@
         .factory('collectionPathsService', collectionPathsService);
 
     /* @ngInject */
-    function collectionPathsService(pathsService) {
+    function collectionPathsService(pathsService, $q) {
         var collectionInfo = null;
+
+        var ready = $q.defer();
 
         var service = {
             thumbnailPath: thumbnailPath,
-            _setCollectionInfo: setCollectionInfo
+
+            ready: ready.promise,
+            init: init
         };
 
         return service;
@@ -26,8 +30,9 @@
             return path + "_" + timestamp + ".jpg";
         }
 
-        function setCollectionInfo(info) {
+        function init(info) {
             collectionInfo = info;
+            ready.resolve();
         }
     }
 

@@ -11,7 +11,16 @@
             .state('main', {
                 url: '/',
                 templateUrl: 'app/gallery/main.html',
-                controller: 'MainController as main'
+                controller: 'MainController as main',
+                resolve: {
+                    /* @ngInject */
+                    appInitialized: function(sessionService, collectionPathsService, $q) {
+                        return $q.all([
+                            collectionPathsService.ready,
+                            sessionService.ready
+                        ]);
+                    }
+                }
             });
     }
 })();

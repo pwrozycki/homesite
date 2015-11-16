@@ -14,13 +14,16 @@
             username: null
         };
 
+        var ready = $q.defer();
+
         var service = {
             login: login,
             logout: logout,
             getUsername: getUsername,
             isAuthenticated: isAuthenticated,
 
-            _checkSession: checkSession
+            ready: ready.promise,
+            init: init
         };
 
         return service;
@@ -36,7 +39,7 @@
         }
 
         function logout() {
-            return Session.remove(1).then(function() {
+            return Session.remove(1).then(function () {
                 session.username = null;
                 return session;
             });
@@ -50,8 +53,10 @@
             return session.username;
         }
 
-        function checkSession() {
-            return checkSessionPromise(Session.get(""));
+        function init() {
+            return checkSessionPromise(Session.get("")).then(function () {
+                ready.resolve();
+            });
         }
 
         function checkSessionPromise(sessionPromise) {
@@ -69,7 +74,7 @@
             }).then(function (user) {
                 session.username = user.username;
                 return session;
-            }).catch(function() {
+            }).catch(function () {
                 session.username = null;
             });
         }
