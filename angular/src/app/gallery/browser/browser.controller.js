@@ -6,11 +6,17 @@
         .controller('BrowserController', BrowserController);
 
     /* @ngInject */
-    function BrowserController(directoryPromise, $rootScope, $window, $scope, $timeout) {
+    function BrowserController(directoryPromise, $window, $scope, $timeout) {
         var vm = this;
         vm.directory = directoryPromise;
 
-        $scope.$on('$stateChangeSuccess', scrollToImageOnPreviewExit);
+        activate();
+
+        ////////////////
+
+        function activate() {
+            $scope.$on('$stateChangeSuccess', scrollToImageOnPreviewExit);
+        }
 
         function scrollToImageOnPreviewExit(event, toState, toParams, fromState, fromParams) {
             var returnFromPreview = toState.name === 'main.browser' && fromState.name === 'main.browser.preview';
@@ -25,7 +31,7 @@
             var jqImage = angular.element('img[data-name="' + imageName + '"]');
             if (jqImage.length) {
                 var scrollTop = jqImage.offset().top + jqImage.height() / 2 - $window.innerHeight / 2;
-                angular.element("body").animate({scrollTop: scrollTop}, 0);
+                angular.element("body").scrollTop(scrollTop);
             }
         }
     }
