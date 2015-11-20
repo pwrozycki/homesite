@@ -1,6 +1,10 @@
 div.preview-container
     div.overlay-container.text-center
+        a(ng-click="preview.previousImage()")
+            span.glyphicon.glyphicon-arrow-left
         a(ui-sref="^")
             span.glyphicon.glyphicon-arrow-up
+        a(ng-click="preview.nextImage()")
+            span.glyphicon.glyphicon-arrow-right
     img(ng-src="{{preview.image._previewPath}}")
     span

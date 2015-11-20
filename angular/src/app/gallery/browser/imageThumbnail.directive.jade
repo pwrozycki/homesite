@@ -1,5 +1,5 @@
 a(ui-sref=".preview({imageName:vm.image._name})")
     lazy-loader-component(on-show="vm.onShow()").display-block
         figure
-            img(ng-src="{{vm.thumbnailPath}}" width="{{vm.width}}" height="{{vm.height}}")
+            img(ng-src="{{vm.thumbnailPath}}" width="{{vm.width}}" height="{{vm.height}}" data-name="{{vm.image._name}}")
             figcaption.text-center: small {{vm.image._name}}
