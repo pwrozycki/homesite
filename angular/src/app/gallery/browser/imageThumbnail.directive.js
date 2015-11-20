@@ -22,20 +22,18 @@
     }
 
     /* @ngInject */
-    function ImageThumbnailController(pathsService, collectionPathsService) {
+    function ImageThumbnailController($state) {
         var vm = this;
 
-        var image = vm.image;
+        vm.thumbnailPath = null;
+        vm.width = vm.height * vm.image.aspect_ratio;
+        vm.onShow = show;
 
-        image._name = pathsService.basename(image.path);
-        image._height = vm.height;
-        image._width = image.aspect_ratio * vm.height;
-
-        vm.onShow = function () {
-            if (!image._thumbnailPath) {
-                image._thumbnailPath = collectionPathsService.thumbnailPath(image.path, image.timestamp);
+        function show() {
+            if ($state.is('main.browser')) {
+                vm.thumbnailPath = vm.image._thumbnailPath;
             }
-        };
+        }
     }
 })();
 

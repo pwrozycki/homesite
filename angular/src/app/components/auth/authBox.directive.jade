@@ -1,6 +1,22 @@
-form(novalidate name='form')
-    input(placeholder="user" id='login' ng-model='vm.user.login' ng-disabled="vm.isAuthenticated()" required)
-    input(placeholder="password" id='password' ng-model='vm.user.password' ng-disabled="vm.isAuthenticated()" type='password' required)
+form(novalidate name='form').form-inline
+    div.form-group
+        label(for='user').sr-only Username
+        input(
+            id='user' name='user' placeholder="user" required
+            ng-model='vm.user.login' ng-disabled="vm.isAuthenticated()")
 
-    input.btn.btn-xs.btn-danger(type="button" ng-click='vm.logout()' ng-disabled='!vm.isAuthenticated()' value="x")
-    input(type='submit' ng-click='vm.login()' ng-disabled='form.$invalid' ng-hide='true')
+    div.form-group
+        label(for='password').sr-only Password
+        input(
+            id='password' name='password' placeholder="password" type='password' required
+            ng-model='vm.user.password' ng-disabled="vm.isAuthenticated()")
+
+    label(for='logout').sr-only Logout
+    button.btn.btn-xs.btn-danger(
+        type="button" id="logout" name='logout'
+        ng-click='vm.logout()' ng-disabled='!vm.isAuthenticated()') x
+
+    label(for='logout').sr-only Login
+    button(
+        id="logout" type='submit'
+        ng-click='vm.login()' ng-disabled='form.$invalid' ng-hide='true')

@@ -13,11 +13,11 @@
                 templateUrl: 'app/gallery/browser/preview.html',
                 controller: "PreviewController as preview",
                 resolve: {
-                    /* @ngInject */
                     imagePromise: resolveImage
                 }
             });
 
+        /* @ngInject */
         function resolveImage($stateParams, directoryPromise, _) {
             var imageName = decodeURIComponent($stateParams.imageName);
             return _.find(directoryPromise.files, function (image) {

@@ -1,0 +1,25 @@
+.preview-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  padding: 0 -15px;
+}
+
+.preview-container img {
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.preview-container span {
+  vertical-align: middle;
+  display: inline-block;
+  height: 100%;
+}
+
+.overlay-container {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+}

@@ -13,6 +13,9 @@
 
         var service = {
             thumbnailPath: thumbnailPath,
+            previewPath: previewPath,
+            posterPath: posterPath,
+            transcodedPath: transcodedPath,
 
             ready: ready.promise,
             init: init
@@ -23,11 +26,23 @@
         ////////////////
 
         function thumbnailPath(path, timestamp) {
-            return pathsService.join(collectionInfo.thumbnails_root, pathWithTimeStamp(path, timestamp));
+            return pathsService.join(collectionInfo.thumbnails_root, pathWithTimeStamp(path, timestamp)) + ".jpg";
+        }
+
+        function previewPath(path, timestamp) {
+            return pathsService.join(collectionInfo.previews_root, pathWithTimeStamp(path, timestamp)) + ".jpg";
+        }
+
+        function posterPath(path, timestamp) {
+            return pathsService.join(collectionInfo.videos_root, pathWithTimeStamp(path, timestamp)) + ".jpg";
+        }
+
+        function transcodedPath(path, timestamp) {
+            return pathsService.join(collectionInfo.videos_root, pathWithTimeStamp(path, timestamp)) + ".mp4";
         }
 
         function pathWithTimeStamp(path, timestamp) {
-            return path + "_" + timestamp + ".jpg";
+            return path + "_" + timestamp;
         }
 
         function init(info) {

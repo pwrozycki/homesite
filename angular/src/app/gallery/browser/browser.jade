@@ -1,12 +1,21 @@
-directory-path(path="browser.directory.path")
+div(ng-hide="'main.browser.preview' | isState")
 
-div(ng-repeat="subdir in browser.directory.subdirectories")
-    ul.list-unstyled
-        li: directory-link(path="subdir.path")
+    directory-path(path="browser.directory.path")
 
-lazy-loader-container
-    div(ng-repeat="file in browser.directory.files")
-        ul.list-unstyled: li.pull-left
-            image-thumbnail(image="file" height=200).img-responsive
+    div(ng-repeat="subdir in browser.directory.subdirectories")
+        ul.list-unstyled
+            li: directory-link(path="subdir.path")
+
+    lazy-loader-container
+        div(ng-repeat="image in browser.directory._images")
+            image-thumbnail(image="image" height=200).pull-left
+
+    span.clearfix
+
+    div(ng-repeat="video in browser.directory._videos")
+        video(controls preload="none" poster="{{video._posterPath}}").pull-left
+            source(src="{{video._transcodedPath}}" type="video/mp4" width="320" height="240")
+
+    span.clearfix
 
 ui-view

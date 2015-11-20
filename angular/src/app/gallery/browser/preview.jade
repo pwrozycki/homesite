@@ -1,1 +1,6 @@
-| {{ preview.image }}
+div.preview-container
+    div.overlay-container.text-center
+        a(ui-sref="^")
+            span.glyphicon.glyphicon-arrow-up
+    img(ng-src="{{preview.image._previewPath}}")
+    span

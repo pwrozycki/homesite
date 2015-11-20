@@ -19,12 +19,12 @@ $icon-font-path: "../../bower_components/bootstrap-sass/assets/fonts/bootstrap/"
   padding: 0.2em 0;
 }
 
-.thumbnail {
-  height: 200px;
+html, body, ui-view {
+  height: 100%;
+}
 
-  img.pull-right {
-    width: 50px;
-  }
+.display-block {
+  display: block;
 }
 
 /**

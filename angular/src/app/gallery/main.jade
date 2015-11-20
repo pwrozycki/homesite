@@ -1,5 +1,8 @@
-div.pull-left: a(ui-sref="main.browser({ directoryPath: ''})") Galeria
-auth-box.pull-right
-span.clearfix
+div(ng-hide="'main.browser.preview' | isState")
+    a(ui-sref="main.browser({ directoryPath: ''})") Galeria
+
+    auth-box.pull-right
+
+    span.clearfix
 
 ui-view
