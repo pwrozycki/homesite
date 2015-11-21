@@ -23,11 +23,35 @@
         }
 
         function createPreloader() {
-            var cancelPreload = preloaderService.preload([vm.image._previewPath], function() {
+            // preload current image
+            var cancelPreload = preloaderService.preload([vm.image._previewPath], onCurrentImagePreload);
+            $scope.$on('$destroy', cancelPreload);
+
+            function onCurrentImagePreload() {
+                // when done - set previewPath accordingly
                 vm.previewPath = vm.image._previewPath;
+
+                // and setup preload for neighbouring images
+                var cancelPreloadNeighbours = preloaderService.preload(neighbouringImageUrls());
+                $scope.$on('$destroy', cancelPreloadNeighbours);
+            }
+        }
+
+        function neighbouringImageUrls() {
+            var currentImageIndex = getCurrentImageIndex();
+            var images = directoryPromise._images;
+
+            var urls = [];
+            _.forEach([1, 2], function(distance) {
+                _.forEach([-1, 1], function(sign) {
+                    var index = distance * sign + currentImageIndex;
+                    if (index >= 0 && index < images.length) {
+                        urls.push(images[index]._previewPath);
+                    }
+                })
             });
 
-            $scope.$on('$destroy', cancelPreload);
+            return urls;
         }
 
         function nextImage() {
@@ -40,7 +64,6 @@
 
         function switchToImage(sign) {
             var currentIndex = getCurrentImageIndex();
-
             var newIndex = currentIndex + sign;
 
             if (newIndex >= 0 && newIndex < directoryPromise._images.length) {
