@@ -13,7 +13,7 @@ div(ng-hide="'main.browser.preview' | isState")
     span.clearfix
 
     div(ng-repeat="video in browser.directory._videos")
-        video(controls preload="none" poster="{{video._posterPath}}").pull-left
+        video(controls preload="none" bind-poster="{{video._posterPath}}").pull-left
             source(ng-src="{{video._transcodedPath}}" type="video/mp4" width="320" height="240")
 
     span.clearfix
