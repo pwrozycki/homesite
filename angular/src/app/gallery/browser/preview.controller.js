@@ -24,18 +24,8 @@
         }
 
         function createPreloader() {
-            // preload current image
-            var cancelPreload = preloaderService.preload([vm.image._previewPath], onCurrentImagePreload);
-            $scope.$on('$destroy', cancelPreload);
-
-            function onCurrentImagePreload() {
-                // when done - set previewPath accordingly
-                vm.previewPath = vm.image._previewPath;
-
-                // and setup preload for neighbouring images
-                var cancelPreloadNeighbours = preloaderService.preload(neighbouringImageUrls());
-                $scope.$on('$destroy', cancelPreloadNeighbours);
-            }
+            var cancelPreloadNeighbours = preloaderService.preload(neighbouringImageUrls());
+            $scope.$on('$destroy', cancelPreloadNeighbours);
         }
 
         function neighbouringImageUrls() {

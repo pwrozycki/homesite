@@ -18,10 +18,16 @@
             });
 
         /* @ngInject */
-        function resolveImage($stateParams, directoryPromise, _) {
-            var imageName = decodeURIComponent($stateParams.imageName);
-            return _.find(directoryPromise.files, function (image) {
-                return image.path.endsWith(imageName);
+        function resolveImage($stateParams, directoryPromise, preloaderService, $q, _) {
+            return $q(function(resolve) {
+                var imageName = decodeURIComponent($stateParams.imageName);
+                var image = _.find(directoryPromise.files, function (image) {
+                    return image.path.endsWith(imageName);
+                });
+
+                preloaderService.preload([image._previewPath], function() {
+                    resolve(image);
+                });
             });
         }
     }
