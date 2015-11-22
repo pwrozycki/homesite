@@ -20,6 +20,7 @@
 
         function activate() {
             createPreloader();
+            setKeyBindings();
         }
 
         function createPreloader() {
@@ -76,6 +77,33 @@
             return _.findIndex(directoryPromise._images, function (el) {
                 return el._name === vm.image._name;
             });
+        }
+
+        function setKeyBindings() {
+            var jqBody = angular.element('body');
+
+            jqBody.on('keydown', handleKeydown);
+
+            $scope.$on('$destroy', function() {
+                jqBody.off('keydown', handleKeydown)
+            });
+
+            function handleKeydown(event) {
+                // left arrow
+                if (event.which === 37) {
+                    previousImage();
+                    // right arrow
+                } else if (event.which === 39) {
+                    nextImage();
+                    // up arrow or escape key
+                } else if (event.which === 38 || event.which === 27) {
+                    $state.go('^');
+                    // delete key
+                } else if (event.which === 46) {
+                    //var previewImage = self.get('controller.model');
+                    //self.get('controller').send('removeFile', previewImage);
+                }
+            }
         }
     }
 
