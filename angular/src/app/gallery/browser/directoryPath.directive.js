@@ -8,19 +8,22 @@
     /* @ngInject */
     function directoryPath(pathsService) {
         var directive = {
+            bindToController: true,
+            controller: DirectoryPathController,
+            controllerAs: 'vm',
             templateUrl: "app/gallery/browser/directoryPath.directive.html",
             scope: {
                 path: '='
-            },
-            link: link
+            }
         };
 
         return directive;
 
         //////////
 
-        function link(scope) {
-            scope.parentPaths = [""].concat(pathsService.parentPaths(scope.path));
+        function DirectoryPathController() {
+            var vm = this;
+            vm.parentPaths = [""].concat(pathsService.parentPaths(vm.path));
         }
     }
 

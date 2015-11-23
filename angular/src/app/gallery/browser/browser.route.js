@@ -19,8 +19,10 @@
     }
 
     /* @ngInject */
-    function resolveDirectory($stateParams, directoryService) {
-        return directoryService.resolveDirectory(decodeURIComponent($stateParams.directoryPath));
+    function resolveDirectory($stateParams, directoryService, pathsService) {
+        var mangled = $stateParams.directoryPath;
+        var encodedURIComponent = pathsService.unescapeSlashes(mangled);
+        return directoryService.resolveDirectory(decodeURIComponent(encodedURIComponent));
     }
 
 })();

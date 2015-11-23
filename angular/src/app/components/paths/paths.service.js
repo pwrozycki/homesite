@@ -13,7 +13,9 @@
             parentPaths: parentPaths,
             basename: basename,
             dirname: dirname,
-            join: join
+            join: join,
+            escapeSlashes: escapeSlashes,
+            unescapeSlashes: unescapeSlashes
         };
 
         return service;
@@ -46,6 +48,18 @@
         function join() {
             var args = Array.prototype.slice.call(arguments);
             return args.join(SEP);
+        }
+
+        function escapeSlashes(path) {
+            return path
+                .replace(/'/g, "'_")
+                .replace(/\//g, "''");
+        }
+
+        function unescapeSlashes(path) {
+            return path
+                .replace(/''/g, "/")
+                .replace(/'_/g, "'");
         }
     }
 })();
