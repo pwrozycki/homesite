@@ -32,7 +32,7 @@ def move_without_overwriting(src, dst, create_destination_dir=False):
     os.rename(src, dst)
 
 
-def find_or_create_directory(web_path, parent=None, update_modification_time=False):
+def find_or_create_directory(web_path, parent=None, update_modification_time=True):
     directory_mtime = get_mtime_datetime(locations.collection_phys_path(web_path))
     directory, created = Directory.objects.get_or_create(path=web_path,
                                                 defaults={'modification_time': directory_mtime, 'parent': parent})

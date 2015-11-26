@@ -44,7 +44,7 @@ class Indexer:
             dir_web_path = os.path.join(root_web_path, directory)
 
             # don't save modification time - defer until processing that directory
-            find_or_create_directory(dir_web_path, parent=root_object, update_modification_time=True)
+            find_or_create_directory(dir_web_path, parent=root_object)
             logger.info("adding directory: " + dir_web_path)
 
     def _process_files(self, fs_filenames, root_object, root_phys_path):
@@ -140,7 +140,7 @@ class Indexer:
 
         # find directory object corresponding to root -> create if needed
         root_web_path = locations.collection_web_path(root_phys_path)
-        root_object = find_or_create_directory(root_web_path, update_modification_time=True)
+        root_object = find_or_create_directory(root_web_path)
 
         self._process_directories(dirs, root_object, root_web_path)
 
