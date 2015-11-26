@@ -146,9 +146,15 @@ export default Ember.Route.extend({
         var dirSrcPath = pathlib.dirname(imageSrcPath);
 
         var url = '/gallery/api/files/%@/move'.fmt(media_file.get('id'));
-        var data = {destination: dirDstPath};
+        var data = {move: {destination: dirDstPath}};
 
-        return Ember.RSVP.resolve($.post(url, data)).then(
+        var promise = $.ajax(url, {
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            type: 'POST'
+        });
+
+        return Ember.RSVP.resolve(promise).then(
             function () {
                 var fileIsImage = media_file.get('fileType') === 'image';
                 if (fileIsImage) {

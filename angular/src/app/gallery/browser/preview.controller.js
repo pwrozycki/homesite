@@ -6,11 +6,14 @@
         .controller('PreviewController', PreviewController);
 
     /* @ngInject */
-    function PreviewController(directoryPromise, imagePromise, preloaderService, $scope, $state, _) {
+    function PreviewController(directoryPromise, imagePromise, fileService, preloaderService, $scope, $state, _) {
         var vm = this;
         vm.title = 'PreviewController';
+        vm.directory = directoryPromise;
         vm.image = imagePromise;
-        vm.previewPath = null;
+
+        vm.onImageMove = onImageMove;
+
         vm.previousImage = previousImage;
         vm.nextImage = nextImage;
 
@@ -27,14 +30,25 @@
             var cancelPreloadNeighbours = preloaderService.preload(neighbouringImageUrls());
             $scope.$on('$destroy', cancelPreloadNeighbours);
         }
+        
+        function onImageMove() {
+            var currentImageIndex = getCurrentImageIndex();
+            if (currentImageIndex + 1 < directoryPromise._images.length) {
+                nextImage();
+            } else if (currentImageIndex > 0) {
+                previousImage();
+            } else {
+                $state.go('^');
+            }
+        }
 
         function neighbouringImageUrls() {
-            var currentImageIndex = getCurrentImageIndex();
             var images = directoryPromise._images;
+            var currentImageIndex = getCurrentImageIndex();
 
             var urls = [];
-            _.forEach([1, 2], function(distance) {
-                _.forEach([-1, 1], function(sign) {
+            _.forEach([1, 2], function (distance) {
+                _.forEach([-1, 1], function (sign) {
                     var index = distance * sign + currentImageIndex;
                     if (index >= 0 && index < images.length) {
                         urls.push(images[index]._previewPath);
@@ -64,9 +78,7 @@
         }
 
         function getCurrentImageIndex() {
-            return _.findIndex(directoryPromise._images, function (el) {
-                return el._name === vm.image._name;
-            });
+            return _.findIndex(directoryPromise._images, { path: vm.image.path });
         }
 
         function setKeyBindings() {
@@ -74,7 +86,7 @@
 
             jqBody.on('keydown', handleKeydown);
 
-            $scope.$on('$destroy', function() {
+            $scope.$on('$destroy', function () {
                 jqBody.off('keydown', handleKeydown)
             });
 

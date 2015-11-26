@@ -36,6 +36,10 @@ html, body, ui-view {
   user-select: none;
 }
 
+.space-right {
+  padding-right:20px;
+}
+
 /**
  *  Do not remove the comments below. It's the markers used by gulp-inject to inject
  *  all your sass files automatically

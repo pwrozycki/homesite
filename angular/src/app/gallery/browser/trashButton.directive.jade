@@ -1,0 +1,4 @@
+a(ng-if="!vm.isImageInTrash" ng-click="vm.trashImage()" ng-disabled="vm.image._dirty")
+    span.glyphicon.glyphicon-trash.text-danger
+a(ng-if="vm.isImageInTrash" ng-click="vm.untrashImage()" ng-disabled="vm.image._dirty")
+    span.glyphicon.glyphicon-repeat.flipX.text-danger

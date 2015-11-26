@@ -42,6 +42,7 @@ class BadRequestException(Exception):
 class FileMoveAPIView(GenericAPIView):
     serializer_class = get_polymorphic_serializer(FileSerializer)
     queryset = File.objects.all()
+    resource_name = 'move'
 
     def post(self, request, *args, **kwargs):
         media_file = self.get_object()

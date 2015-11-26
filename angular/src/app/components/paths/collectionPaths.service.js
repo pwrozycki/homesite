@@ -6,7 +6,7 @@
         .factory('collectionPathsService', collectionPathsService);
 
     /* @ngInject */
-    function collectionPathsService(pathsService, $q) {
+    function collectionPathsService(pathsService, $q, collectionPathsConstants) {
         var collectionInfo = null;
 
         var ready = $q.defer();
@@ -17,6 +17,10 @@
             posterPath: posterPath,
             transcodedPath: transcodedPath,
 
+            pathInTrash: pathInTrash,
+            pathOutsideTrash: pathOutsideTrash,
+            isPathInTrash: isPathInTrash,
+
             ready: ready.promise,
             init: init
         };
@@ -24,6 +28,27 @@
         return service;
 
         ////////////////
+
+        function pathInTrash(path) {
+            if (! isPathInTrash(path)) {
+                return pathsService.join(collectionPathsConstants.TRASH, path);
+            } else {
+                return path;
+            }
+
+        }
+
+        function pathOutsideTrash(path) {
+            if (isPathInTrash(path)) {
+                return path.replace(new RegExp('^(/)?' + collectionPathsConstants.TRASH + '/?'), '$1');
+            } else {
+                return path;
+            }
+        }
+
+        function isPathInTrash(path) {
+            return !!path.match(new RegExp('^/?' + collectionPathsConstants.TRASH))
+        }
 
         function thumbnailPath(path, timestamp) {
             return pathsService.join(collectionInfo.thumbnails_root, pathWithTimeStamp(path, timestamp)) + ".jpg";
