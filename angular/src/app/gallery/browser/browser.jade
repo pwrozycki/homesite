@@ -7,14 +7,16 @@ div(ng-hide="'main.browser.preview' | isState")
             li: directory-link(path="subdir.path")
 
     lazy-loader-container
-        div(ng-repeat="image in browser.directory._images")
-            image-thumbnail(image="image" height=200).pull-left
+        div(ng-repeat="image in browser.directory._images").thumbnails
+            image-thumbnail(image="image" height=200)
 
     span.clearfix
 
-    div(ng-repeat="video in browser.directory._videos")
-        video(controls preload="none" fullscreen-on-dblclick bind-poster="{{video._posterPath}}" height="240").pull-left
-            source(ng-src="{{video._transcodedPath}}" type="video/mp4")
+    div(ng-repeat="video in browser.directory._videos").thumbnails
+        figure
+            video(controls preload="none" fullscreen-on-dblclick bind-poster="{{video._posterPath}}" height="200")
+                source(ng-src="{{video._transcodedPath}}" type="video/mp4")
+            figcaption {{video._name}}
 
     span.clearfix
 

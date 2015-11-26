@@ -1,26 +1,28 @@
 .preview-container {
   position: relative;
   height: 100%;
-  width: 100%;
+  width: calc(100% + 30px); // width - 100% but get rid of container-fluid side padding
+  margin: 0 -15px;
+
   text-align: center;
   padding: 0 -15px;
-}
 
-.preview-container img {
-  max-height: 100%;
-  max-width: 100%;
-}
+  img {
+    max-height: 100%;
+    max-width: 100%;
+  }
 
-.preview-container span {
-  vertical-align: middle;
-  display: inline-block;
-  height: 100%;
-}
+  span {
+    vertical-align: middle;
+    display: inline-block;
+    height: 100%;
+  }
 
-.preview-container .overlay-container {
-  width: 100%;
-  position: absolute;
-  top: 0;
-  z-index: 1;
-  font-size: x-large;
+  .overlay-container {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    font-size: x-large;
+  }
 }

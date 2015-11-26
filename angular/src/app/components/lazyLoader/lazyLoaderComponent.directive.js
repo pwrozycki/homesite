@@ -18,6 +18,8 @@
         return directive;
 
         function link(scope, element, attrs, containerCtrl) {
+            element.css('display', 'block');
+
             containerCtrl.addComponent({
                 element: angular.element(element),
                 onShow: scope.show

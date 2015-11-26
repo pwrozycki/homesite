@@ -1,0 +1,18 @@
+.thumbnails {
+  margin-left: -10px;
+
+  figure {
+    @extend .pull-left;
+    padding-left: 10px;
+
+    figcaption {
+      @extend .small;
+      @extend .text-center;
+    }
+
+    video, img {
+      @extend .center-block;
+    }
+
+  }
+}
