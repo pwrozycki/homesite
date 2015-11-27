@@ -27,7 +27,13 @@
         vm.login = login;
         vm.logout = logout;
 
-        setLoggedUser();
+        activate();
+
+        ////////////////
+
+        function activate() {
+            setLoggedUser();
+        }
 
         function login() {
             sessionService.login(vm.user).then(setLoggedUser);

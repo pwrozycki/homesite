@@ -1,11 +1,31 @@
+$bootstrapContainerFluidMargin: 15px;
+$paddingBetweenButtons: 5px;
+$paddingBetweenButtonGroups: 20px;
+
+@mixin a-href-link-color($color, $lightenFactorOnHover: 10%) {
+  color: $color;
+  &:hover {
+    color: darken($color, $lightenFactorOnHover);
+  }
+}
+
+@mixin padding-between-button-and-groups() {
+  .group:not(:nth-last-of-type(1)) {
+    a:not(:nth-last-of-type(1)) {
+      padding-right: $paddingBetweenButtons;
+    }
+
+    padding-right: $paddingBetweenButtonGroups;
+  }
+}
+
 .preview-container {
   position: relative;
   height: 100%;
-  width: calc(100% + 30px); // width - 100% but get rid of container-fluid side padding
-  margin: 0 -15px;
+  width: calc(100% + 2 * #{$bootstrapContainerFluidMargin}); // width - 100% with container fluid margin compensated
+  margin: 0 0 - $bootstrapContainerFluidMargin;
 
   text-align: center;
-  padding: 0 -15px;
 
   img {
     max-height: 100%;
@@ -24,5 +44,16 @@
     top: 0;
     z-index: 1;
     font-size: x-large;
-  }
+
+    .nav .glyphicon {
+      @include a-href-link-color(green);
+    }
+
+    .manip .glyphicon {
+      @include a-href-link-color(indianred);
+    }
+
+    @include padding-between-button-and-groups();
+}
+
 }

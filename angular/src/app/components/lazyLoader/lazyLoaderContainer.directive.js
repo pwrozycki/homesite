@@ -6,47 +6,47 @@
         .directive('lazyLoaderContainer', lazyLoaderContainer);
 
     /* @ngInject */
-    function lazyLoaderContainer($window, lazyLoaderService, $timeout) {
+    function lazyLoaderContainer($window) {
         var directive = {
             bindToController: true,
             controller: LazyLoaderContainerController,
             controllerAs: 'vm',
             link: link,
-            scope: {}
+            scope: {
+                visible: '='
+            }
         };
         return directive;
 
-        function link(scope, element) {
+        function link(scope, element, attrs, controller) {
             var jqWindow = angular.element($window);
 
-            jqWindow.on('scroll', applyShowComponents);
-            jqWindow.on('resize', applyShowComponents);
+            ['scroll', 'resize'].forEach(function (eventName) {
+                jqWindow.on(eventName, controller.showComponents);
 
-            element.on('$destroy', function() {
-                jqWindow.off('scroll', applyShowComponents);
-                jqWindow.off('resize', applyShowComponents);
+                element.on('$destroy', function () {
+                    jqWindow.off(eventName, controller.showComponents);
+                });
             });
-
-            $timeout(showComponents);
-
-            function applyShowComponents() {
-                scope.$apply(showComponents);
-            }
-
-            function showComponents() {
-                lazyLoaderService.notifyVisibleComponents(scope.vm.childComponents);
-            }
         }
     }
 
     /* @ngInject */
-    function LazyLoaderContainerController() {
+    function LazyLoaderContainerController(lazyLoaderService, $timeout, _) {
         var vm = this;
         vm.childComponents = [];
         vm.addComponent = addComponent;
+        vm.showComponents = _.debounce(showComponents, 100);
 
         function addComponent(childComponent) {
             vm.childComponents.push(childComponent);
+            vm.showComponents();
+        }
+
+        function showComponents() {
+            $timeout(function () {
+                lazyLoaderService.notifyVisibleComponents(vm.childComponents);
+            });
         }
     }
 

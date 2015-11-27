@@ -1,15 +1,15 @@
 div.preview-container.not-selectable
     div.overlay-container
-        a(ng-click="preview.previousImage()")
-            span.glyphicon.glyphicon-arrow-left
-        a(ui-sref="^")
-            span.glyphicon.glyphicon-arrow-up
-        a(ng-click="preview.nextImage()")
-            span.glyphicon.glyphicon-arrow-right
+        span.nav.group
+            a(ng-click="preview.previousImage()")
+                span.glyphicon.glyphicon-arrow-left
+            a(ui-sref="^")
+                span.glyphicon.glyphicon-arrow-up
+            a(ng-click="preview.nextImage()")
+                span.glyphicon.glyphicon-arrow-right
 
-        span.space-right
-
-        trash-button(image="preview.image" directory="preview.directory" on-move="preview.onImageMove()")
+        span.manip.group
+            trash-button(image="preview.image" directory="preview.directory" on-move="preview.onImageMove()")
 
     img(ng-src="{{preview.image._previewPath}}")
     span

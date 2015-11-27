@@ -23,10 +23,6 @@ html, body, ui-view {
   height: 100%;
 }
 
-.display-block {
-  display: block;
-}
-
 .not-selectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -34,10 +30,6 @@ html, body, ui-view {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-}
-
-.space-right {
-  padding-right:20px;
 }
 
 /**

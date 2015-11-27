@@ -1,18 +1,39 @@
+$thumbnailPadding: 10px;
+
 .thumbnails {
-  margin-left: -10px;
+  margin-left: -$thumbnailPadding;
 
   figure {
     @extend .pull-left;
-    padding-left: 10px;
+    padding-left: $thumbnailPadding;
 
     figcaption {
-      @extend .small;
-      @extend .text-center;
+      @extend .small, .text-center;
     }
 
     video, img {
       @extend .center-block;
     }
 
+  }
+}
+
+directory-path {
+  display: block;
+  font-size: small;
+  padding-bottom: 10px;
+}
+
+.directory-listing {
+  ul {
+    @extend .list-unstyled;
+
+    margin-bottom: 5px;
+    font-size: small;
+
+    span.glyphicon-folder-close {
+      font-size: large;
+      color: cadetblue;
+    }
   }
 }
