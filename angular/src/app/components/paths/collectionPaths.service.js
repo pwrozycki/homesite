@@ -14,6 +14,7 @@
         var service = {
             thumbnailPath: thumbnailPath,
             previewPath: previewPath,
+            originalJpegPath: originalJpegPath,
             posterPath: posterPath,
             transcodedPath: transcodedPath,
 
@@ -52,6 +53,10 @@
 
         function thumbnailPath(path, timestamp) {
             return pathsService.join(collectionInfo.thumbnails_root, pathWithTimeStamp(path, timestamp)) + ".jpg";
+        }
+
+        function originalJpegPath(path) {
+            return pathsService.join(collectionInfo.originals_root, path);
         }
 
         function previewPath(path, timestamp) {

@@ -2,16 +2,17 @@ $bootstrapContainerFluidMargin: 15px;
 $paddingBetweenButtons: 5px;
 $paddingBetweenButtonGroups: 20px;
 
-@mixin a-href-link-color($color, $lightenFactorOnHover: 10%) {
+@mixin color-darken-on-hover($color, $lightenFactorOnHover: 10%) {
   color: $color;
   &:hover {
+    text-decoration: none;
     color: darken($color, $lightenFactorOnHover);
   }
 }
 
 @mixin padding-between-button-and-groups() {
-  .group:not(:nth-last-of-type(1)) {
-    a:not(:nth-last-of-type(1)) {
+  span.group {
+    >*:not(:nth-last-of-type(1)) {
       padding-right: $paddingBetweenButtons;
     }
 
@@ -32,7 +33,7 @@ $paddingBetweenButtonGroups: 20px;
     max-width: 100%;
   }
 
-  span {
+  span.vertical-aligner {
     vertical-align: middle;
     display: inline-block;
     height: 100%;
@@ -45,12 +46,23 @@ $paddingBetweenButtonGroups: 20px;
     z-index: 1;
     font-size: x-large;
 
-    .nav .glyphicon {
-      @include a-href-link-color(green);
+    .navigations i {
+      @include color-darken-on-hover(green);
     }
 
-    .manip .glyphicon {
-      @include a-href-link-color(indianred);
+    .manip i {
+      @include color-darken-on-hover(indianred);
+    }
+
+    .download {
+      @include color-darken-on-hover(royalblue);
+
+      .download-text {
+        position: absolute;
+        margin-top: -0.2em;
+        margin-left: -0.6em;
+        font-size: 0.4em;
+      }
     }
 
     @include padding-between-button-and-groups();
