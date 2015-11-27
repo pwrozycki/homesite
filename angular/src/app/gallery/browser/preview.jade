@@ -8,16 +8,16 @@ div.preview-container.not-selectable
             a(ng-click="preview.nextImage()")
                 i.fa.fw.fa-arrow-right
 
-        span.manip.group
-            trash-button(image="preview.image" directory="preview.directory" on-move="preview.onImageMove()")
-
         span.download.group
             a(download="{{preview.image._name}}" ng-href="{{preview.image._originalJpegPath}}")
                 i.fa.fw.fa-download
-
             a(ng-if="false")
                 i.fa.fw.fa-download
                 i.download-text R
+
+        span.manip.group
+            trash-button(image="preview.image" directory="preview.directory" on-move="preview.onImageMove()")
+
 
 
     img(ng-src="{{preview.image._previewPath}}")
