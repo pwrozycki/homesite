@@ -1,4 +1,5 @@
 from datetime import datetime
+import glob
 import logging
 import os
 import re
@@ -21,6 +22,8 @@ class Indexer:
     Keeps database objects in sync with collection of images.
     Traverses image collection and removes outdated objects or creates missing ones.
     """
+
+    RAW_EXTENSIONS = ['NEF', 'CR2']
 
     def __init__(self):
         self._removals = []
@@ -66,8 +69,9 @@ class Indexer:
 
             if is_jpeg(missing_file):
                 aspect_ratio = self.get_image_aspect_ratio(file_phys_path)
+                raw_filename = self._detect_rawfile(file_phys_path)
                 file_object = Image(name=missing_file, directory=root_object, modification_time=file_mtime,
-                                    aspect_ratio=aspect_ratio)
+                                    aspect_ratio=aspect_ratio, raw_filename=raw_filename)
             elif is_video(missing_file):
                 file_object = Video(name=missing_file, directory=root_object, modification_time=file_mtime)
             else:
@@ -75,6 +79,21 @@ class Indexer:
 
             file_object.save()
             logger.info("adding file " + file_object.path)
+
+    @classmethod
+    def _detect_rawfile(cls, jpeg_file_phys_path):
+        for raw_ext in [cls._case_insensitive_ext_glob(ext) for ext in cls.RAW_EXTENSIONS]:
+            path_without_ext = os.path.splitext(jpeg_file_phys_path)[0]
+
+            matching_raw_paths = glob.glob(path_without_ext + "." + raw_ext)
+            if matching_raw_paths:
+                return os.path.basename(matching_raw_paths[0])
+
+        return None
+
+    @staticmethod
+    def _case_insensitive_ext_glob(ext):
+        return ''.join(["[{0}{1}]".format(c.lower(), c.upper()) if c.isalpha() else c for c in ext])
 
     @classmethod
     def _update_mtime_if_needed(cls, file_object):

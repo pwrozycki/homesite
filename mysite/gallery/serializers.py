@@ -53,7 +53,7 @@ class FileSerializer(serializers.ModelSerializer):
 class ImageSerializer(FileSerializer):
     class Meta:
         model = Image
-        fields = FileSerializer.Meta.fields + ['orientation', 'aspect_ratio']
+        fields = FileSerializer.Meta.fields + ['orientation', 'aspect_ratio', 'raw_filename']
 
 
 class VideoSerializer(FileSerializer):

@@ -38,6 +38,7 @@ class File(TypedModel):
 
 
 class Image(File):
+    raw_filename = models.CharField(max_length=100, blank=True)
     orientation = models.CharField(max_length=10, blank=True, default="up")
     aspect_ratio = models.FloatField()
     image_group = models.ForeignKey(ImageGroup, related_name='images', null=True, db_index=True)
