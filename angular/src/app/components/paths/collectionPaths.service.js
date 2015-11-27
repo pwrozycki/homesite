@@ -15,6 +15,7 @@
             thumbnailPath: thumbnailPath,
             previewPath: previewPath,
             originalJpegPath: originalJpegPath,
+            rawPath: rawPath,
             posterPath: posterPath,
             transcodedPath: transcodedPath,
 
@@ -57,6 +58,11 @@
 
         function originalJpegPath(path) {
             return pathsService.join(collectionInfo.originals_root, path);
+        }
+
+        function rawPath(path, raw_filename) {
+            var dirname = pathsService.dirname(path);
+            return pathsService.join(collectionInfo.originals_root, dirname, raw_filename);
         }
 
         function previewPath(path, timestamp) {

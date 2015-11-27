@@ -39,6 +39,7 @@
                 image._name = pathsService.basename(image.path);
                 image._thumbnailPath = collectionPathsService.thumbnailPath(image.path, image.timestamp);
                 image._originalJpegPath = collectionPathsService.originalJpegPath(image.path);
+                image._rawPath = collectionPathsService.rawPath(image.path, image.raw_filename);
                 image._previewPath = collectionPathsService.previewPath(image.path, image.timestamp);
             });
 

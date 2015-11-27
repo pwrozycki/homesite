@@ -45,9 +45,13 @@
             return pathSegments.slice(0, pathSegments.length - 1).join(SEP);
         }
 
+        function normpath(path) {
+            return path.replace(new RegExp(SEP + '+', 'g'), SEP);
+        }
+
         function join() {
             var args = Array.prototype.slice.call(arguments);
-            return args.join(SEP);
+            return normpath(args.join(SEP));
         }
 
         function escapeSlashes(path) {
