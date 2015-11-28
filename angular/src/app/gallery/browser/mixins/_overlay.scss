@@ -1,0 +1,39 @@
+
+@mixin color-darken-on-hover($color, $lightenFactorOnHover: 10%) {
+  color: $color;
+  &:hover {
+    text-decoration: none;
+    color: darken($color, $lightenFactorOnHover);
+  }
+}
+
+@mixin padding-between-button-and-groups($paddingBetweenButtons, $paddingBetweenButtonGroups) {
+  span.group:not(:nth-last-of-type(1)) {
+    >*:not(:nth-last-of-type(1)) {
+      padding-right: $paddingBetweenButtons;
+    }
+
+    padding-right: $paddingBetweenButtonGroups;
+  }
+}
+
+.overlay-container {
+  @extend .text-center;
+
+  width: 100%;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+
+  .navigations i {
+    @include color-darken-on-hover(green);
+  }
+
+  .manip i {
+    @include color-darken-on-hover(indianred);
+  }
+
+  .download i {
+    @include color-darken-on-hover(royalblue);
+  }
+}

@@ -14,6 +14,7 @@
             templateUrl: 'app/gallery/browser/imageThumbnail.directive.html',
             scope: {
                 image: '=',
+                directory: '=',
                 height: '='
             }
         };

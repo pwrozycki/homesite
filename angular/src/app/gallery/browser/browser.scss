@@ -1,11 +1,22 @@
 $thumbnailPadding: 10px;
 
+@import "./mixins/overlay";
+
 .thumbnails {
   margin-left: -$thumbnailPadding;
 
   figure {
     @extend .pull-left;
-    padding-left: $thumbnailPadding;
+    margin-left: $thumbnailPadding;
+
+    position: relative;
+    .overlay-container {
+      .group i.fa {
+        @extend .fa-1x;
+      }
+
+      @include padding-between-button-and-groups(5px, 20px);
+    }
 
     figcaption {
       @extend .small, .text-center;

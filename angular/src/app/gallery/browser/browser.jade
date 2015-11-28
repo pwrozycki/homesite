@@ -8,7 +8,7 @@ div(ng-hide="'main.browser.preview' | isState")
 
     lazy-loader-container
         div(ng-repeat="image in browser.directory._images" ).thumbnails
-            image-thumbnail(image="image" height=200)
+            image-thumbnail(image="image" directory="browser.directory" height=200)
 
     span.clearfix
 

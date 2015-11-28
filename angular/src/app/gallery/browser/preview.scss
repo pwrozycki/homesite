@@ -1,24 +1,6 @@
 $bootstrapContainerFluidMargin: 15px;
-$paddingBetweenButtons: 5px;
-$paddingBetweenButtonGroups: 20px;
 
-@mixin color-darken-on-hover($color, $lightenFactorOnHover: 10%) {
-  color: $color;
-  &:hover {
-    text-decoration: none;
-    color: darken($color, $lightenFactorOnHover);
-  }
-}
-
-@mixin padding-between-button-and-groups() {
-  span.group {
-    >*:not(:nth-last-of-type(1)) {
-      padding-right: $paddingBetweenButtons;
-    }
-
-    padding-right: $paddingBetweenButtonGroups;
-  }
-}
+@import "./mixins/overlay";
 
 .preview-container {
   position: relative;
@@ -40,32 +22,20 @@ $paddingBetweenButtonGroups: 20px;
   }
 
   .overlay-container {
-    width: 100%;
-    position: absolute;
-    top: 0;
-    z-index: 1;
-    font-size: x-large;
-
-    .navigations i {
-      @include color-darken-on-hover(green);
-    }
-
-    .manip i {
-      @include color-darken-on-hover(indianred);
+    .group i.fa {
+      @extend .fa-2x;
     }
 
     .download {
-      @include color-darken-on-hover(royalblue);
-
-      .download-text {
+      i.download-text {
         position: absolute;
-        margin-top: -0.2em;
-        margin-left: -0.6em;
-        font-size: 0.4em;
+        margin-top: 0em;
+        margin-left: -0.4em;
+        font-size: 0.7em;
       }
     }
 
-    @include padding-between-button-and-groups();
-}
+    @include padding-between-button-and-groups(5px, 20px);
+  }
 
 }

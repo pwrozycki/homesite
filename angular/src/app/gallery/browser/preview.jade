@@ -2,17 +2,17 @@ div.preview-container.not-selectable
     div.overlay-container
         span.navigations.group
             a(ng-click="preview.previousImage()")
-                i.fa.fw.fa-arrow-left
+                i.fa.fa-arrow-left
             a(ui-sref="^")
-                i.fa.fw.fa-arrow-up
+                i.fa.fa-arrow-up
             a(ng-click="preview.nextImage()")
-                i.fa.fw.fa-arrow-right
+                i.fa.fa-arrow-right
 
         span.download.group
             a(download="{{preview.image._name}}" ng-href="{{preview.image._originalJpegPath}}")
-                i.fa.fw.fa-download
+                i.fa.fa-download
             a(ng-if="preview.image.raw_filename" download="{{preview.image.raw_filename}}" ng-href="{{preview.image._rawPath}}")
-                i.fa.fw.fa-download
+                i.fa.fa-download
                 i.download-text R
 
         span.manip.group

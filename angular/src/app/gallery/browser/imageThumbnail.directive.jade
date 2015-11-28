@@ -3,3 +3,7 @@ figure
         lazy-loader-component(on-show="vm.onShow()")
             img(ng-src="{{vm.thumbnailPath}}" width="{{vm.width}}" height="{{vm.height}}" data-name="{{vm.image._name}}")
     figcaption {{vm.image._name}}
+
+    div.overlay-container
+        span.manip.group
+            trash-button(image="vm.image" directory="vm.directory")
