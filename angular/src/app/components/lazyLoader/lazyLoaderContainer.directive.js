@@ -36,7 +36,7 @@
         var vm = this;
         vm.childComponents = [];
         vm.addComponent = addComponent;
-        vm.showComponents = _.debounce(showComponents, 100);
+        vm.showComponents = _.throttle(showComponents, 300);
 
         function addComponent(childComponent) {
             vm.childComponents.push(childComponent);
