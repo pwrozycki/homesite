@@ -11,8 +11,16 @@ $thumbnailPadding: 10px;
 
     position: relative;
     .overlay-container {
-      .group i.fa {
-        @extend .fa-1x;
+      &:hover .group {
+        visibility: visible;
+      }
+
+      .group {
+        visibility: hidden;
+
+        i.fa {
+          @extend .fa-1x;
+        }
       }
 
       @include padding-between-button-and-groups(5px, 20px);
