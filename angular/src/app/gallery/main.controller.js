@@ -6,7 +6,7 @@
         .controller('MainController', MainController);
 
     /* @ngInject */
-    function MainController() {
+    function MainController(titleService) {
         var vm = this;
         vm.title = 'MainController';
 
@@ -15,6 +15,7 @@
         ////////////////
 
         function activate() {
+            titleService.setTitleForState('homeGallery');
         }
     }
 

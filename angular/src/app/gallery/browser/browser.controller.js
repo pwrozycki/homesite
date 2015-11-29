@@ -6,7 +6,7 @@
         .controller('BrowserController', BrowserController);
 
     /* @ngInject */
-    function BrowserController(directoryPromise, $window, $scope, $timeout) {
+    function BrowserController(directoryPromise, $window, $scope, $timeout, titleService) {
         var vm = this;
         vm.directory = directoryPromise;
 
@@ -16,6 +16,7 @@
 
         function activate() {
             $scope.$on('$stateChangeSuccess', scrollToImageOnPreviewExit);
+            titleService.setTitleForState('homeGallery - ' + (vm.directory.path ? vm.directory.path : "ROOT"));
         }
 
         function scrollToImageOnPreviewExit(event, toState, toParams, fromState, fromParams) {

@@ -6,7 +6,7 @@
         .controller('PreviewController', PreviewController);
 
     /* @ngInject */
-    function PreviewController(directoryPromise, imagePromise, fileService, preloaderService, $scope, $state, _) {
+    function PreviewController(directoryPromise, imagePromise, titleService, preloaderService, $scope, $state, _) {
         var vm = this;
         vm.title = 'PreviewController';
         vm.directory = directoryPromise;
@@ -24,11 +24,12 @@
         function activate() {
             createPreloader();
             setKeyBindings();
+            titleService.setTitleForState('homeGallery - ' + vm.image.path);
         }
 
         function createPreloader() {
-            var cancelPreloadNeighbours = preloaderService.preload(neighbouringImageUrls());
-            $scope.$on('$destroy', cancelPreloadNeighbours);
+            var deregisterPreload = preloaderService.preload(neighbouringImageUrls());
+            $scope.$on('$destroy', deregisterPreload);
         }
         
         function onImageMove() {
