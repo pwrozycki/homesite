@@ -23,7 +23,7 @@
         //////////
 
         function parentPaths(path) {
-            if (path === "") {
+            if (!path) {
                 return [];
             }
 

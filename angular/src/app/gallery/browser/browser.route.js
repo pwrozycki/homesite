@@ -19,10 +19,20 @@
     }
 
     /* @ngInject */
-    function resolveDirectory($stateParams, directoryService, pathsService) {
-        var mangled = $stateParams.directoryPath;
-        var encodedURIComponent = pathsService.unescapeSlashes(mangled);
-        return directoryService.resolveDirectory(decodeURIComponent(encodedURIComponent));
+    function resolveDirectory($stateParams, $state, directoryService, pathsService, $q) {
+        var pathFromUri = $stateParams.directoryPath;
+        var pathFromUriWithSlashes = pathsService.unescapeSlashes(pathFromUri);
+        var directoryPath = decodeURIComponent(pathFromUriWithSlashes);
+        return directoryService.resolveDirectory(directoryPath).then(goToMainStateIfNoDirectory);
+
+        function goToMainStateIfNoDirectory(directory) {
+            if (!directory) {
+                $state.transitionTo('main');
+                return $q.reject();
+            } else {
+                return directory;
+            }
+        }
     }
 
 })();

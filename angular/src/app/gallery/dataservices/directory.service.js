@@ -21,7 +21,9 @@
 
             return Restangular.one('directories', '').get(params).then(function (directoryJson) {
                 var directory = directoryJson.results[0];
-                extendFileInformation(directory);
+                if (directory) {
+                    extendFileInformation(directory);
+                }
                 return directory;
             });
         }

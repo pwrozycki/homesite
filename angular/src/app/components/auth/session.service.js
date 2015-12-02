@@ -6,7 +6,7 @@
         .factory('sessionService', sessionService);
 
     /* @ngInject */
-    function sessionService(Restangular, $q) {
+    function sessionService(Restangular, $q, $rootScope) {
         var Session = Restangular.all('session');
         var User = Restangular.all('users');
 
@@ -41,6 +41,7 @@
         function logout() {
             return Session.remove(1).then(function () {
                 session.username = null;
+                $rootScope.$broadcast('session:logout');
                 return session;
             });
         }
@@ -73,6 +74,7 @@
                 return User.get(userId);
             }).then(function (user) {
                 session.username = user.username;
+                $rootScope.$broadcast('session:login', session);
                 return session;
             }).catch(function () {
                 session.username = null;

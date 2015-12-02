@@ -6,7 +6,7 @@
         .controller('BrowserController', BrowserController);
 
     /* @ngInject */
-    function BrowserController(directoryPromise, $window, $scope, $timeout, titleService) {
+    function BrowserController(directoryPromise, $window, $scope, $timeout, $state, titleService) {
         var vm = this;
         vm.directory = directoryPromise;
 
@@ -16,6 +16,7 @@
 
         function activate() {
             $scope.$on('$stateChangeSuccess', scrollToImageOnPreviewExit);
+            $scope.$on('session:logout', leaveBrowserOnLogout);
             titleService.setTitleForState('homeGallery - ' + (vm.directory.path ? vm.directory.path : "ROOT"));
         }
 
@@ -26,6 +27,10 @@
                     scrollToImage(fromParams.imageName)
                 });
             }
+        }
+
+        function leaveBrowserOnLogout() {
+            $state.transitionTo('main');
         }
 
         function scrollToImage(imageName) {

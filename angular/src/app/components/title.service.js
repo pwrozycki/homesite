@@ -55,7 +55,7 @@
             var parentStates = [];
             var currentState = stateName;
 
-            while(currentState.indexOf('.') == -1) {
+            while(currentState.indexOf('.') != -1) {
                 var parentState = currentState.replace(/^(.*)\..*$/, '$1');
                 parentStates.push(parentState);
                 currentState = parentState;
