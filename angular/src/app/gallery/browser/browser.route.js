@@ -27,7 +27,7 @@
 
         function goToMainStateIfNoDirectory(directory) {
             if (!directory) {
-                $state.transitionTo('main');
+                $state.go('main');
                 return $q.reject();
             } else {
                 return directory;

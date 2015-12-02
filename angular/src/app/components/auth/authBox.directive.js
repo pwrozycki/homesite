@@ -24,6 +24,7 @@
 
         vm.user = {};
         vm.isAuthenticated = sessionService.isAuthenticated;
+        vm.getUsername = sessionService.getUsername;
         vm.login = login;
         vm.logout = logout;
 
@@ -32,27 +33,14 @@
         ////////////////
 
         function activate() {
-            setLoggedUser();
         }
 
         function login() {
-            sessionService.login(vm.user).then(setLoggedUser);
+            sessionService.login(vm.user);
         }
 
         function logout() {
-            sessionService.logout().then(function () {
-                delete vm.user.login;
-                delete vm.user.password;
-            });
-        }
-
-        function setLoggedUser() {
-            if (sessionService.isAuthenticated()) {
-                vm.user.login = sessionService.getUsername();
-            } else {
-                delete vm.user.login;
-            }
-            delete vm.user.password;
+            sessionService.logout();
         }
     }
 })();

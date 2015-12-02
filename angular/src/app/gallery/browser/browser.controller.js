@@ -30,7 +30,7 @@
         }
 
         function leaveBrowserOnLogout() {
-            $state.transitionTo('main');
+            $state.go('main');
         }
 
         function scrollToImage(imageName) {
