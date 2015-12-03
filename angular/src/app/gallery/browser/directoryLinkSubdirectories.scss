@@ -1,0 +1,12 @@
+directory-link {
+  directory-link-subdirectories {
+    display: none;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    padding: 2px 4px;
+
+    background-color: lighten(lightgrey, 5%);
+  }
+}

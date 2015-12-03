@@ -8,14 +8,14 @@
     /* @ngInject */
     function directoryService(Restangular, pathsService, collectionPathsService) {
         var service = {
-            resolveDirectory: resolveDirectory
+            getDirectory: getDirectory
         };
 
         return service;
 
         //////////
 
-        function resolveDirectory(directoryPath) {
+        function getDirectory(directoryPath) {
             var pathParam = directoryPath;
             var params = !pathParam ? {root: 'true'} : {path: pathParam};
 

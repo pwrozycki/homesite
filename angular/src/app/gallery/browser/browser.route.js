@@ -23,7 +23,7 @@
         var pathFromUri = $stateParams.directoryPath;
         var pathFromUriWithSlashes = pathsService.unescapeSlashes(pathFromUri);
         var directoryPath = decodeURIComponent(pathFromUriWithSlashes);
-        return directoryService.resolveDirectory(directoryPath).then(goToMainStateIfNoDirectory);
+        return directoryService.getDirectory(directoryPath).then(goToMainStateIfNoDirectory);
 
         function goToMainStateIfNoDirectory(directory) {
             if (!directory) {
