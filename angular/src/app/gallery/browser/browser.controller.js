@@ -15,17 +15,20 @@
         ////////////////
 
         function activate() {
-            $scope.$on('$stateChangeSuccess', scrollToImageOnPreviewExit);
+            $scope.$on('$stateChangeSuccess', setScrollPosition);
             $scope.$on('session:logout', leaveBrowserOnLogout);
             titleService.setTitleForState('homeGallery - ' + (vm.directory.path ? vm.directory.path : "ROOT"));
         }
 
-        function scrollToImageOnPreviewExit(event, toState, toParams, fromState, fromParams) {
-            var returnFromPreview = toState.name === 'main.browser' && fromState.name === 'main.browser.preview';
-            if (returnFromPreview) {
-                $timeout(function () {
-                    scrollToImage(fromParams.imageName)
-                });
+        function setScrollPosition(event, toState, toParams, fromState, fromParams) {
+            if (toState.name === 'main.browser') {
+                if (fromState.name === 'main.browser.preview') {
+                    $timeout(function () {
+                        scrollToImage(fromParams.imageName)
+                    });
+                } else {
+                    angular.element($window).scrollTop(0);
+                }
             }
         }
 
