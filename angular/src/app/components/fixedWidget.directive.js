@@ -12,11 +12,13 @@
         };
         return directive;
 
-        function link(scope, element, attrs) {
+        function link(scope, element) {
             var elementTop = element.offset().top;
 
-            scope.$on('$destroy',
-                $document.on('scroll', detectElementVisibilityChange));
+            $document.on('scroll', detectElementVisibilityChange)
+            scope.$on('$destroy', function () {
+                $document.off('scroll', detectElementVisibilityChange);
+            });
 
             function detectElementVisibilityChange() {
                 var scrollTop = angular.element($window).scrollTop();
