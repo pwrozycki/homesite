@@ -1,0 +1,2 @@
+span(ng-class="{ strikethrough: vm.reverted }") Image {{vm.image.path}} has been removed
+a(ng-if="!vm.reverted" ng-click="vm.dirty || vm.undoAction(vm)")  undo

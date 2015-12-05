@@ -1,0 +1,32 @@
+notifications-container {
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+
+  notification-element {
+    @extend .text-center;
+
+    position: absolute;
+
+    bottom: 0;
+    right: 0;
+
+    clear: both;
+    visibility: visible;
+
+    display: block;
+    padding: 10px 10px;
+    margin: 5px 5px;
+    background-color: rosybrown;
+
+    opacity: 0.9;
+    border: solid 1px black;
+    border-radius: 3px;
+    width: 200px;
+  }
+}
+
