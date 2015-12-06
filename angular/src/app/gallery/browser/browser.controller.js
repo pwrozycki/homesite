@@ -16,15 +16,25 @@
 
         function activate() {
             $scope.$on('$stateChangeSuccess', setScrollPosition);
-            $scope.$on('$stateChangeSuccess', invokeLazyLoader);
             $scope.$on('session:logout', leaveBrowserOnLogout);
+            $scope.$on('$stateChangeSuccess', invokeLazyLoaderOnBrowserEnter);
+            $scope.$watch('browser.directory._images.length', invokeLazyLoaderOnImageListChange);
+
             titleService.setTitleForState('homeGallery - ' + (vm.directory.path ? vm.directory.path : "ROOT"));
         }
 
-        function invokeLazyLoader(event, toState) {
+        function invokeLazyLoaderOnImageListChange() {
+            invokeLazyLoader();
+        }
+
+        function invokeLazyLoaderOnBrowserEnter(event, toState) {
             if (toState.name === 'main.browser') {
-                $scope.$broadcast('lazyloader:invokeShowComponents');
+                invokeLazyLoader();
             }
+        }
+
+        function invokeLazyLoader() {
+            $scope.$broadcast('lazyloader:invokeShowComponents');
         }
 
         function setScrollPosition(event, toState, toParams, fromState, fromParams) {
