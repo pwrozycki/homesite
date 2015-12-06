@@ -12,6 +12,7 @@
             link: link,
             restrict: 'E',
             scope: {
+                sortingKey: '=',
                 show: '&onShow'
             }
         };
@@ -20,6 +21,7 @@
 
         function link(scope, element, attrs, containerCtrl) {
             containerCtrl.addComponent({
+                sortingKey: scope.sortingKey,
                 element: angular.element(element),
                 onShow: scope.show
             });

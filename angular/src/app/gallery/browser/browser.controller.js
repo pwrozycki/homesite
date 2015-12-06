@@ -24,7 +24,9 @@
         }
 
         function invokeLazyLoaderOnImageListChange() {
-            invokeLazyLoader();
+            if ($state.is('main.browser')) {
+                invokeLazyLoader();
+            }
         }
 
         function invokeLazyLoaderOnBrowserEnter(event, toState) {
