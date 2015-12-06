@@ -59,7 +59,7 @@
             function calculateNewPositions() {
                 var bottom = 0;
 
-                notificationElements.forEach(function(element, index) {
+                notificationElements.forEach(function(element) {
                     element.css('bottom', bottom);
                     bottom += element.outerHeight(true);
                 });

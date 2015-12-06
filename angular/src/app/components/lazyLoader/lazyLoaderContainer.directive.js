@@ -24,10 +24,12 @@
             ['scroll', 'resize'].forEach(function (eventName) {
                 jqWindow.on(eventName, controller.showComponents);
 
-                element.on('$destroy', function () {
+                scope.$on('$destroy', function () {
                     jqWindow.off(eventName, controller.showComponents);
                 });
             });
+
+            scope.$on('lazyloader:invokeShowComponents', controller.showComponents);
         }
     }
 

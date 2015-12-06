@@ -16,8 +16,15 @@
 
         function activate() {
             $scope.$on('$stateChangeSuccess', setScrollPosition);
+            $scope.$on('$stateChangeSuccess', invokeLazyLoader);
             $scope.$on('session:logout', leaveBrowserOnLogout);
             titleService.setTitleForState('homeGallery - ' + (vm.directory.path ? vm.directory.path : "ROOT"));
+        }
+
+        function invokeLazyLoader(event, toState) {
+            if (toState.name === 'main.browser') {
+                $scope.$broadcast('lazyloader:invokeShowComponents');
+            }
         }
 
         function setScrollPosition(event, toState, toParams, fromState, fromParams) {
