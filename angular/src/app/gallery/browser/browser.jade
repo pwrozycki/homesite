@@ -1,5 +1,6 @@
 div(ng-hide="'main.browser.preview' | isState")
-    directory-path(fixed-widget path="browser.directory.path")
+    fixed-widget
+        directory-path(path="browser.directory.path")
 
     div(ng-repeat="subdir in browser.directory.subdirectories").directory-listing
         ul.list-unstyled

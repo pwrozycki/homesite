@@ -8,7 +8,10 @@
     /* @ngInject */
     function fixedWidget($window, $document) {
         var directive = {
-            link: link
+            link: link,
+            transclude: true,
+            restrict: 'E',
+            template: "<div ng-transclude></div>"
         };
         return directive;
 
@@ -23,9 +26,11 @@
             function detectElementVisibilityChange() {
                 var scrollTop = angular.element($window).scrollTop();
                 if (scrollTop > elementTop) {
-                    element.addClass("fixed-widget-fixed");
+                    element.addClass("floating");
+                    element.css('height', element.contents().outerHeight());
                 } else {
-                    element.removeClass("fixed-widget-fixed");
+                    element.removeClass("floating");
+                    element.css('height', null);
                 }
             }
         }

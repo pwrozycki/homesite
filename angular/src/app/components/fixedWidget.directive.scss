@@ -1,6 +1,10 @@
-.fixed-widget-fixed {
-  position: fixed;
-  top: 0;
-  z-index: 2;
-  background-color: lightgray;
+fixed-widget {
+  display: block;
+
+  &.floating > div {
+    position: fixed;
+    top: 0;
+    z-index: 2;
+    background-color: lightgray;
+  }
 }
