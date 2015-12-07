@@ -1,0 +1,5 @@
+a(download="{{vm.image._name}}" ng-href="{{vm.image._originalJpegPath}}")
+    i.fa.fa-download
+a(ng-if="vm.image.raw_filename" download="{{vm.image.raw_filename}}" ng-href="{{vm.image._rawPath}}")
+    i.fa.fa-download
+    i.download-text R

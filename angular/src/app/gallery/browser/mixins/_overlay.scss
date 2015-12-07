@@ -9,11 +9,13 @@
 
 @mixin padding-between-button-and-groups($paddingBetweenButtons, $paddingBetweenButtonGroups) {
   span.group:not(:nth-last-of-type(1)) {
-    >*:not(:nth-last-of-type(1)) {
+    padding-right: $paddingBetweenButtonGroups;
+  }
+
+  span {
+    a:not(:nth-last-of-type(1)) {
       padding-right: $paddingBetweenButtons;
     }
-
-    padding-right: $paddingBetweenButtonGroups;
   }
 }
 
@@ -24,6 +26,15 @@
   position: absolute;
   top: 0;
   z-index: 1;
+
+  .download {
+    i.download-text {
+      position: absolute;
+      margin-top: 0em;
+      margin-left: -0.4em;
+      font-size: 0.7em;
+    }
+  }
 
   .navigations i {
     @include color-darken-on-hover(green);
@@ -36,4 +47,6 @@
   .download {
     @include color-darken-on-hover(royalblue);
   }
+
+  @include padding-between-button-and-groups(8px, 25px);
 }

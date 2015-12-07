@@ -9,11 +9,7 @@ div.preview-container.not-selectable
                 i.fa.fa-arrow-right
 
         span.download.group
-            a(download="{{preview.image._name}}" ng-href="{{preview.image._originalJpegPath}}")
-                i.fa.fa-download
-            a(ng-if="preview.image.raw_filename" download="{{preview.image.raw_filename}}" ng-href="{{preview.image._rawPath}}")
-                i.fa.fa-download
-                i.download-text R
+            download-buttons(image="preview.image")
 
         span.manip.group
             trash-button(image="preview.image" directory="preview.directory" on-move="preview.onImageMove()")

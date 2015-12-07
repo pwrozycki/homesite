@@ -25,17 +25,6 @@ $bootstrapContainerFluidMargin: 15px;
     .group i.fa {
       @extend .fa-2x;
     }
-
-    .download {
-      i.download-text {
-        position: absolute;
-        margin-top: 0em;
-        margin-left: -0.4em;
-        font-size: 0.7em;
-      }
-    }
-
-    @include padding-between-button-and-groups(5px, 20px);
   }
 
 }
