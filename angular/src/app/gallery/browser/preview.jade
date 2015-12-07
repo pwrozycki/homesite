@@ -1,5 +1,8 @@
 div.preview-container.not-selectable
     div.overlay-container
+        span.slideshow.group
+            slideshow-button(on-next="preview.nextImage()")
+
         span.navigations.group
             a(href="javascript:void(0)" ng-click="preview.previousImage()")
                 i.fa.fa-arrow-left
@@ -13,7 +16,6 @@ div.preview-container.not-selectable
 
         span.manip.group
             trash-button(image="preview.image" directory="preview.directory" on-move="preview.onImageMove()")
-
 
 
     img(ng-src="{{preview.image._previewPath}}")

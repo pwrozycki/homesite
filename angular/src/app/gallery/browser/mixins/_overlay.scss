@@ -36,6 +36,10 @@
     }
   }
 
+  .slideshow i {
+    @include color-darken-on-hover(green);
+  }
+
   .navigations i {
     @include color-darken-on-hover(green);
   }
