@@ -6,7 +6,7 @@
         .directive('fixedWidget', fixedWidget);
 
     /* @ngInject */
-    function fixedWidget($window, $document) {
+    function fixedWidget($window, $document, _) {
         var directive = {
             link: link,
             transclude: true,
@@ -16,19 +16,26 @@
         return directive;
 
         function link(scope, element) {
-            var elementTop = element.offset().top;
+            var detectElementVisibilityChangeThrottled = _.throttle(detectElementVisibilityChange, 100);
+            var floating = false;
 
-            $document.on('scroll', detectElementVisibilityChange)
+            $document.on('scroll', detectElementVisibilityChangeThrottled);
             scope.$on('$destroy', function () {
-                $document.off('scroll', detectElementVisibilityChange);
+                $document.off('scroll', detectElementVisibilityChangeThrottled);
             });
 
             function detectElementVisibilityChange() {
+                var elementTop = element.offset().top;
                 var scrollTop = angular.element($window).scrollTop();
-                if (scrollTop > elementTop) {
+                var shouldFloat = scrollTop > elementTop;
+
+                if (shouldFloat && !floating) {
+                    floating = true;
                     element.addClass("floating");
                     element.css('height', element.contents().outerHeight());
-                } else {
+
+                } else if (!shouldFloat && floating) {
+                    floating = false;
                     element.removeClass("floating");
                     element.css('height', null);
                 }
