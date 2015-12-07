@@ -8,33 +8,33 @@ $thumbnailPadding: 10px;
   figure {
     @extend .pull-left;
     margin-left: $thumbnailPadding;
-
     position: relative;
+
     .overlay-container {
-      &:hover .group {
-        visibility: visible;
-      }
-
       .group {
-        visibility: hidden;
-
         i.fa {
           @extend .fa-1x;
         }
+
+        visibility: hidden;
       }
 
-      @include padding-between-button-and-groups(5px, 20px);
+      &:hover .group {
+        visibility: visible;
+      }
     }
 
-    figcaption {
-      @extend .small, .text-center;
-    }
-
-    video, img {
-      @extend .center-block;
-    }
-
+    @include padding-between-button-and-groups(5px, 20px);
   }
+
+  figcaption {
+    @extend .small, .text-center;
+  }
+
+  video, img {
+    @extend .center-block;
+  }
+
 }
 
 directory-path {
