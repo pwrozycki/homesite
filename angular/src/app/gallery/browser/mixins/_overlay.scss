@@ -1,7 +1,15 @@
 
 @mixin color-darken-on-hover($color, $lightenFactorOnHover: 10%) {
   color: $color;
-  &:hover {
+
+  &[disabled] {
+    color: desaturate($color, 70%);
+    &:hover {
+      cursor: not-allowed;
+    }
+  }
+
+  &:not([disabled]):hover {
     text-decoration: none;
     color: darken($color, $lightenFactorOnHover);
   }
@@ -36,19 +44,19 @@
     }
   }
 
-  .slideshow i {
+  .slideshow a {
     @include color-darken-on-hover(green);
   }
 
-  .navigations i {
+  .navigations a {
     @include color-darken-on-hover(green);
   }
 
-  .manip i {
+  .manip a {
     @include color-darken-on-hover(indianred);
   }
 
-  .download {
+  .download a {
     @include color-darken-on-hover(royalblue);
   }
 
