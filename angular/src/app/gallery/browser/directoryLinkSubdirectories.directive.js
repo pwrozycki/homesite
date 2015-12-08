@@ -32,6 +32,9 @@
             scope.$on('$destroy', function() {
                 jqParentDirectoryLink.off('mouseenter', directoryLinkEnter);
                 jqParentDirectoryLink.off('mouseleave', directoryLinkLeave);
+                if (showTimeout) {
+                    $timeout.cancel(showTimeout);
+                }
             });
 
             function directoryLinkEnter() {
