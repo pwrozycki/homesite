@@ -1,7 +1,7 @@
 figure
-    a(ui-sref=".preview({imageName: vm.image._name})")
+    a(ui-sref=".preview({imageName:     vm.image._name})")
         lazy-loader-component(sorting-key="::vm.image._name" on-show="vm.onShow()")
-            img(ng-src="{{vm.thumbnailPath}}" width="{{::vm.width}}" height="{{::vm.height}}" data-name="{{::vm.image._name}}")
+            img(ng-src="{{::vm.thumbnailPath}}" width="{{::vm.width}}" height="{{::vm.height}}" data-name="{{::vm.image._name}}")
     figcaption {{::vm.image._name}}
 
     div.overlay-container

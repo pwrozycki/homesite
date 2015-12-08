@@ -8,15 +8,15 @@ div(ng-hide="'main.browser.preview' | isState")
 
     lazy-loader-container
         div(ng-repeat="image in browser.directory._images" ).thumbnails
-            image-thumbnail(image="image" directory="browser.directory" height=200)
+            image-thumbnail(image="::image" directory="::browser.directory" height=200)
 
     span.clearfix
 
     div(ng-repeat="video in browser.directory._videos").thumbnails
         figure
-            video(controls preload="none" fullscreen-on-dblclick bind-poster="{{video._posterPath}}" height="200")
-                source(ng-src="{{video._transcodedPath}}" type="video/mp4")
-            figcaption {{video._name}}
+            video(controls preload="none" fullscreen-on-dblclick bind-poster="{{::video._posterPath}}" height="200")
+                source(ng-src="{{::video._transcodedPath}}" type="video/mp4")
+            figcaption {{::video._name}}
 
     span.clearfix
 

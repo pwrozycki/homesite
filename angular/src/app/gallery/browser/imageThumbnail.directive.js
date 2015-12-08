@@ -26,7 +26,6 @@
     function ImageThumbnailController($state) {
         var vm = this;
 
-        vm.thumbnailPath = null;
         vm.width = vm.height * vm.image.aspect_ratio;
         vm.onShow = show;
 
