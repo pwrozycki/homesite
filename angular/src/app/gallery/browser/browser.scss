@@ -11,6 +11,10 @@ $thumbnailPadding: 10px;
     position: relative;
 
     .overlay-container {
+      render-on-hover {
+        min-height: 20px;
+      }
+
       .group {
         i.fa {
           @extend .fa-1x;
