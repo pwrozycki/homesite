@@ -9,3 +9,4 @@ rest_framework_ember
 pytz
 tzlocal
 django-redis
+mysqlclient
