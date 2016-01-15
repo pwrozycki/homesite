@@ -13,7 +13,7 @@ class ImageGroup(models.Model):
 
 class Directory(models.Model):
     shared = models.BooleanField(default=False)
-    path = models.CharField(max_length=1000, unique=True, db_index=True)
+    path = models.CharField(max_length=255, unique=True, db_index=True)
     modification_time = models.DateTimeField(null=True)
     parent = models.ForeignKey('self', related_name='subdirectories', null=True, db_index=True)
 
