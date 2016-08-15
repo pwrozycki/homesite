@@ -10,7 +10,9 @@ from gallery.models import Directory
 logger = logging.getLogger(__name__)
 
 def get_mtime_datetime(path):
-    return localized_time(datetime.datetime.fromtimestamp(os.path.getmtime(path)))
+    mtime = datetime.datetime.fromtimestamp(os.path.getmtime(path))
+    mtime_with_second_resolution = mtime.replace(microsecond=0)
+    return localized_time(mtime_with_second_resolution)
 
 
 def move_without_overwriting(src, dst, create_destination_dir=False):

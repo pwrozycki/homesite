@@ -102,7 +102,8 @@ class Indexer:
         if file_object.modification_time != mtime:
             logger.info("updating file mtime (and possibly: aspect_ratio): " + file_object.path)
             file_object.modification_time = mtime
-            file_object.aspect_ratio = cls.get_image_aspect_ratio(file_phys_path)
+            if is_jpeg(file_phys_path):
+                file_object.aspect_ratio = cls.get_image_aspect_ratio(file_phys_path)
             file_object.save()
 
     @classmethod
