@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 import tzlocal
 
-from common.collectionutils.thumbnailer import TIMESTAMP_FORMAT
+from common.collectionutils.generators import TIMESTAMP_FORMAT
 from gallery.caching import DirectoryJSONCachingStrategy
 from gallery.models import Image, Directory, ImageGroup, Video
 

@@ -1,11 +1,11 @@
 pymediainfo
 lxml
 beautifulsoup4
-Django==1.7
-djangorestframework
+Django==1.8
+djangorestframework==3.1.1
 django-typed-models
 django-filter
-rest_framework_ember
+rest_framework_ember==1.2.0
 pytz
 tzlocal
 django-redis

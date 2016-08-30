@@ -6,6 +6,8 @@ import traceback
 
 import django
 
+from common.collectionutils.linker import Linker
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
 from common.collectionutils.rotator import Rotator
@@ -47,6 +49,7 @@ class Runner:
 
         Rotator.perform_requested_rotations()
         TrashCleaner.remove_old_trash_files()
+        Linker.create_links()
 
         indexer = Indexer()
         for (root, dirs, files) in collection_walk():

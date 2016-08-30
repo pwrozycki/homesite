@@ -45,4 +45,4 @@ class Image(File):
 
 
 class Video(File):
-    pass
+    substitute_original = models.NullBooleanField(default=False)

@@ -21,7 +21,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from common.collectionutils.misc import localized_time
-from common.collectionutils.thumbnailer import MINIATURE_GENERATORS
+from common.collectionutils.generators import MINIATURE_GENERATORS
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory, get_mtime_datetime
 from gallery.locations import normpath_join, collection_phys_path, COLLECTION_WEB_ROOT, VIDEOS_WEB_ROOT, \
