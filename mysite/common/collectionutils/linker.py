@@ -19,7 +19,7 @@ class Linker(object):
     """
     @classmethod
     def create_links(cls):
-        for f in Video.objects.filter(substitute_original=True):
+        for f in Video.objects.filter(substitute_original=True).order_by('directory__path', 'name'):
             cls._create_links(f)
 
     @staticmethod
@@ -31,11 +31,12 @@ class Linker(object):
         miniature_phys_path = video_generator.miniature_phys_path(original_phys_path)
         if not os.path.exists(miniature_phys_path):
             logger.warn("Miniature doesn't exist, skipping: {}".format(miniature_phys_path))
-            logger.warn("Miniature doesn't exist, skipping: {}".format(miniature_phys_path))
             return
 
         if os.path.islink(miniature_phys_path):
             logger.warn("Miniature is already symbolic link, skipping: {}".format(miniature_phys_path))
+            file.substitute_original = False
+            file.save()
             return
 
         logger.info("Swapping original with miniature: {}".format(original_phys_path))
@@ -58,6 +59,7 @@ class Linker(object):
     def _update_file_information(file, new_original_phys_path):
         file.name = os.path.basename(new_original_phys_path)
         file.modification_time = get_mtime_datetime(new_original_phys_path)
+        file.substitute_original = False
         file.save()
 
     @staticmethod
