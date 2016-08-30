@@ -14,7 +14,7 @@
             templateUrl: "app/gallery/browser/directoryLink.directive.html",
             scope: {
                 path: '=',
-                showIcon: '=',
+                showIcon: '&',
                 name: '='
             }
         };

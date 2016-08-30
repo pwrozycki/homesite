@@ -41,7 +41,7 @@
         vm.showComponents = _.throttle(showComponents, 100);
 
         function addComponent(childComponent) {
-            var sortedIndex = _.sortedIndex(vm.childComponents, childComponent, "sortingKey");
+            var sortedIndex = _.sortedIndexBy(vm.childComponents, childComponent, "sortingKey");
             vm.childComponents.splice(sortedIndex, 0, childComponent);
 
             vm.showComponents();

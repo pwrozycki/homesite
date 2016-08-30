@@ -17,7 +17,7 @@ $thumbnailPadding: 10px;
 
       .group {
         i.fa {
-          @extend .fa-1x;
+          @extend .fa-lg;
         }
 
         visibility: hidden;

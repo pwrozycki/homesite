@@ -1,5 +1,5 @@
 a(ui-sref='^.browser({directoryPath:vm.mangledPath})')
-    span(ng-show="vm.showIcon").glyphicon.glyphicon-folder-close
+    span(ng-show="vm.showIcon()").glyphicon.glyphicon-folder-close
     |  {{vm.displayName}}
 
 directory-link-subdirectories(path='vm.path')
