@@ -317,14 +317,14 @@ class ImageGroupView(APIView):
             # (excluding the ones rooted in Trash)
             where=['''
                 (select count(distinct(gd.id))
-                from gallery_image gi
+                from gallery_file gi
                 join gallery_directory gd         on gi.directory_id = gd.id
                 where gallery_imagegroup.id = gi.image_group_id and
-                      not (gd.path  like 'Trash/%' or gd.path = 'Trash')) > 1
+                      not (gd.path  like 'Trash/%%' or gd.path = 'Trash')) > 1
             ''']
         ).filter(images__directory__pk=directory_id)
 
-        if image_groups:
+        if image_groups.count():
             return Response(ImageGroupSerializer(image_groups.all(), many=True).data)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
