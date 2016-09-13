@@ -1,10 +1,11 @@
+import logging
 import os
 import re
 import subprocess
 import sys
 from abc import ABCMeta, abstractmethod
+from contextlib import suppress
 
-import logging
 import tzlocal
 from pymediainfo import MediaInfo
 
@@ -90,14 +91,26 @@ class VideoGenerator(GeneratorBase):
         return rotation_arg
 
     def generate_miniature(self, input_path, output_path):
+        logger.info("creating video: {}".format(output_path))
+
+        transformation = ["-vf", self._rotation_arg(input_path), '-c:v', 'libx264', '-crf', '22',
+                          '-pix_fmt', 'yuv420p', '-y', '-threads', '4', '-metadata:s:v:0', 'rotate=0']
+
+        self._call_ffmpeg(transformation, input_path, output_path)
+
+    def _call_ffmpeg(self, ffmpeg_transformation, input_path, output_path):
+        (output_path_without_extension, extension) = os.path.splitext(output_path)
+        tmp_output_path = output_path_without_extension + "_tmp" + extension
+
         with open(os.devnull, 'w') as null:
-            logger.info("creating video: {}".format(output_path))
-            splitext = os.path.splitext(output_path)
-            tmp_output_path = splitext[0] + "_tmp" + splitext[1]
-            rotation_arg = "rotate={}/180*PI".format(self._get_rotation(input_path))
-            subprocess.call(['ffmpeg', '-i', input_path, "-vf", self._rotation_arg(input_path),
-                             '-c:v', 'libx264', '-crf', '22', '-pix_fmt', 'yuv420p', '-y', '-threads', '4',
-                             '-metadata:s:v:0', 'rotate=0', tmp_output_path], stdout=null, stderr=null)
+            ffmpeg_args = ['ffmpeg', '-i', input_path] + ffmpeg_transformation + [tmp_output_path]
+            return_code = subprocess.call(ffmpeg_args, stdout=null, stderr=null)
+
+        if return_code != 0:
+            logging.error("ffmpeg returned non-zero return code: {}".format(return_code))
+            with suppress(OSError):
+                os.unlink(tmp_output_path)
+        else:
             os.rename(tmp_output_path, output_path)
 
 
@@ -106,13 +119,14 @@ class FirstFrameGenerator(VideoGenerator):
         return '.jpg'
 
     def generate_miniature(self, input_path, output_path):
-        rotation = self._get_rotation(input_path)
         with open(os.devnull, 'w') as null:
             logger.info("creating video shot: {}".format(output_path))
-            # scale to 320x240 but keep aspect ratio (fit in box)
-            subprocess.call(['ffmpeg', '-i', input_path, '-vf', self._rotation_arg(input_path) +
-                             ',scale=iw*min(320/iw\,240/ih):ih*min(320/iw\,240/ih)',
-                             '-vframes', '1', '-f', 'image2', '-y', output_path], stdout=null, stderr=null)
+
+            rotation = self._rotation_arg(input_path)
+            transformation = ['-vf', rotation + ',scale=iw*min(320/iw\,240/ih):ih*min(320/iw\,240/ih)',
+                              '-vframes', '1', '-f', 'image2', '-y']
+
+            self._call_ffmpeg(transformation, input_path, output_path)
 
 
 class ThumbnailGenerator(GeneratorBase):
