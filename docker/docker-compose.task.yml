@@ -1,0 +1,46 @@
+version: "2"
+
+services:
+  build_angular:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile-build_angular
+      args:
+        - WWWUSER=${WWWUSER}
+        - WWWUSERID=${WWWUSERID}
+    volumes:
+      - angular:/angular_output
+    env_file:
+      - .env
+    command: sh -c "rm -rf /angular_output/dist && cp -av /angular/dist /angular_output"
+
+  build_ember:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile-build_ember
+      args:
+        - WWWUSER=${WWWUSER}
+        - WWWUSERID=${WWWUSERID}
+    volumes:
+      - ember:/ember_output
+    env_file:
+      - .env
+    command: sh -c "rm -rf /ember_output/dist && cp -av /ember-cli/dist /ember_output"
+
+  init_django_db:
+    image: docker_uwsgi
+    volumes:
+      - ./scripts/init_django_db.sh:/init_django_db.sh
+    env_file:
+      - .env
+    command: sh /init_django_db.sh
+
+  homesite_runner:
+    image: docker_uwsgi
+    volumes:
+      - $COLLECTIONPATH:/collection
+    env_file:
+      - .env
+    user:
+      ${WWWUSER}
+    command: sh -c ". /uwsgi/bin/activate && cd /mysite; PYTHONPATH=. python common/collectionutils/runner.py"

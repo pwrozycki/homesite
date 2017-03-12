@@ -1,0 +1,52 @@
+FROM armv7/armhf-ubuntu
+
+COPY docker/bin/qemu-arm-static /usr/bin/qemu-arm-static
+
+RUN apt-get update && \
+    apt-get install -y python3 \
+                       virtualenv \
+                       uwsgi \
+                       uwsgi-plugin-python3 \
+                       libxml2-dev \
+                       libxslt-dev \
+                       zlib1g-dev \
+                       python3-dev \
+                       libpq-dev \
+                       python-pyexiv2 \
+                       python-gobject \
+                       python3-gi \
+                       gir1.2-gexiv2-0.10 \
+                       libmediainfo0v5 \
+                       libjpeg-progs \
+                       imagemagick \
+                       ffmpeg \
+                       postgresql-client \
+                       gcc \
+                       patch
+
+RUN virtualenv --python /usr/bin/python3 /uwsgi
+
+COPY mysite/requirements.txt /
+
+RUN . /uwsgi/bin/activate && \
+    pip install -r /requirements.txt
+
+ARG WWWUSER
+ARG WWWUSERID
+RUN useradd -m $WWWUSER -u $WWWUSERID
+
+COPY mysite /mysite
+COPY docker/config/uwsgi.ini /
+COPY docker/patch/rest_framework_ember_utils.patch /
+
+RUN mkdir /sockets && \
+    chown $WWWUSER: -R /mysite /sockets
+
+RUN ln -s /usr/lib/python3/dist-packages/gi/ /uwsgi/lib/python3.5/ && \
+    patch /uwsgi/lib/python3.5/site-packages/rest_framework_ember/utils.py /rest_framework_ember_utils.patch
+
+RUN locale-gen pl_PL.UTF-8 && \
+    dpkg-reconfigure --frontend=noninteractive locales
+
+CMD . /uwsgi/bin/activate && \
+    uwsgi --ini /uwsgi.ini --uid $WWWUSER --lock-engine ipcsem

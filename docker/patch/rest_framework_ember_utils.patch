@@ -1,0 +1,24 @@
+Index: ../../.WebStorm2016.1/config/scratches/buffer2
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- ../../.WebStorm2016.1/config/scratches/buffer2	(revision )
++++ ../../.WebStorm2016.1/config/scratches/buffer2	(revision )
+@@ -1,6 +1,7 @@
+ import inflection
+ 
+ from django.conf import settings
++from django.utils import six
+ 
+ 
+ def get_resource_name(view):
+@@ -26,7 +27,7 @@
+                 except AttributeError:
+                     resource_name = view.__class__.__name__
+ 
+-    if isinstance(resource_name, basestring):
++    if isinstance(resource_name, six.string_types):
+         return inflection.camelize(resource_name, False)
+ 
+     return resource_name

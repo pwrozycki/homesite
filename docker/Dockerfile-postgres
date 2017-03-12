@@ -1,0 +1,12 @@
+FROM armhf/alpine
+
+COPY docker/bin/qemu-arm-static /usr/bin/qemu-arm-static
+
+RUN apk add --no-cache postgresql su-exec
+
+ARG PGDATA
+
+COPY docker/scripts/init_postgres_db.sh /
+COPY docker/config/pg_hba.conf /pg_hba.conf
+
+CMD sh /init_postgres_db.sh

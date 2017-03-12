@@ -1,0 +1,29 @@
+FROM armhf/alpine
+
+COPY docker/bin/qemu-arm-static /usr/bin/qemu-arm-static
+
+RUN apk add --no-cache nodejs \
+                       su-exec \
+                       git \
+                       python \
+                       build-base
+
+COPY docker/bin/phantomjs-2.1.1-alpine-arm.tar.xz /phantomjs-tar.xz
+RUN tar xJf /phantomjs-tar.xz -C /tmp && \
+    mv /tmp/phantomjs/phantomjs /usr/bin/phantomjs && \
+    mv /tmp/phantomjs/lib/* /lib/
+
+ARG WWWUSER
+ARG WWWUSERID
+RUN adduser $WWWUSER -u $WWWUSERID -D -h /home/$WWWUSER
+
+COPY angular/ /angular
+WORKDIR /angular
+
+RUN chown -R $WWWUSER: /angular && \
+    su-exec $WWWUSER npm install && \
+    su-exec $WWWUSER npm install bower && \
+    su-exec $WWWUSER ./node_modules/.bin/bower install && \
+    su-exec $WWWUSER ./node_modules/.bin/gulp build
+
+CMD /bin/true

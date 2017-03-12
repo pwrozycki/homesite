@@ -1,0 +1,9 @@
+FROM armhf/alpine
+
+COPY docker/bin/qemu-arm-static /usr/bin/qemu-arm-static
+
+RUN apk add --no-cache redis su-exec
+
+COPY docker/config/redis.conf /etc/redis.conf
+
+CMD su-exec redis redis-server /etc/redis.conf

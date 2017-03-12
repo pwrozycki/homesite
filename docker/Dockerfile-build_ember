@@ -1,0 +1,24 @@
+FROM armhf/alpine
+
+COPY docker/bin/qemu-arm-static /usr/bin/qemu-arm-static
+
+RUN apk add --no-cache nodejs \
+                       su-exec \
+                       git \
+                       python \
+                       build-base
+
+ARG WWWUSER
+ARG WWWUSERID
+RUN adduser $WWWUSER -u $WWWUSERID -D -h /home/$WWWUSER
+
+COPY ember-cli/ /ember-cli
+WORKDIR /ember-cli
+
+RUN chown -R $WWWUSER: /ember-cli && \
+    su-exec $WWWUSER npm install npm@2 && \
+    su-exec $WWWUSER ./node_modules/.bin/npm install && \
+    su-exec $WWWUSER ./node_modules/.bin/bower install && \
+    su-exec $WWWUSER ./node_modules/.bin/ember build -prod
+
+CMD /bin/true

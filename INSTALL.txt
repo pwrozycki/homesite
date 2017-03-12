@@ -39,3 +39,14 @@ Setup mysite:
 Fix rest_framework_ember for python 3.4:
    /mnt/dysk/homesite/virtualenvs/uwsgi/lib/python3.4/site-packages/rest_framework_ember/utils.py - swap basestring to django.utils.six.string_types
 
+
+NEW docker-compose procedure:
+
+- spin up containers: uwsgi, nginx, postgres, redis
+    docker-compose -f docker-compose.yml up
+
+- prepare mysite database,
+    docker-compose -f docker-compose.yml -f docker-compose.task.yml up init_django_db
+
+- build angular and ember-cli applications:
+    docker-compose -f docker-compose.yml -f docker-compose.task.yml up build_angular build_ember

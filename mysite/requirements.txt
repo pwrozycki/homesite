@@ -9,4 +9,4 @@ rest_framework_ember==1.2.0
 pytz
 tzlocal
 django-redis
-mysqlclient
+psycopg2

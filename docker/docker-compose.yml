@@ -1,0 +1,61 @@
+version: "2"
+
+services:
+  db:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile-postgres
+      args:
+        - PGDATA=${PGDATA}
+    volumes:
+      - ${HOST_PGDATA}:${PGDATA}
+      - sockets:/sockets
+    env_file:
+      - .env
+
+  redis:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile-redis
+    env_file:
+      - .env
+
+  uwsgi:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile-uwsgi
+      args:
+        - WWWUSER=${WWWUSER}
+        - WWWUSERID=${WWWUSERID}
+    volumes:
+      - sockets:/sockets
+      - $COLLECTIONPATH:/collection
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+
+  nginx:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile-nginx
+      args:
+        - WWWUSER=${WWWUSER}
+        - WWWUSERID=${WWWUSERID}
+    volumes:
+      - sockets:/sockets
+      - angular:/angular
+      - ember:/ember
+      - $COLLECTIONPATH:/collection
+    depends_on:
+      - uwsgi
+    env_file:
+      - .env
+    ports:
+      - 8080:80
+
+volumes:
+  sockets:
+  angular:
+  ember:
