@@ -6,8 +6,4 @@ homesite.sock
 
 static/
 
-mysite/gallery/locations.py
-mysite/tasks.sh
-
 .hg/
-mysite/sqlite.db
