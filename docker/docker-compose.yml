@@ -53,7 +53,7 @@ services:
     env_file:
       - .env
     ports:
-      - 8080:80
+      - ${UWSGIPORT}:80
 
 volumes:
   sockets:

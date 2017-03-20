@@ -49,4 +49,4 @@ RUN locale-gen pl_PL.UTF-8 && \
     dpkg-reconfigure --frontend=noninteractive locales
 
 CMD . /uwsgi/bin/activate && \
-    su-exec uwsgi --ini /uwsgi.ini --uid $WWWUSER --lock-engine ipcsem
+    exec uwsgi --ini /uwsgi.ini --uid $WWWUSER --lock-engine ipcsem

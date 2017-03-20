@@ -17,4 +17,4 @@ COPY docker/config/homesite_nginx.conf /etc/nginx/sites-enabled/homesite_nginx.c
 
 RUN rm /etc/nginx/sites-enabled/default
 
-CMD su-exec nginx
+CMD exec nginx
