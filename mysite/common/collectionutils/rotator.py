@@ -51,8 +51,8 @@ class Rotator:
     def perform_requested_rotations(cls):
         for rotated_image in Image.objects.filter(~Q(orientation='up')):
             image_phys_path = locations.collection_phys_path(rotated_image.path)
-
-            cls._rotate_by_jpegtran(image_phys_path, rotated_image)
+            if os.path.exists(image_phys_path):
+              cls._rotate_by_jpegtran(image_phys_path, rotated_image)
 
 
 
