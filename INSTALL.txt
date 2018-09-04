@@ -8,3 +8,6 @@ NEW docker-compose procedure:
 
 - build angular and ember-cli applications:
     docker-compose -f docker-compose.yml -f docker-compose.task.yml up build_angular build_ember
+
+- periodic thumbnails generator & indexer task:
+    docker-compose -f docker-compose.yml -f docker-compose.task.yml run --rm homesite_runner
