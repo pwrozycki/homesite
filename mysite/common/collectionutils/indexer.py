@@ -67,18 +67,21 @@ class Indexer:
             file_phys_path = os.path.join(root_phys_path, missing_file)
             file_mtime = get_mtime_datetime(file_phys_path)
 
+            file_object = None
             if is_jpeg(missing_file):
                 aspect_ratio = self.get_image_aspect_ratio(file_phys_path)
-                raw_filename = self._detect_rawfile(file_phys_path)
-                file_object = Image(name=missing_file, directory=root_object, modification_time=file_mtime,
-                                    aspect_ratio=aspect_ratio, raw_filename=raw_filename)
+                if aspect_ratio:
+                    raw_filename = self._detect_rawfile(file_phys_path)
+                    file_object = Image(name=missing_file, directory=root_object, modification_time=file_mtime,
+                                        aspect_ratio=aspect_ratio, raw_filename=raw_filename)
             elif is_video(missing_file):
                 file_object = Video(name=missing_file, directory=root_object, modification_time=file_mtime)
             else:
                 raise Exception("File should be either Image or Video" + missing_file)
 
-            file_object.save()
-            logger.info("adding file " + file_object.path)
+            if file_object:
+                file_object.save()
+                logger.info("adding file " + file_object.path)
 
     @classmethod
     def _detect_rawfile(cls, jpeg_file_phys_path):
@@ -103,13 +106,20 @@ class Indexer:
             logger.info("updating file mtime (and possibly: aspect_ratio): " + file_object.path)
             file_object.modification_time = mtime
             if is_jpeg(file_phys_path):
-                file_object.aspect_ratio = cls.get_image_aspect_ratio(file_phys_path)
+                ratio = cls.get_image_aspect_ratio(file_phys_path)
+                if ratio:
+                    file_object.aspect_ratio = ratio
             file_object.save()
 
     @classmethod
     def get_image_aspect_ratio(cls, file_phys_path):
         metadata = Metadata()
-        metadata.open_path(file_phys_path)
+        try:
+            metadata.open_path(file_phys_path)
+        except Exception as e:
+            logger.error("Exception raised when reading file metadata: " + e)
+            return None
+
         aspect_ratio = metadata.get_pixel_width() / metadata.get_pixel_height()
 
         # sideways rotation -> 90 or 270 degrees aspect ratio should be inverted
