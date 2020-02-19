@@ -93,7 +93,7 @@ class VideoGenerator(GeneratorBase):
     def generate_miniature(self, input_path, output_path):
         logger.info("creating video: {}".format(output_path))
 
-        transformation = ["-vf", self._rotation_arg(input_path), '-c:v', 'libx264', '-crf', '22',
+        transformation = ["-strict", "-2", "-vf", self._rotation_arg(input_path), '-c:v', 'libx264', '-crf', '22',
                           '-pix_fmt', 'yuv420p', '-y', '-threads', '4', '-metadata:s:v:0', 'rotate=0']
 
         self._call_ffmpeg(transformation, input_path, output_path)

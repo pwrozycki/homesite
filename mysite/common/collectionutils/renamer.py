@@ -69,7 +69,7 @@ class Renamer:
             return
 
         # try new names for group (by concatenating consecutive numbers)
-        for nextSuffix in range(1, 10):
+        for nextSuffix in range(1, 100):
             new_prefix = os.path.splitext(any_info.new_filename)[0]
 
 

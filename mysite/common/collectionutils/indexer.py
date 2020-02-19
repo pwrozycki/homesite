@@ -117,7 +117,7 @@ class Indexer:
         try:
             metadata.open_path(file_phys_path)
         except Exception as e:
-            logger.error("Exception raised when reading file metadata: " + e)
+            logger.error("Exception raised when reading file metadata: " + str(e))
             return None
 
         aspect_ratio = metadata.get_pixel_width() / metadata.get_pixel_height()
