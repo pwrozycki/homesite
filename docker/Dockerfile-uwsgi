@@ -1,4 +1,4 @@
-FROM armv7/armhf-ubuntu:xenial
+FROM ubuntu:bionic
 
 COPY docker/bin/qemu-arm-static /usr/bin/qemu-arm-static
 
@@ -22,7 +22,8 @@ RUN apt-get update && \
                        ffmpeg \
                        postgresql-client \
                        gcc \
-                       patch
+                       patch \
+                       locales
 
 RUN virtualenv --python /usr/bin/python3 /uwsgi
 
@@ -42,8 +43,8 @@ COPY docker/patch/rest_framework_ember_utils.patch /
 RUN mkdir /sockets && \
     chown $WWWUSER: -R /mysite /sockets
 
-RUN ln -s /usr/lib/python3/dist-packages/gi/ /uwsgi/lib/python3.5/ && \
-    patch /uwsgi/lib/python3.5/site-packages/rest_framework_ember/utils.py /rest_framework_ember_utils.patch
+RUN ln -s /usr/lib/python3/dist-packages/gi/ /uwsgi/lib/python3.6/ && \
+    patch /uwsgi/lib/python3.6/site-packages/rest_framework_ember/utils.py /rest_framework_ember_utils.patch
 
 RUN locale-gen pl_PL.UTF-8 && \
     dpkg-reconfigure --frontend=noninteractive locales

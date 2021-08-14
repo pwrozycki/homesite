@@ -1,4 +1,4 @@
-pymediainfo
+pymediainfo==2.0
 lxml
 beautifulsoup4
 Django==1.8
@@ -9,4 +9,4 @@ rest_framework_ember==1.2.0
 pytz
 tzlocal
 django-redis
-psycopg2
+psycopg2==2.8.6

@@ -7,7 +7,7 @@ import re
 from django.db.models import Q, Count
 
 from gi.repository.GExiv2 import Metadata
-from common.collectionutils.misc import localized_time, is_jpeg, is_video
+from common.collectionutils.misc import utc_to_defaulttz, is_jpeg, is_video
 from common.collectionutils.renamer import Renamer
 from common.collectionutils.renameutils import find_or_create_directory, get_mtime_datetime
 from gallery import locations
@@ -149,7 +149,7 @@ class Indexer:
         count = Image.objects \
             .filter(Q(directory__path__startswith='Trash/') | Q(directory__path__exact='Trash')) \
             .filter(trash_time__isnull=True) \
-            .update(trash_time=(localized_time(datetime.now())))
+            .update(trash_time=(utc_to_defaulttz(datetime.utcnow())))
 
         if count:
             logging.info("updated trash_time of {} trashed images.".format(count))

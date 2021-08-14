@@ -5,7 +5,7 @@ import glob
 
 from django.db.models import Q
 
-from common.collectionutils.misc import localized_time
+from common.collectionutils.misc import utc_to_defaulttz
 from gallery import locations
 from gallery.models import Image
 
@@ -17,7 +17,7 @@ class TrashCleaner(object):
     """
     @staticmethod
     def remove_old_trash_files():
-        month_ago = localized_time(datetime.now() - timedelta(days=30))
+        month_ago = utc_to_defaulttz(datetime.utcnow() - timedelta(days=30))
 
         # select images from trash that were moved month before or earlier
         old_images_in_trash = Image.objects \

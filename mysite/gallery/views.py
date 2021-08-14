@@ -20,7 +20,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from common.collectionutils.misc import localized_time
+from common.collectionutils.misc import utc_to_defaulttz
 from common.collectionutils.generators import MINIATURE_GENERATORS
 from gallery import locations
 from common.collectionutils.renameutils import move_without_overwriting, find_or_create_directory, get_mtime_datetime
@@ -140,7 +140,7 @@ class FileMoveAPIView(GenericAPIView):
             # otherwise unset trash_time
             move_to_trash = locations.web_path_in_trash(dst_file_web_path)
             if move_to_trash:
-                now = localized_time(datetime.now())
+                now = utc_to_defaulttz(datetime.utcnow())
                 trash_time = now
             else:
                 trash_time = None

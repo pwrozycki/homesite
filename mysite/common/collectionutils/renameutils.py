@@ -3,7 +3,7 @@ import logging
 import os
 
 
-from common.collectionutils.misc import localized_time
+from common.collectionutils.misc import utc_to_defaulttz
 from gallery import locations
 from gallery.models import Directory
 
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def get_mtime_datetime(path):
     mtime = datetime.datetime.fromtimestamp(os.path.getmtime(path))
     mtime_with_second_resolution = mtime.replace(microsecond=0)
-    return localized_time(mtime_with_second_resolution)
+    return utc_to_defaulttz(mtime_with_second_resolution)
 
 
 def move_without_overwriting(src, dst, create_destination_dir=False):

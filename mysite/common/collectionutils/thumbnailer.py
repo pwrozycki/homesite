@@ -6,8 +6,9 @@ import re
 import shutil
 from datetime import datetime
 
+from django.utils import timezone
+
 from common.collectionutils.generators import TIMESTAMP_FORMAT, TIMESTAMP_PATTERN, MINIATURE_GENERATORS
-from common.collectionutils.misc import localized_time
 from common.collectionutils.renameutils import get_mtime_datetime
 from gallery import locations
 from gallery.models import File
@@ -148,7 +149,7 @@ class Thumbnailer:
         if timestamp_match:
             timestamp_strig = timestamp_match.group(0)[1:]
             miniature_mtime = datetime.strptime(timestamp_strig, TIMESTAMP_FORMAT)
-            return localized_time(miniature_mtime)
+            return timezone.get_default_timezone().localize(miniature_mtime)
 
         return None
 
