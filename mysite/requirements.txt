@@ -1,7 +1,7 @@
 pymediainfo==2.0
 lxml
 beautifulsoup4
-Django==1.8
+Django==2.2.24
 djangorestframework==3.1.1
 django-typed-models==0.8.0
 django-filter==1.1.0
